@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using Microsoft.AspNetCore.Mvc;
+using ProdPlace.db;
 using ProdPlace.Models;
 
 namespace ProdPlace.Controllers;
@@ -13,8 +14,19 @@ public class HomeController : Controller
         _logger = logger;
     }
 
-    public IActionResult Index()
+    public IActionResult Index(
+        [FromServices] ProductsDbContext dbContext)
     {
+        var products = dbContext.Products;
+        foreach (var p in products)
+        {
+            Console.WriteLine(p.Id);
+            Console.WriteLine(p.Name);
+            Console.WriteLine(p.Description);
+            Console.WriteLine(p.Price);
+            Console.WriteLine(new string('=', 30));
+        }
+
         return View();
     }
 
