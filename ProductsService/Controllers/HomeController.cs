@@ -14,9 +14,9 @@ public class HomeController : Controller
         _logger = logger;
     }
 
-    public IActionResult Index(
-        [FromServices] ProductsDbContext dbContext)
+    public IActionResult Index()
     {
+        /*
         var products = dbContext.Products;
         foreach (var p in products)
         {
@@ -26,6 +26,7 @@ public class HomeController : Controller
             Console.WriteLine(p.Price);
             Console.WriteLine(new string('=', 30));
         }
+        */
 
         return View();
     }
