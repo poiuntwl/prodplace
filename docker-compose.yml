@@ -1,25 +1,6 @@
-﻿version: '3'
-services:
-  rabbitmq:
-    image: rabbitmq:3-management
-    ports:
-      - "5002:15672"
-      - "5003:5672"
-    hostname: rmq
-    container_name: rabbit-server
-  sql-server:
-    build: ./db
-    ports:
-      - "7000:1433"
-    hostname: sqlsrv
-    container_name: sql-server-container
-  products-service:
+﻿services:
+  productsservice:
+    image: productsservice
     build:
-      context: ./ProductsService/
-      dockerfile: ./Dockerfile
-    ports:
-      - "5001:8080"
-    container_name: products-service
-    links:
-      - rabbitmq:rmq
-      - sql-server:sqlsrv
+      context: .
+      dockerfile: ProductsService/Dockerfile
