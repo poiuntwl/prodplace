@@ -1,23 +1,29 @@
-﻿FROM mcr.microsoft.com/dotnet/aspnet:8.0 AS base
-USER $APP_UID
-WORKDIR /app
-EXPOSE 8080
-EXPOSE 8081
-
+﻿# Build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
-ARG BUILD_CONFIGURATION=Release
 WORKDIR /src
 COPY ["ProductsService/ProductsService.csproj", "ProductsService/"]
 RUN dotnet restore "ProductsService/ProductsService.csproj"
 COPY . .
 WORKDIR "/src/ProductsService"
-RUN dotnet build "ProductsService.csproj" -c $BUILD_CONFIGURATION -o /app/build
+RUN dotnet build "ProductsService.csproj" -c Release -o /app/build
 
+# Publish stage
 FROM build AS publish
-ARG BUILD_CONFIGURATION=Release
-RUN dotnet publish "ProductsService.csproj" -c $BUILD_CONFIGURATION -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "ProductsService.csproj" -c Release -o /app/publish /p:UseAppHost=false
 
-FROM base AS final
+# Final stage
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS final
 WORKDIR /app
 COPY --from=publish /app/publish .
-ENTRYPOINT ["dotnet", "ProductsService.dll"]
+COPY --from=build /src /src
+
+# Install EF Core tools
+RUN dotnet tool install --global dotnet-ef --version 8.0.6
+ENV PATH="$PATH:/root/.dotnet/tools"
+
+# Copy entrypoint script and ensure it uses LF line endings
+COPY ProductsService/entrypoint.sh /app/entrypoint.sh
+RUN sed -i 's/\r$//' /app/entrypoint.sh && \
+    chmod +x /app/entrypoint.sh
+
+ENTRYPOINT ["/bin/bash", "/app/entrypoint.sh"]

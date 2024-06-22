@@ -4,9 +4,14 @@
     build:
       context: .
       dockerfile: ProductsService/Dockerfile
-      target: migrations
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ConnectionStrings__DefaultConnection=Server=db;Database=ProductsDB;User Id=sa;Password=Password123@!;TrustServerCertificate=True;
+    ports:
+      - "8080:8080"
   db:
     image: mcr.microsoft.com/mssql/server:2022-latest
     environment:
@@ -14,3 +19,9 @@
       - SA_PASSWORD=Password123@!
     ports:
       - "1433:1433"
+    healthcheck:
+      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Password123@! -Q 'SELECT 1' || exit 1" ]
+      interval: 10s
+      retries: 10
+      start_period: 20s
+      timeout: 3s

@@ -42,7 +42,7 @@ namespace ProductsService.Migrations
                 SELECT @Product2Id = Id FROM Products WHERE Name = 'Smartphone';
                 SELECT @Product3Id = Id FROM Products WHERE Name = 'Headphones';
 
-                INSERT INTO Purchases (ProductId, CustomerId, Date)
+                INSERT INTO Purchases (ProductId, CustomerId, PurchaseTime)
                 VALUES 
                 (@Product1Id, @Customer1Id, GETDATE()),
                 (@Product2Id, @Customer2Id, GETDATE()),
