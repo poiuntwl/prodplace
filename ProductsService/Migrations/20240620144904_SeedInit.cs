@@ -42,13 +42,13 @@ namespace ProductsService.Migrations
                 SELECT @Product2Id = Id FROM Products WHERE Name = 'Smartphone';
                 SELECT @Product3Id = Id FROM Products WHERE Name = 'Headphones';
 
-                INSERT INTO Purchases (ProductId, CustomerId)
+                INSERT INTO Purchases (ProductId, CustomerId, Date)
                 VALUES 
-                (@Product1Id, @Customer1Id),
-                (@Product2Id, @Customer2Id),
-                (@Product3Id, @Customer3Id),
-                (@Product1Id, @Customer2Id),
-                (@Product2Id, @Customer3Id);
+                (@Product1Id, @Customer1Id, GETDATE()),
+                (@Product2Id, @Customer2Id, GETDATE()),
+                (@Product3Id, @Customer3Id, GETDATE()),
+                (@Product1Id, @Customer2Id, GETDATE()),
+                (@Product2Id, @Customer3Id, GETDATE());
             ");
         }
 

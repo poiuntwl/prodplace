@@ -4,3 +4,13 @@
     build:
       context: .
       dockerfile: ProductsService/Dockerfile
+      target: migrations
+    depends_on:
+      - db
+  db:
+    image: mcr.microsoft.com/mssql/server:2022-latest
+    environment:
+      - ACCEPT_EULA=Y
+      - SA_PASSWORD=Password123@!
+    ports:
+      - "1433:1433"
