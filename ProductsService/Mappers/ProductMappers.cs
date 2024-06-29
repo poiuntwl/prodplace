@@ -5,7 +5,7 @@ namespace ProductsService.Mappers;
 
 public static class ProductMappers
 {
-    public static ProductDto ToDto(this ProductModel model)
+    public static ProductDto? ToDto(this ProductModel model)
     {
         return new ProductDto
         {

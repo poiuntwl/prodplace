@@ -1,7 +1,9 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using ProductsService.Data;
 using ProductsService.Dtos.Product;
+using ProductsService.Interfaces;
 using ProductsService.Mappers;
+using ProductsService.Models;
 
 namespace ProductsService.Controllers;
 
@@ -10,10 +12,12 @@ namespace ProductsService.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly AppDbContext _dbContext;
+    private readonly IRabbitMQRpcClient _rabbitMqRpcClient;
 
-    public ProductsController(AppDbContext dbContext)
+    public ProductsController(AppDbContext dbContext, IRabbitMQRpcClient rabbitMqRpcClient)
     {
         _dbContext = dbContext;
+        _rabbitMqRpcClient = rabbitMqRpcClient;
     }
 
     [HttpGet]
@@ -26,15 +30,16 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
-    public IActionResult GetById(int id)
+    public async Task<IActionResult> GetById(int id)
     {
-        var product = _dbContext.Products.Find(id);
+        var product =
+            await _rabbitMqRpcClient.CallAsync<GetProductRequest, ProductDto>(new GetProductRequest { Id = id });
         if (product == null)
         {
             return NotFound();
         }
 
-        return Ok(product.ToDto());
+        return Ok(product);
     }
 
     [HttpPost]

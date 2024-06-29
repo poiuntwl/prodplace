@@ -9,6 +9,8 @@
         condition: service_healthy
       rbmq:
         condition: service_healthy
+    networks:
+      - products_service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ConnectionStrings__DefaultConnection=Server=db;Database=ProductsDB;User Id=sa;Password=Password123@!;TrustServerCertificate=True;
@@ -21,6 +23,8 @@
       - SA_PASSWORD=Password123@!
     ports:
       - "1435:1433"
+    networks:
+      - products_service
     healthcheck:
       test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Password123@! -Q 'SELECT 1' || exit 1" ]
       interval: 10s
@@ -38,6 +42,8 @@
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=password
+    networks:
+      - products_service
     healthcheck:
       test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity" ]
       interval: 30s
@@ -46,3 +52,8 @@
 
 volumes:
   rabbitmq_data:
+    driver: local
+
+networks:
+  products_service:
+    driver: bridge

@@ -1,5 +1,8 @@
 using Microsoft.EntityFrameworkCore;
 using ProductsService.Data;
+using ProductsService.Interfaces;
+using ProductsService.Repositories;
+using ProductsService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -10,6 +13,10 @@ s.AddControllers();
 s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();
 s.AddDbContext<AppDbContext>(o => { o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")); });
+s.AddSingleton<IRabbitMQRpcClient, RabbitMQRpcClient>();
+s.AddHostedService<ProductRpcConsumer>();
+s.AddScoped<IProductService, ProductService>();
+s.AddScoped<IProductRepository, ProductRepository>();
 
 var app = builder.Build();
 
