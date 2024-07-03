@@ -2,8 +2,8 @@
   productsservice:
     image: productsservice
     build:
-      context: .
-      dockerfile: ProductsService/Dockerfile
+      context: ./ProductsService
+      dockerfile: ./Dockerfile
     depends_on:
       db:
         condition: service_healthy
