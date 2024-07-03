@@ -9,6 +9,10 @@
         condition: service_healthy
       rbmq:
         condition: service_healthy
+      postgres:
+        condition: service_healthy
+      mongodb:
+        condition: service_healthy
     networks:
       - products_service
     environment:
@@ -49,9 +53,46 @@
       interval: 30s
       timeout: 10s
       retries: 5
+  postgres:
+    image: postgres:14
+    environment:
+      - POSTGRES_DB=productsdb
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=adminpassword
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    networks:
+      - products_service
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U admin -d productsdb"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+  mongodb:
+    image: mongo:5
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - products_service
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 10s
+      timeout: 10s
+      retries: 5
 
 volumes:
   rabbitmq_data:
+    driver: local
+  postgres_data:
+    driver: local
+  mongodb_data:
     driver: local
 
 networks:
