@@ -7,7 +7,7 @@ using RabbitMQ.Client.Events;
 
 namespace ProductsService.Services;
 
-public class RabbitMQRpcClient : IRabbitMQRpcClient, IDisposable
+public class RabbitMQRpcClient : IRabbitMqRpcClient, IDisposable
 {
     private readonly IConnection _connection;
     private readonly IModel _channel;

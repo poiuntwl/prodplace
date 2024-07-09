@@ -12,9 +12,9 @@ namespace ProductsService.Controllers;
 public class ProductsController : ControllerBase
 {
     private readonly AppDbContext _dbContext;
-    private readonly IRabbitMQRpcClient _rabbitMqRpcClient;
+    private readonly IRabbitMqRpcClient _rabbitMqRpcClient;
 
-    public ProductsController(AppDbContext dbContext, IRabbitMQRpcClient rabbitMqRpcClient)
+    public ProductsController(AppDbContext dbContext, IRabbitMqRpcClient rabbitMqRpcClient)
     {
         _dbContext = dbContext;
         _rabbitMqRpcClient = rabbitMqRpcClient;

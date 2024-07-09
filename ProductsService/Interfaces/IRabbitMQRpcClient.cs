@@ -1,6 +1,6 @@
 ﻿namespace ProductsService.Interfaces;
 
-public interface IRabbitMQRpcClient
+public interface IRabbitMqRpcClient
 {
     Task<TResponse?> CallAsync<TRequest, TResponse>(TRequest request, string? queueName = null);
 }

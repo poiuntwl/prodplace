@@ -13,7 +13,7 @@ s.AddControllers();
 s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();
 s.AddDbContext<AppDbContext>(o => { o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")); });
-s.AddSingleton<IRabbitMQRpcClient, RabbitMQRpcClient>();
+s.AddSingleton<IRabbitMqRpcClient, RabbitMQRpcClient>();
 s.AddHostedService<ProductRpcConsumer>();
 s.AddScoped<IProductService, ProductService>();
 s.AddScoped<IProductRepository, ProductRepository>();
