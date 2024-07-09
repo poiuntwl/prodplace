@@ -16,15 +16,4 @@ public static class ProductMappers
             CustomFields = model.CustomFields
         };
     }
-
-    public static ProductModel ToModel(this CreateProductRequestDto dto)
-    {
-        return new ProductModel
-        {
-            Name = dto.Name,
-            Description = dto.Description,
-            Price = dto.Price,
-            CustomFields = dto.CustomFields
-        };
-    }
 }

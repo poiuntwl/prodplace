@@ -7,24 +7,24 @@ using RabbitMQ.Client.Events;
 
 namespace ProductsService.Services;
 
-public class RabbitMQRpcClient : IRabbitMqRpcClient, IDisposable
+public class RabbitMqRpcClient : IRabbitMqRpcClient, IDisposable
 {
     private readonly IConnection _connection;
     private readonly IModel _channel;
     private readonly EventingBasicConsumer _consumer;
-    private readonly BlockingCollection<string> _respQueue = new();
+    private readonly ConcurrentDictionary<string, TaskCompletionSource<string>> _callbackMapper = new();
     private readonly IBasicProperties _props;
     private readonly string? _defaultQueueName;
 
-    public RabbitMQRpcClient(IConfiguration configuration)
+    public RabbitMqRpcClient(IAppConfigurationManager configuration)
     {
-        _defaultQueueName = configuration["RabbitMQ:DefaultQueueName"];
+        _defaultQueueName = configuration.RabbitMqDefaultQueueName;
         var factory = new ConnectionFactory
         {
-            HostName = configuration["RabbitMQ:HostName"],
-            UserName = configuration["RabbitMQ:UserName"],
-            Password = configuration["RabbitMQ:Password"],
-            Port = int.Parse(configuration["RabbitMQ:Port"]!),
+            HostName = configuration.RabbitMqHostName,
+            UserName = configuration.RabbitMqUserName,
+            Password = configuration.RabbitMqPassword,
+            Port = configuration.RabbitMqPort,
         };
 
         _connection = factory.CreateConnection();
@@ -34,41 +34,51 @@ public class RabbitMQRpcClient : IRabbitMqRpcClient, IDisposable
 
         _props = _channel.CreateBasicProperties();
         _props.Headers ??= new Dictionary<string, object>();
-        var correlationId = Guid.NewGuid().ToString();
-        _props.CorrelationId = correlationId;
-        _props.ReplyTo = replyQueueName;
 
-        _consumer.Received += (model, ea) =>
+        _consumer.Received += (_, ea) =>
         {
             var body = ea.Body.ToArray();
             var response = Encoding.UTF8.GetString(body);
-            if (ea.BasicProperties.CorrelationId == correlationId)
+            var correlationId = ea.BasicProperties.CorrelationId;
+            if (_callbackMapper.TryRemove(correlationId, out var tcs))
             {
-                _respQueue.Add(response);
+                tcs.TrySetResult(response);
             }
         };
-
-        _channel.BasicConsume(
-            consumer: _consumer,
-            queue: replyQueueName,
-            autoAck: true);
     }
 
-    public async Task<TResponse?> CallAsync<TRequest, TResponse>(TRequest request, string? queueName = null)
+    public async Task<TResponse?> CallAsync<TRequest, TResponse>(TRequest request, CancellationToken ct)
+        where TRequest : IQueueRequest<TResponse>
     {
-        queueName ??= _defaultQueueName;
+        var response = await SendRequestAsync(request);
+        return JsonSerializer.Deserialize<TResponse>(response);
+    }
+
+    public Task CallAsync<TRequest>(TRequest request, CancellationToken ct) where TRequest : IQueueRequest
+    {
+        throw new NotImplementedException();
+    }
+
+    private async Task<string> SendRequestAsync<TRequest>(TRequest request)
+    {
         var message = JsonSerializer.Serialize(request);
         var messageBytes = Encoding.UTF8.GetBytes(message);
 
+        var correlationId = Guid.NewGuid().ToString();
+        _props.CorrelationId = correlationId;
+
         _props.Headers["type"] = typeof(TRequest).ToString();
+
+        var tcs = new TaskCompletionSource<string>();
+        _callbackMapper[correlationId] = tcs;
+
         _channel.BasicPublish(
             exchange: "",
-            routingKey: queueName,
+            routingKey: _defaultQueueName,
             basicProperties: _props,
             body: messageBytes);
 
-        var response = _respQueue.Take();
-        return JsonSerializer.Deserialize<TResponse>(response);
+        return await tcs.Task;
     }
 
     public void Dispose()

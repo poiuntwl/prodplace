@@ -1,6 +1,7 @@
 import subprocess
 import sys
 
+
 def run_command(command):
     try:
         subprocess.run(command, check=True, shell=True)
@@ -8,6 +9,7 @@ def run_command(command):
         print(f"Error executing command: {command}")
         print(f"Error details: {e}")
         sys.exit(1)
+
 
 def main():
     print("Starting Docker Compose process...")
@@ -21,5 +23,7 @@ def main():
     print("Step 3: Creating and starting containers...")
     run_command("docker-compose up")
 
+
 if __name__ == "__main__":
     main()
+    exit()

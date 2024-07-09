@@ -12,17 +12,17 @@ public class ProductRpcConsumer : BackgroundService
     private readonly IConnection _connection;
     private readonly IModel _channel;
     private readonly IServiceScopeFactory _serviceScopeFactory;
-    private readonly string _defaultQueueName;
+    private readonly string? _defaultQueueName;
 
-    public ProductRpcConsumer(IConfiguration configuration, IServiceScopeFactory serviceScopeFactory)
+    public ProductRpcConsumer(IAppConfigurationManager configuration, IServiceScopeFactory serviceScopeFactory)
     {
-        _defaultQueueName = configuration["RabbitMQ:DefaultQueueName"]!;
+        _defaultQueueName = configuration.RabbitMqDefaultQueueName;
         var factory = new ConnectionFactory
         {
-            HostName = configuration["RabbitMQ:HostName"],
-            UserName = configuration["RabbitMQ:UserName"],
-            Password = configuration["RabbitMQ:Password"],
-            Port = configuration.GetValue<int>("RabbitMQ:Port")
+            HostName = configuration.RabbitMqHostName,
+            UserName = configuration.RabbitMqUserName,
+            Password = configuration.RabbitMqPassword,
+            Port = configuration.RabbitMqPort
         };
 
         _connection = factory.CreateConnection();
@@ -68,8 +68,9 @@ public class ProductRpcConsumer : BackgroundService
             }
             catch (Exception e)
             {
-                response = JsonSerializer.Serialize(new { error = e.Message });
+                Console.WriteLine(e.Message);
             }
+            /*
             finally
             {
                 var responseBytes = Encoding.UTF8.GetBytes(response ?? string.Empty);
@@ -77,6 +78,7 @@ public class ProductRpcConsumer : BackgroundService
                     body: responseBytes);
                 _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
             }
+        */
         };
 
         _channel.BasicConsume(queue: _defaultQueueName, autoAck: false, consumer: consumer);

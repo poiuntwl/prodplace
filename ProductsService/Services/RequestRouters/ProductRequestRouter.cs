@@ -3,6 +3,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using ProductsService.Interfaces;
 using ProductsService.Models;
+using ProductsService.Models.RabbitMQRequests;
 
 public class ProductProductRequestRouter : IProductRequestRouter
 {
@@ -17,8 +18,8 @@ public class ProductProductRequestRouter : IProductRequestRouter
     {
         return request switch
         {
-            GetProductRequest req => await _productService.GetProductAsync(req.Id, ct),
-            GetProductsRequest => await _productService.GetProductsAsync(ct),
+            GetProductQueueRequest req => await _productService.GetProductAsync(req.Id, ct),
+            GetProductsQueueRequest => await _productService.GetProductsAsync(ct),
             _ => throw new ArgumentException($"Unsupported request type: {request.GetType().Name}")
         };
     }

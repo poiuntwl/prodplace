@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using ProductsService.Data;
+using ProductsService.Helpers;
 using ProductsService.Interfaces;
 using ProductsService.Repositories;
 using ProductsService.Services;
@@ -12,13 +13,16 @@ var s = builder.Services;
 s.AddControllers();
 s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();
+s.AddSingleton<IAppConfigurationManager, AppConfigurationManager>();
 s.AddDbContext<AppDbContext>(o => { o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")); });
+s.AddSingleton<MongoDbContext>();
 
-s.AddSingleton<IRabbitMqRpcClient, RabbitMQRpcClient>();
+s.AddSingleton<IRabbitMqRpcClient, RabbitMqRpcClient>();
 s.AddHostedService<ProductRpcConsumer>();
 s.AddScoped<IProductService, ProductService>();
 s.AddScoped<IProductRepository, ProductRepository>();
 s.AddScoped<IProductRequestRouter, ProductProductRequestRouter>();
+
 
 var app = builder.Build();
 

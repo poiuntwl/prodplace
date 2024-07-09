@@ -52,14 +52,16 @@
       timeout: 10s
       retries: 5
   mongodb:
-    image: mongo:5
+    build:
+      context: ./mongo
+      dockerfile: ./Dockerfile
     environment:
       - MONGO_INITDB_ROOT_USERNAME=admin
       - MONGO_INITDB_ROOT_PASSWORD=adminpassword
     ports:
       - "27017:27017"
     volumes:
-      - mongodb_data:/data/db
+      - ./mongo/data:/data/db
     networks:
       - products_service
     healthcheck:
