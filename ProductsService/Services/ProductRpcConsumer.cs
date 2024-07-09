@@ -48,19 +48,23 @@ public class ProductRpcConsumer : BackgroundService
 
             try
             {
-                var message = Encoding.UTF8.GetString(body);
-                var request = JsonSerializer.Deserialize<GetProductRequest>(message);
-                if (request == null)
+                var typeHeader = GetHeaderValueAsString(props.Headers, "type");
+                if (string.IsNullOrWhiteSpace(typeHeader))
                 {
-                    return;
+                    throw new ArgumentException("Type header is missing or invalid", nameof(props));
                 }
 
-                // Create a new scope for each request
+                var requestType = Type.GetType(typeHeader)
+                                  ?? throw new ArgumentException($"Invalid type: {typeHeader}", nameof(props));
+
+                var message = Encoding.UTF8.GetString(body);
+                var request = JsonSerializer.Deserialize(message, requestType)
+                              ?? throw new JsonException("Deserialization resulted in null object");
+
                 using var scope = _serviceScopeFactory.CreateScope();
-                // Resolve IProductService within this scope
-                var productService = scope.ServiceProvider.GetRequiredService<IProductService>();
-                var product = await productService.GetProductAsync(request.Id, ct);
-                response = JsonSerializer.Serialize(product);
+                var router = scope.ServiceProvider.GetRequiredService<IProductRequestRouter>();
+                var responseData = await router.RouteRequestAsync(request, ct);
+                response = JsonSerializer.Serialize(responseData);
             }
             catch (Exception e)
             {
@@ -86,5 +90,29 @@ public class ProductRpcConsumer : BackgroundService
         _channel?.Close();
         _connection?.Close();
         base.Dispose();
+    }
+
+    public static string GetHeaderValueAsString(IDictionary<string, object> headers, string key)
+    {
+        if (headers.TryGetValue(key, out var value))
+        {
+            if (value is byte[] byteArray)
+            {
+                // Convert byte array to string
+                return Encoding.UTF8.GetString(byteArray);
+            }
+            else if (value is string strValue)
+            {
+                // Value is already a string
+                return strValue;
+            }
+            else
+            {
+                // For other types, convert to string representation
+                return value?.ToString() ?? string.Empty;
+            }
+        }
+
+        return string.Empty; // or throw an exception if the header must be present
     }
 }

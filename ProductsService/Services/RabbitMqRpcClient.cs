@@ -33,6 +33,7 @@ public class RabbitMQRpcClient : IRabbitMqRpcClient, IDisposable
         _consumer = new EventingBasicConsumer(_channel);
 
         _props = _channel.CreateBasicProperties();
+        _props.Headers ??= new Dictionary<string, object>();
         var correlationId = Guid.NewGuid().ToString();
         _props.CorrelationId = correlationId;
         _props.ReplyTo = replyQueueName;
@@ -59,6 +60,7 @@ public class RabbitMQRpcClient : IRabbitMqRpcClient, IDisposable
         var message = JsonSerializer.Serialize(request);
         var messageBytes = Encoding.UTF8.GetBytes(message);
 
+        _props.Headers["type"] = typeof(TRequest).ToString();
         _channel.BasicPublish(
             exchange: "",
             routingKey: queueName,

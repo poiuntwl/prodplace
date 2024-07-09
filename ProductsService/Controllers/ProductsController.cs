@@ -21,11 +21,10 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    public IActionResult GetAll()
+    public async Task<IActionResult> GetAll()
     {
-        var products = _dbContext.Products
-            .Select(x => x.ToDto())
-            .ToList();
+        var products =
+            await _rabbitMqRpcClient.CallAsync<GetProductsRequest, ICollection<ProductDto>>(new GetProductsRequest());
         return Ok(products);
     }
 

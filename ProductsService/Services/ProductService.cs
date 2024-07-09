@@ -19,4 +19,10 @@ public class ProductService : IProductService
         var product = await _productRepository.GetProduct(id, ct);
         return product?.ToDto();
     }
+
+    public async Task<ICollection<ProductDto?>> GetProductsAsync(CancellationToken ct)
+    {
+        var products = await _productRepository.GetProducts(ct);
+        return products.Select(x => x.ToDto()).ToList();
+    }
 }

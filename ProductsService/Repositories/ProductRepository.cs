@@ -1,4 +1,5 @@
-﻿using ProductsService.Data;
+﻿using Microsoft.EntityFrameworkCore;
+using ProductsService.Data;
 using ProductsService.Interfaces;
 using ProductsService.Models;
 
@@ -17,5 +18,11 @@ public class ProductRepository : IProductRepository
     {
         var product = await _dbContext.Products.FindAsync([id], cancellationToken: ct);
         return product;
+    }
+
+    public async Task<IEnumerable<ProductModel>> GetProducts(CancellationToken ct)
+    {
+        var products = await _dbContext.Products.ToListAsync(cancellationToken: ct);
+        return products;
     }
 }
