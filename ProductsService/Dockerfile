@@ -5,11 +5,11 @@ COPY ["./ProductsService.csproj", "ProductsService/"]
 RUN dotnet restore "ProductsService/ProductsService.csproj"
 WORKDIR "/src/ProductsService"
 COPY . .
-RUN dotnet build "ProductsService.csproj" -c Release -o /app/build
+RUN dotnet build "ProductsService.csproj" -c Debug -o /app/build
 
 # Publish stage
 FROM build AS publish
-RUN dotnet publish "ProductsService.csproj" -c Release -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "ProductsService.csproj" -c Debug -o /app/publish /p:UseAppHost=false
 
 # Final stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS final
