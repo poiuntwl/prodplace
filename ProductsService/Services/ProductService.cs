@@ -21,7 +21,7 @@ public class ProductService : IProductService
         return product?.ToDto();
     }
 
-    public async Task<ICollection<ProductDto?>> GetProductsAsync(CancellationToken ct)
+    public async Task<ICollection<ProductDto>> GetProductsAsync(CancellationToken ct)
     {
         var products = await _productRepository.GetProductsAsync(ct);
         return products.Select(x => x.ToDto()).ToList();
@@ -31,5 +31,12 @@ public class ProductService : IProductService
     {
         var productId = await _productRepository.CreateProductAsync(product, ct);
         return productId;
+    }
+
+    public async Task<(long Created, long Updated)> CreateOrUpdateProductsAsync(ICollection<ProductModel> products,
+        CancellationToken ct)
+    {
+        var result = await _productRepository.CreateOrUpdateProductsAsync(products, ct);
+        return result;
     }
 }

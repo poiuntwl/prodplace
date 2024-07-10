@@ -12,12 +12,11 @@ public class MongoDbContext : IDisposable
     {
         var c = new MongoClient(configuration.MongoDefaultConnectionString);
         var db = c.GetDatabase(configuration.MongoDatabaseName);
-        Products = db.GetCollection<ProductModel>("Products");
+        Products = db.GetCollection<ProductModel>("products");
     }
 
     public void Dispose()
     {
         GC.SuppressFinalize(this);
-        throw new NotImplementedException();
     }
 }

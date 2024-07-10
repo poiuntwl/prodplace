@@ -1,9 +1,6 @@
 # Use the official MongoDB image as the base image
 FROM mongo:latest
 
-# Set environment variables
-ENV MONGO_INITDB_DATABASE=mydb
-
 # Copy the initialization script
 COPY ./init.js /docker-entrypoint-initdb.d/
 

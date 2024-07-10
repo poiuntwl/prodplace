@@ -1,5 +1,6 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Driver;
 using ProductsService.Data;
 using ProductsService.Dtos.Product;
 using ProductsService.Interfaces;
@@ -10,12 +11,10 @@ namespace ProductsService.Controllers;
 [ApiController, Route("api/products")]
 public class ProductsController : ControllerBase
 {
-    private readonly AppDbContext _dbContext;
     private readonly IRabbitMqRpcClient _rabbitMqRpcClient;
 
-    public ProductsController(AppDbContext dbContext, IRabbitMqRpcClient rabbitMqRpcClient)
+    public ProductsController(IRabbitMqRpcClient rabbitMqRpcClient)
     {
-        _dbContext = dbContext;
         _rabbitMqRpcClient = rabbitMqRpcClient;
     }
 
@@ -68,12 +67,12 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost("upload"), Consumes("application/json")]
-    public async Task<IActionResult> UploadBulk()
+    public async Task<IActionResult> UploadBulk(CancellationToken ct)
     {
         try
         {
             using var reader = new StreamReader(Request.Body);
-            var jsonContent = await reader.ReadToEndAsync();
+            var jsonContent = await reader.ReadToEndAsync(ct);
 
             var records = JsonSerializer.Deserialize<ICollection<ProductDto>>(jsonContent);
             if (records == null || records.Count == 0)
@@ -81,17 +80,15 @@ public class ProductsController : ControllerBase
                 return BadRequest("No valid records found in the JSON file.");
             }
 
-            foreach (var r in records)
+            var result =
+                await _rabbitMqRpcClient.CallAsync<BulkCreateUpdateQueueRequest, BulkCreateUpdateQueueResponse>(
+                    new BulkCreateUpdateQueueRequest(records), ct);
+
+            return Ok(new
             {
-                Console.WriteLine(JsonSerializer.Serialize(r));
-            }
-
-            // var result = await _recordService.ProcessRecordsAsync(records);
-
-            // return Ok(new
-            // { message = $"Processed {result.Created} new records and updated {result.Updated} existing records." });
-
-            return Ok("Processed");
+                created = result?.Created ?? 0,
+                updated = result?.Updated ?? 0
+            });
         }
         catch (JsonException ex)
         {
@@ -102,5 +99,21 @@ public class ProductsController : ControllerBase
             // Log the exception
             return StatusCode(500, "An error occurred while processing the file.");
         }
+    }
+
+    [HttpGet("test")]
+    public async Task<IActionResult> Test([FromServices] MongoDbContext ctx, CancellationToken ct)
+    {
+        var r = await ctx.Products.Find(x => x.Id == 1).FirstOrDefaultAsync(cancellationToken: ct);
+        Console.WriteLine(JsonSerializer.Serialize(r));
+        /*
+        var r = await ctx.Products.AsQueryable().ToListAsync();
+        foreach (var i in r)
+        {
+            Console.WriteLine(JsonSerializer.Serialize(i));
+        }
+        */
+
+        return Ok();
     }
 }
