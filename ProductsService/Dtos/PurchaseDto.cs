@@ -1,4 +1,7 @@
-﻿namespace ProductsService.Models;
+﻿using ProductsService.Models.DatabaseModels;
+using ProductsService.Models.MongoDbModels;
+
+namespace ProductsService.Models;
 
 public class PurchaseDto
 {

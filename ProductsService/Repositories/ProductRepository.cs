@@ -1,9 +1,7 @@
-﻿using MongoDB.Bson;
-using MongoDB.Driver;
-using MongoDB.Driver.Linq;
+﻿using MongoDB.Driver;
 using ProductsService.Data;
 using ProductsService.Interfaces;
-using ProductsService.Models;
+using ProductsService.Models.MongoDbModels;
 
 namespace ProductsService.Repositories;
 
@@ -18,7 +16,7 @@ public class ProductRepository : IProductRepository
 
     public async Task<ProductModel?> GetProductAsync(int id, CancellationToken ct)
     {
-        var product = await _dbContext.Products.AsQueryable().FirstOrDefaultAsync(x => x.Id == id, ct);
+        var product = await _dbContext.Products.Find(x=>x.Id == id).FirstOrDefaultAsync(cancellationToken: ct);
         return product;
     }
 

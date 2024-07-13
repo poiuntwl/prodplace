@@ -1,5 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
-using ProductsService.Models;
+using ProductsService.Models.DatabaseModels;
+using ProductsService.Models.MongoDbModels;
 
 namespace ProductsService.Data;
 

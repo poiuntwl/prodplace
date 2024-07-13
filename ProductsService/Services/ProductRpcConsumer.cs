@@ -1,7 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
 using ProductsService.Interfaces;
-using ProductsService.Models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
 
@@ -48,6 +47,10 @@ public class ProductRpcConsumer : BackgroundService
 
             try
             {
+                if (props.Headers == null)
+                {
+                    throw new ArgumentNullException(nameof(props), "Headers cannot be null");
+                }
                 var typeHeader = GetHeaderValueAsString(props.Headers, "type");
                 if (string.IsNullOrWhiteSpace(typeHeader))
                 {
@@ -70,7 +73,6 @@ public class ProductRpcConsumer : BackgroundService
             {
                 Console.WriteLine(e.Message);
             }
-            /*
             finally
             {
                 var responseBytes = Encoding.UTF8.GetBytes(response ?? string.Empty);
@@ -78,7 +80,6 @@ public class ProductRpcConsumer : BackgroundService
                     body: responseBytes);
                 _channel.BasicAck(deliveryTag: ea.DeliveryTag, multiple: false);
             }
-        */
         };
 
         _channel.BasicConsume(queue: _defaultQueueName, autoAck: false, consumer: consumer);

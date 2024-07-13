@@ -1,5 +1,5 @@
 ﻿using ProductsService.Dtos.Product;
-using ProductsService.Models;
+using ProductsService.Models.MongoDbModels;
 
 namespace ProductsService.Interfaces;
 

@@ -1,8 +1,4 @@
-﻿using System;
-using System.Threading;
-using System.Threading.Tasks;
-using ProductsService.Interfaces;
-using ProductsService.Models;
+﻿using ProductsService.Interfaces;
 using ProductsService.Models.RabbitMQRequests;
 
 public class ProductProductRequestRouter : IProductRequestRouter

@@ -1,7 +1,5 @@
 ﻿using System.Text.Json;
 using Microsoft.AspNetCore.Mvc;
-using MongoDB.Driver;
-using ProductsService.Data;
 using ProductsService.Dtos.Product;
 using ProductsService.Interfaces;
 using ProductsService.Models.RabbitMQRequests;
@@ -99,21 +97,5 @@ public class ProductsController : ControllerBase
             // Log the exception
             return StatusCode(500, "An error occurred while processing the file.");
         }
-    }
-
-    [HttpGet("test")]
-    public async Task<IActionResult> Test([FromServices] MongoDbContext ctx, CancellationToken ct)
-    {
-        var r = await ctx.Products.Find(x => x.Id == 1).FirstOrDefaultAsync(cancellationToken: ct);
-        Console.WriteLine(JsonSerializer.Serialize(r));
-        /*
-        var r = await ctx.Products.AsQueryable().ToListAsync();
-        foreach (var i in r)
-        {
-            Console.WriteLine(JsonSerializer.Serialize(i));
-        }
-        */
-
-        return Ok();
     }
 }

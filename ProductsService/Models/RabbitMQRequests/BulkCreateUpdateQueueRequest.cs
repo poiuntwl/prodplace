@@ -1,6 +1,7 @@
 ﻿using ProductsService.Dtos.Product;
 using ProductsService.Interfaces;
 using ProductsService.Mappers;
+using ProductsService.Models.MongoDbModels;
 
 namespace ProductsService.Models.RabbitMQRequests;
 

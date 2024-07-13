@@ -1,8 +1,7 @@
-﻿using ProductsService.Data;
-using ProductsService.Dtos.Product;
+﻿using ProductsService.Dtos.Product;
 using ProductsService.Interfaces;
 using ProductsService.Mappers;
-using ProductsService.Models;
+using ProductsService.Models.MongoDbModels;
 
 namespace ProductsService.Services;
 
@@ -24,7 +23,7 @@ public class ProductService : IProductService
     public async Task<ICollection<ProductDto>> GetProductsAsync(CancellationToken ct)
     {
         var products = await _productRepository.GetProductsAsync(ct);
-        return products.Select(x => x.ToDto()).ToList();
+        return products.Select<ProductModel, ProductDto>(x => x.ToDto()).ToList();
     }
 
     public async Task<int> CreateProductAsync(ProductModel product, CancellationToken ct)

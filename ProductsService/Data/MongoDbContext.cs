@@ -1,6 +1,6 @@
 ﻿using MongoDB.Driver;
 using ProductsService.Interfaces;
-using ProductsService.Models;
+using ProductsService.Models.MongoDbModels;
 
 namespace ProductsService.Data;
 
