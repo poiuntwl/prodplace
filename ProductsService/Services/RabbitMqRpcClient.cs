@@ -34,17 +34,25 @@ public class RabbitMqRpcClient : IRabbitMqRpcClient, IDisposable
 
         _props = _channel.CreateBasicProperties();
         _props.Headers ??= new Dictionary<string, object>();
+        var correlationId = Guid.NewGuid().ToString();
+        _props.CorrelationId = correlationId;
+        _props.ReplyTo = replyQueueName;
 
         _consumer.Received += (_, ea) =>
         {
             var body = ea.Body.ToArray();
             var response = Encoding.UTF8.GetString(body);
-            var correlationId = ea.BasicProperties.CorrelationId;
-            if (_callbackMapper.TryRemove(correlationId, out var tcs))
+            var receivedCorrelationId = ea.BasicProperties.CorrelationId;
+            if (_callbackMapper.TryRemove(receivedCorrelationId, out var tcs))
             {
                 tcs.TrySetResult(response);
             }
         };
+
+        _channel.BasicConsume(
+            consumer: _consumer,
+            queue: replyQueueName,
+            autoAck: true);
     }
 
     public async Task<TResponse?> CallAsync<TRequest, TResponse>(TRequest request, CancellationToken ct)
