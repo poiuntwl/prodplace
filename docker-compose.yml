@@ -1,6 +1,6 @@
 ﻿services:
-  productsservice:
-    image: productsservice
+  products-service:
+    image: products-service
     build:
       context: ./ProductsService
       dockerfile: ./Dockerfile
@@ -15,20 +15,22 @@
       - products_service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
-      - ConnectionStrings__DefaultConnection=Server=db;Database=ProductsDB;User Id=sa;Password=Password123@!;TrustServerCertificate=True;
     ports:
       - "8080:8080"
   db:
-    image: mcr.microsoft.com/mssql/server:2022-latest
+    build:
+      context: ./db
+      dockerfile: ./Dockerfile
     environment:
       - ACCEPT_EULA=Y
-      - SA_PASSWORD=Password123@!
+      - MSSQL_SA_PASSWORD=Password123!!
+      - SA_PASSWORD=Password123!!
     ports:
       - "1435:1433"
     networks:
       - products_service
     healthcheck:
-      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Password123@! -Q 'SELECT 1' || exit 1" ]
+      test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Password123!! -Q 'SELECT 1' || exit 1" ]
       interval: 10s
       retries: 10
       start_period: 20s

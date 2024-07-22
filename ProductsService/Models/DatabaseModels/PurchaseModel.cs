@@ -11,4 +11,8 @@ public class PurchaseModel
     [Required] public ProductModel Product { get; set; }
     [ForeignKey("Customer")] public int CustomerId { get; set; }
     [Required] public CustomerModel Customer { get; set; }
+
+    [Column(TypeName = "datetime2(2)")]
+    [Required]
+    public DateTime PurchaseTime { get; set; }
 }

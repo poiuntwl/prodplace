@@ -31,5 +31,5 @@ def rebuild_and_restart(container_name):
     print(f"Container {container_name} has been rebuilt and restarted.")
 
 if __name__ == "__main__":
-    container_name = 'productsservice'
+    container_name = 'products-service'
     rebuild_and_restart(container_name)
