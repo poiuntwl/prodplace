@@ -1,22 +1,20 @@
 ﻿using MongoDB.Driver;
+using ProdPlaceDatabaseTools;
 using ProductsService.Interfaces;
 using ProductsService.Models.MongoDbModels;
 
 namespace ProductsService.Data;
 
-public class MongoDbContext : IDisposable
+public class MongoDbContext : MongoDbContextBase
 {
     public IMongoCollection<ProductModel> Products { get; set; }
 
-    public MongoDbContext(IAppConfigurationManager configuration)
+    public MongoDbContext(IAppConfigurationManager configuration) : base(new MongoDbContextConfiguration
     {
-        var c = new MongoClient(configuration.MongoDefaultConnectionString);
-        var db = c.GetDatabase(configuration.MongoDatabaseName);
-        Products = db.GetCollection<ProductModel>("products");
-    }
-
-    public void Dispose()
+        ConnectionString = configuration.MongoDefaultConnectionString ?? string.Empty,
+        DatabaseName = configuration.MongoDatabaseName ?? string.Empty
+    })
     {
-        GC.SuppressFinalize(this);
+        Products = MongoDatabase.GetCollection<ProductModel>("products");
     }
 }

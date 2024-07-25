@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using ProductsService.Dtos.Product;
 using ProductsService.Interfaces;
@@ -47,8 +48,8 @@ public class ProductsController : ControllerBase
         return CreatedAtAction(nameof(GetById), new { id = createdId });
     }
 
-    [HttpPut("id:int")]
-    public async Task<IActionResult> Update([FromQuery] int id, [FromBody] UpdateProductRequestDto dto,
+    [HttpPut("{id:int}")]
+    public async Task<IActionResult> Update(int id, [FromBody] UpdateProductRequestDto dto,
         CancellationToken ct)
     {
         var model =
@@ -98,4 +99,19 @@ public class ProductsController : ControllerBase
             return StatusCode(500, "An error occurred while processing the file.");
         }
     }
+
+    [HttpGet("mediator/{id:int}")]
+    public async Task<IActionResult> GetByMediator(
+        int id,
+        [FromServices] IMediator mediator,
+        CancellationToken ct)
+    {
+        var query = new GetExampleQuery(id);
+        var result = await mediator.Send(query);
+        return Ok(result);
+    }
+
+    public record GetExampleQuery(int Id) : IRequest<ExampleDto>;
+
+    public record ExampleDto(int Id, string Name);
 }

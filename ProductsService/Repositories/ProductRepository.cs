@@ -16,7 +16,7 @@ public class ProductRepository : IProductRepository
 
     public async Task<ProductModel?> GetProductAsync(int id, CancellationToken ct)
     {
-        var product = await _dbContext.Products.Find(x=>x.Id == id).FirstOrDefaultAsync(cancellationToken: ct);
+        var product = await _dbContext.Products.Find(x => x.Id == id).FirstOrDefaultAsync(cancellationToken: ct);
         return product;
     }
 

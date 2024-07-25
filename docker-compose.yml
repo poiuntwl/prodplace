@@ -2,8 +2,8 @@
   products-service:
     image: products-service
     build:
-      context: ./ProductsService
-      dockerfile: ./Dockerfile
+      context: .
+      dockerfile: ./ProductsService/Dockerfile
     depends_on:
       db:
         condition: service_healthy
@@ -11,12 +11,34 @@
         condition: service_healthy
       mongodb:
         condition: service_healthy
+    healthcheck:
+      test: [ "CMD-SHELL", "curl -f http://localhost:8080/health || exit 1" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+      start_period: 10s
     networks:
       - products_service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "8080:8080"
+  price-service:
+    image: price-service
+    build:
+      context: .
+      dockerfile: ./PriceService/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+      products-service:
+        condition: service_healthy
+    networks:
+      - products_service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "8081:8080"
   db:
     build:
       context: ./db
@@ -31,9 +53,9 @@
       - products_service
     healthcheck:
       test: [ "CMD-SHELL", "/opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P Password123!! -Q 'SELECT 1' || exit 1" ]
-      interval: 10s
-      retries: 10
-      start_period: 20s
+      interval: 5s
+      retries: 15
+      start_period: 10s
       timeout: 3s
   rbmq:
     image: rabbitmq:3-management
@@ -50,9 +72,9 @@
       - products_service
     healthcheck:
       test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity" ]
-      interval: 30s
+      interval: 5s
       timeout: 10s
-      retries: 5
+      retries: 10
   mongodb:
     build:
       context: ./mongo
@@ -68,9 +90,10 @@
       - products_service
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
-      interval: 10s
+      interval: 5s
       timeout: 10s
       retries: 5
+      start_period: 10s
 
 volumes:
   rabbitmq_data:

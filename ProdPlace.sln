@@ -13,6 +13,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductsService", "Products
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductsServiceTests", "ProductsServiceTests\ProductsServiceTests.csproj", "{0E569BEF-072E-4744-9C95-537B79922CA8}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceService", "PriceService\PriceService.csproj", "{7BEE4360-75B1-46C1-860A-AB9D526EA2DA}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProdPlaceDatabaseTools", "ProdPlaceDatabaseTools\ProdPlaceDatabaseTools.csproj", "{241DBD3C-A7ED-49B3-819A-B07D523FA402}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -27,5 +31,13 @@ Global
 		{0E569BEF-072E-4744-9C95-537B79922CA8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{0E569BEF-072E-4744-9C95-537B79922CA8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{0E569BEF-072E-4744-9C95-537B79922CA8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{7BEE4360-75B1-46C1-860A-AB9D526EA2DA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{7BEE4360-75B1-46C1-860A-AB9D526EA2DA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{7BEE4360-75B1-46C1-860A-AB9D526EA2DA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{7BEE4360-75B1-46C1-860A-AB9D526EA2DA}.Release|Any CPU.Build.0 = Release|Any CPU
+		{241DBD3C-A7ED-49B3-819A-B07D523FA402}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{241DBD3C-A7ED-49B3-819A-B07D523FA402}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{241DBD3C-A7ED-49B3-819A-B07D523FA402}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{241DBD3C-A7ED-49B3-819A-B07D523FA402}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

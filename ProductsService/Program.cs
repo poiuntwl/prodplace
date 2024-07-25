@@ -16,6 +16,7 @@ s.AddSwaggerGen();
 s.AddSingleton<IAppConfigurationManager, AppConfigurationManager>();
 s.AddDbContext<AppDbContext>(o => { o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")); });
 s.AddSingleton<MongoDbContext>();
+s.AddHealthChecks();
 
 s.AddSingleton<IRabbitMqRpcClient, RabbitMqRpcClient>();
 s.AddHostedService<ProductRpcConsumer>();
@@ -36,5 +37,6 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 
 app.MapControllers();
+app.MapHealthChecks("/api/health");
 
 app.Run();
