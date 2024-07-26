@@ -39,6 +39,20 @@
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "8081:8080"
+  currency-rates-service:
+    image: currency-rates-service
+    build:
+      context: .
+      dockerfile: ./CurrencyRatesService/Dockerfile
+    depends_on:
+      db:
+        condition: service_healthy
+      products-service:
+        condition: service_healthy
+    networks:
+      - products_service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
   db:
     build:
       context: ./db

@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceService", "PriceServic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProdPlaceDatabaseTools", "ProdPlaceDatabaseTools\ProdPlaceDatabaseTools.csproj", "{241DBD3C-A7ED-49B3-819A-B07D523FA402}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyRatesService", "CurrencyRatesService\CurrencyRatesService.csproj", "{047EFFF9-558E-4DA0-B525-80117F9A8868}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -39,5 +41,9 @@ Global
 		{241DBD3C-A7ED-49B3-819A-B07D523FA402}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{241DBD3C-A7ED-49B3-819A-B07D523FA402}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{241DBD3C-A7ED-49B3-819A-B07D523FA402}.Release|Any CPU.Build.0 = Release|Any CPU
+		{047EFFF9-558E-4DA0-B525-80117F9A8868}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{047EFFF9-558E-4DA0-B525-80117F9A8868}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{047EFFF9-558E-4DA0-B525-80117F9A8868}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{047EFFF9-558E-4DA0-B525-80117F9A8868}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
