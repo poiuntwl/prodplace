@@ -1,14 +1,16 @@
+using CurrencyRatesService.Interfaces;
+
 namespace CurrencyRatesService;
 
 public class Worker : BackgroundService
 {
     private readonly ILogger<Worker> _logger;
-    private readonly CurrencyApiHttpClient _httpClient;
+    private readonly ICurrencyRatesUpdater _currencyRatesUpdater;
 
-    public Worker(ILogger<Worker> logger, CurrencyApiHttpClient httpClient)
+    public Worker(ILogger<Worker> logger, ICurrencyRatesUpdater currencyRatesUpdater)
     {
         _logger = logger;
-        _httpClient = httpClient;
+        _currencyRatesUpdater = currencyRatesUpdater;
     }
 
     protected override async Task ExecuteAsync(CancellationToken ct)
@@ -20,7 +22,9 @@ public class Worker : BackgroundService
                 _logger.LogInformation("Worker running at: {Time}", DateTimeOffset.Now);
             }
 
-            await Task.Delay(5000, ct);
+            await _currencyRatesUpdater.UpdateAllCurrencyRates(ct);
+
+            await Task.Delay(TimeSpan.FromSeconds(60), ct);
         }
     }
 }

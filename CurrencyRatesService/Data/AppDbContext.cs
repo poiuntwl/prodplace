@@ -9,5 +9,5 @@ public class AppDbContext : DbContext
     {
     }
 
-    public DbSet<CurrencyExchangeRateModel> Customers { get; set; }
+    public DbSet<CurrencyExchangeRateModel> CurrencyExchangeRates { get; set; }
 }
