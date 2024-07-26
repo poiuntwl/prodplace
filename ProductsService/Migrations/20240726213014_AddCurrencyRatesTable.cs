@@ -18,7 +18,7 @@ namespace ProductsService.Migrations
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
                     CurrencyCode = table.Column<string>(type: "CHAR(3)", maxLength: 3, nullable: false),
-                    CurrencyName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: false),
+                    CurrencyName = table.Column<string>(type: "nvarchar(50)", maxLength: 50, nullable: true),
                     ExchangeRate = table.Column<decimal>(type: "DECIMAL(10, 4)", nullable: false),
                     LastUpdated = table.Column<DateTime>(type: "datetime2", nullable: false, defaultValueSql: "GETDATE()")
                 },
