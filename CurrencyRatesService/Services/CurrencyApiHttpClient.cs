@@ -2,7 +2,7 @@
 using CurrencyRatesService.Models;
 using Microsoft.Extensions.Options;
 
-namespace CurrencyRatesService;
+namespace CurrencyRatesService.Services;
 
 public class CurrencyApiHttpClient
 {

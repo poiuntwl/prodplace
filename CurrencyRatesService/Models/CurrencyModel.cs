@@ -10,16 +10,15 @@ public class CurrencyExchangeRateModel
     public int Id { get; set; }
 
     [Required]
-    [StringLength(3)]
-    [Column(TypeName = "CHAR(3)")]
+    [StringLength(12)]
+    [Column(TypeName = "CHAR(12)")]
     public string CurrencyCode { get; set; }
 
-    [Required] [StringLength(50)] public string CurrencyName { get; set; }
+    [StringLength(50)] public string? CurrencyName { get; set; }
 
     [Required]
-    [Column(TypeName = "DECIMAL(10, 4)")]
+    [Column(TypeName = "DECIMAL(20, 8)")]
     public decimal ExchangeRate { get; set; }
 
-    [DatabaseGenerated(DatabaseGeneratedOption.Computed)]
     public DateTime LastUpdated { get; set; }
 }

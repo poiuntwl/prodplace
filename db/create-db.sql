@@ -1,6 +1,6 @@
 ﻿CREATE
-    DATABASE ProductsDB
+DATABASE ProductsDB
 GO
 
-USE ProdPlace;
+USE ProductsDB;
 GO

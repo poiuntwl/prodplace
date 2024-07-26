@@ -18,6 +18,7 @@ RUN dotnet publish "${PROJECT_NAME}.csproj" -c Debug -o /app/publish /p:UseAppHo
 
 # Final stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS final
+ARG PROJECT_NAME
 WORKDIR /app
 COPY --from=publish /app/publish .
 COPY --from=build /src /src
@@ -27,7 +28,7 @@ RUN dotnet tool install --global dotnet-ef --version 8.0.6
 ENV PATH="$PATH:/root/.dotnet/tools"
 
 # Copy entrypoint script and ensure it uses LF line endings
-COPY ./entrypoint.sh /app/entrypoint.sh
+COPY ./${PROJECT_NAME}/entrypoint.sh /app/entrypoint.sh
 RUN sed -i 's/\r$//' /app/entrypoint.sh && \
     chmod +x /app/entrypoint.sh
 
