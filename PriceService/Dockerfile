@@ -1,17 +1,19 @@
-﻿# Build stage
+﻿ARG PROJECT_NAME=PriceService
+
+# Build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
 WORKDIR /src
-COPY ["./PriceService/PriceService.csproj", "PriceService/"]
+COPY ["./${PROJECT_NAME}/${PROJECT_NAME}.csproj", "${PROJECT_NAME}/"]
 COPY ["./ProdPlaceDatabaseTools/ProdPlaceDatabaseTools.csproj", "ProdPlaceDatabaseTools/"]
-RUN dotnet restore "PriceService/PriceService.csproj"
+RUN dotnet restore "${PROJECT_NAME}/${PROJECT_NAME}.csproj"
 COPY ./ProdPlaceDatabaseTools ./ProdPlaceDatabaseTools
-WORKDIR "/src/PriceService"
-COPY ./PriceService .
-RUN dotnet build "PriceService.csproj" -c Debug -o /app/build
+WORKDIR "/src/${PROJECT_NAME}"
+COPY ./${PROJECT_NAME} .
+RUN dotnet build "${PROJECT_NAME}.csproj" -c Debug -o /app/build
 
 # Publish stage
 FROM build AS publish
-RUN dotnet publish "PriceService.csproj" -c Debug -o /app/publish /p:UseAppHost=false
+RUN dotnet publish "${PROJECT_NAME}.csproj" -c Debug -o /app/publish /p:UseAppHost=false
 
 # Final stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS final
