@@ -1,4 +1,4 @@
-﻿namespace CurrencyRatesService;
+﻿namespace CurrencyRatesService.Models;
 
 public enum CurrencyType
 {

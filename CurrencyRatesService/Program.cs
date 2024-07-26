@@ -1,4 +1,5 @@
 using CurrencyRatesService;
+using CurrencyRatesService.Models;
 
 var builder = Host.CreateApplicationBuilder(args);
 var s = builder.Services;

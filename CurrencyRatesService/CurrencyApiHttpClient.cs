@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using CurrencyRatesService.Models;
 using Microsoft.Extensions.Options;
 
 namespace CurrencyRatesService;

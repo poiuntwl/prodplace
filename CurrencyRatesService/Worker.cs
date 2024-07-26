@@ -20,8 +20,6 @@ public class Worker : BackgroundService
                 _logger.LogInformation("Worker running at: {Time}", DateTimeOffset.Now);
             }
 
-            var r = await _httpClient.GetAllUsdCurrencyRatesAsync(ct);
-
             await Task.Delay(5000, ct);
         }
     }
