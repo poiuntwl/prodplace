@@ -18,7 +18,7 @@
       retries: 10
       start_period: 10s
     networks:
-      - products_service
+      - products-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
@@ -30,7 +30,7 @@
       context: .
       dockerfile: ./PriceService/Dockerfile
     networks:
-      - products_service
+      - products-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
@@ -45,7 +45,7 @@
       currencies-db:
         condition: service_healthy
     networks:
-      - products_service
+      - products-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
@@ -62,7 +62,9 @@
     ports:
       - "1435:1433"
     networks:
-      - products_service
+      - products-service
+    volumes:
+      - products-db-data:/var/opt/mssql
     healthcheck:
       test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "IF DB_ID('ProductsDB') IS NOT NULL SELECT 1 ELSE SELECT 0" || exit 1
       interval: 5s
@@ -81,7 +83,9 @@
     ports:
       - "1436:1433"
     networks:
-      - products_service
+      - products-service
+    volumes:
+      - currencies-db-data:/var/opt/mssql
     healthcheck:
       test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "IF DB_ID('HangfireDB') IS NOT NULL and DB_ID('HangfireDB') IS NOT NULL SELECT 1 ELSE SELECT 0" || exit 1
       interval: 5s
@@ -96,12 +100,12 @@
       - "5672:5672"
       - "15672:15672"
     volumes:
-      - rabbitmq_data:/var/lib/rabbitmq
+      - rabbitmq-data:/var/lib/rabbitmq
     environment:
       - RABBITMQ_DEFAULT_USER=admin
       - RABBITMQ_DEFAULT_PASS=password
     networks:
-      - products_service
+      - products-service
     healthcheck:
       test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity" ]
       interval: 5s
@@ -118,9 +122,9 @@
     ports:
       - "27017:27017"
     volumes:
-      - ./mongo/data:/data/db
+      - mongodb-data:/data/db
     networks:
-      - products_service
+      - products-service
     healthcheck:
       test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
       interval: 5s
@@ -130,12 +134,16 @@
 
 
 volumes:
-  rabbitmq_data:
+  rabbitmq-data:
     driver: local
-  mongodb_data:
+  mongodb-data:
+    driver: local
+  products-db-data:
+    driver: local
+  currencies-db-data:
     driver: local
 
 
 networks:
-  products_service:
+  products-service:
     driver: bridge

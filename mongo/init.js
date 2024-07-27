@@ -1,3 +1,4 @@
+/*
 db = db.getSiblingDB('prodPlace');
 
 // Create a collection
@@ -28,7 +29,6 @@ db.products.insertMany([
     }
   ]);
 
-use prodPlace
 db.createUser(
     {
         user: "admin",
@@ -39,3 +39,4 @@ db.createUser(
 
 
 print("Database initialized with seed data.");
+*/
