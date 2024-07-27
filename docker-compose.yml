@@ -29,11 +29,6 @@
     build:
       context: .
       dockerfile: ./PriceService/Dockerfile
-    depends_on:
-      products-db:
-        condition: service_healthy
-      products-service:
-        condition: service_healthy
     networks:
       - products_service
     environment:
@@ -47,9 +42,7 @@
       context: .
       dockerfile: ./CurrencyRatesService/Dockerfile
     depends_on:
-      products-db:
-        condition: service_healthy
-      products-service:
+      currencies-db:
         condition: service_healthy
     networks:
       - products_service
