@@ -23,6 +23,7 @@
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "8080:8080"
+
   price-service:
     image: price-service
     build:
@@ -39,6 +40,7 @@
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "8081:8080"
+
   currency-rates-service:
     image: currency-rates-service
     build:
@@ -55,6 +57,7 @@
       - ASPNETCORE_ENVIRONMENT=Development
     ports:
       - "8082:8080"
+
   db:
     build:
       context: ./db
@@ -73,6 +76,7 @@
       retries: 15
       start_period: 10s
       timeout: 3s
+
   rbmq:
     image: rabbitmq:3-management
     container_name: prodplace-rabbitmq
@@ -91,6 +95,7 @@
       interval: 5s
       timeout: 10s
       retries: 10
+
   mongodb:
     build:
       context: ./mongo
@@ -111,11 +116,13 @@
       retries: 5
       start_period: 10s
 
+
 volumes:
   rabbitmq_data:
     driver: local
   mongodb_data:
     driver: local
+
 
 networks:
   products_service:
