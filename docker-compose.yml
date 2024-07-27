@@ -43,7 +43,7 @@
     image: currency-rates-service
     build:
       context: .
-      dockerfile: ./CurrencyRatesServiceOld/Dockerfile
+      dockerfile: ./CurrencyRatesService/Dockerfile
     depends_on:
       db:
         condition: service_healthy
@@ -53,6 +53,8 @@
       - products_service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+    ports:
+      - "8082:8080"
   db:
     build:
       context: ./db

@@ -1,7 +1,18 @@
+using CurrencyRatesService;
+using Hangfire;
+
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
-builder.Services.AddControllersWithViews();
+var s = builder.Services;
+s.AddControllersWithViews();
+s.AddHangfire(x => x
+    .SetDataCompatibilityLevel(CompatibilityLevel.Version_180)
+    .UseSimpleAssemblyNameTypeSerializer()
+    .UseRecommendedSerializerSettings()
+    .UseSqlServerStorage(builder.Configuration.GetConnectionString("HangfireConnection")));
+
+s.AddHangfireServer();
 
 var app = builder.Build();
 
@@ -20,8 +31,11 @@ app.UseRouting();
 
 app.UseAuthorization();
 
-app.MapControllerRoute(
-    name: "default",
-    pattern: "{controller=Home}/{action=Index}/{id?}");
+app.UseHangfireDashboard();
+
+app.MapControllers();
+app.MapHangfireDashboard();
+
+RecurringJob.AddOrUpdate("myRecurringJob", () => new MyJobs().DoSomething(), "* * * * * *");
 
 app.Run();
