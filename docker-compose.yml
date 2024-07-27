@@ -60,7 +60,7 @@
 
   db:
     build:
-      context: ./db
+      context: ./dbs/products
       dockerfile: ./Dockerfile
     environment:
       - ACCEPT_EULA=Y
@@ -68,6 +68,25 @@
       - SA_PASSWORD=Password123!!
     ports:
       - "1435:1433"
+    networks:
+      - products_service
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "IF DB_ID('ProductsDB') IS NOT NULL and DB_ID('HangfireDB') IS NOT NULL SELECT 1 ELSE SELECT 0" || exit 1
+      interval: 5s
+      retries: 15
+      start_period: 10s
+      timeout: 3s
+
+  currency-db:
+    build:
+      context: ./dbs/currencies
+      dockerfile: ./Dockerfile
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Password123!!
+      - SA_PASSWORD=Password123!!
+    ports:
+      - "1436:1433"
     networks:
       - products_service
     healthcheck:
