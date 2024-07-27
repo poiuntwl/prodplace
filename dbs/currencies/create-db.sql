@@ -1,5 +1,5 @@
 ﻿CREATE
-DATABASE ProductsDB
+DATABASE CurrenciesDB
 GO
 
 CREATE

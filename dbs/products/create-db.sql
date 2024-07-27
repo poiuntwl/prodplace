@@ -1,7 +1,3 @@
 ﻿CREATE
 DATABASE ProductsDB
 GO
-
-CREATE
-DATABASE HangfireDB
-GO
