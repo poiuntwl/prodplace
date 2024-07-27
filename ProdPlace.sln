@@ -15,7 +15,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductsServiceTests", "Pro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceService", "PriceService\PriceService.csproj", "{7BEE4360-75B1-46C1-860A-AB9D526EA2DA}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProdPlaceDatabaseTools", "ProdPlaceDatabaseTools\ProdPlaceDatabaseTools.csproj", "{241DBD3C-A7ED-49B3-819A-B07D523FA402}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProdPlaceMongoDatabaseTools", "ProdPlaceMongoDatabaseTools\ProdPlaceMongoDatabaseTools.csproj", "{241DBD3C-A7ED-49B3-819A-B07D523FA402}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyRatesServiceOld", "CurrencyRatesServiceOld\CurrencyRatesServiceOld.csproj", "{047EFFF9-558E-4DA0-B525-80117F9A8868}"
 EndProject

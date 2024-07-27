@@ -21,7 +21,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\ProdPlaceDatabaseTools\ProdPlaceDatabaseTools.csproj" />
+      <ProjectReference Include="..\ProdPlaceMongoDatabaseTools\ProdPlaceMongoDatabaseTools.csproj" />
     </ItemGroup>
 
 </Project>
