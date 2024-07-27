@@ -7,7 +7,7 @@ namespace CurrencyRatesService.Services;
 public class CurrencyApiHttpClient
 {
     private readonly HttpClient _httpClient;
-    private IOptions<CurrencyApiClientOptions> _options;
+    private readonly IOptions<CurrencyApiClientOptions> _options;
 
     public CurrencyApiHttpClient(HttpClient httpClient, IOptions<CurrencyApiClientOptions> options)
     {
