@@ -17,7 +17,7 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PriceService", "PriceServic
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProdPlaceDatabaseTools", "ProdPlaceDatabaseTools\ProdPlaceDatabaseTools.csproj", "{241DBD3C-A7ED-49B3-819A-B07D523FA402}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyRatesService", "CurrencyRatesService\CurrencyRatesService.csproj", "{047EFFF9-558E-4DA0-B525-80117F9A8868}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyRatesServiceOld", "CurrencyRatesServiceOld\CurrencyRatesServiceOld.csproj", "{047EFFF9-558E-4DA0-B525-80117F9A8868}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
