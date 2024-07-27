@@ -1,5 +1,5 @@
 ﻿using MongoDB.Driver;
-using ProdPlaceDatabaseTools;
+using ProdPlaceMongoDatabaseTools;
 using ProductsService.Interfaces;
 using ProductsService.Models.MongoDbModels;
 

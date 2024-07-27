@@ -1,8 +1,7 @@
-using MediatR;
 using PriceService.Db;
 using PriceService.Interfaces;
 using PriceService.Repositories;
-using ProdPlaceDatabaseTools;
+using ProdPlaceMongoDatabaseTools;
 
 var builder = WebApplication.CreateBuilder(args);
 

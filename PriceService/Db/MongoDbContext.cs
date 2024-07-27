@@ -1,6 +1,6 @@
 ﻿using MongoDB.Driver;
 using PriceService.Models;
-using ProdPlaceDatabaseTools;
+using ProdPlaceMongoDatabaseTools;
 
 namespace PriceService.Db;
 

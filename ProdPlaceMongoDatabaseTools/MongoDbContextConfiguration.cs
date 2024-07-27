@@ -1,4 +1,4 @@
-﻿namespace ProdPlaceDatabaseTools;
+﻿namespace ProdPlaceMongoDatabaseTools;
 
 public class MongoDbContextConfiguration
 {
