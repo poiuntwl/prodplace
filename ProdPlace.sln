@@ -7,6 +7,11 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "Solution Items", "Solution 
 		run command.txt = run command.txt
 		start.py = start.py
 		restart-products-service.py = restart-products-service.py
+		db\create-db.sql = db\create-db.sql
+		db\Dockerfile = db\Dockerfile
+		db\entrypoint.sh = db\entrypoint.sh
+		db\healthcheck.sh = db\healthcheck.sh
+		db\run-init.sh = db\run-init.sh
 	EndProjectSection
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProductsService", "ProductsService\ProductsService.csproj", "{5AA5BFF8-61D1-4919-B8EA-8FA6C644B804}"

@@ -2,5 +2,6 @@
 DATABASE ProductsDB
 GO
 
-USE ProductsDB;
+CREATE
+DATABASE HangfireDB
 GO
