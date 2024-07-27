@@ -20,35 +20,20 @@ namespace ProductsService.Migrations
                     { "Mike", "Johnson", "https://example.com/mike.jpg", new DateTime(1988, 11, 30) }
                 });
 
-            migrationBuilder.InsertData(
-                table: "Products",
-                columns: new[] { "Name", "Description", "Price", "CustomFields" },
-                values: new object[,]
-                {
-                    { "Laptop", "High-performance laptop", 999.99m, "{\"color\": \"silver\", \"RAM\": \"16GB\"}" },
-                    { "Smartphone", "Latest model smartphone", 699.99m, "{\"color\": \"black\", \"storage\": \"128GB\"}" },
-                    { "Headphones", "Noise-cancelling headphones", 249.99m, "{\"color\": \"white\", \"type\": \"over-ear\"}" }
-                });
-
             migrationBuilder.Sql(@"
                 DECLARE @Customer1Id INT, @Customer2Id INT, @Customer3Id INT;
-                DECLARE @Product1Id INT, @Product2Id INT, @Product3Id INT;
 
                 SELECT @Customer1Id = Id FROM Customers WHERE FirstName = 'John' AND LastName = 'Doe';
                 SELECT @Customer2Id = Id FROM Customers WHERE FirstName = 'Jane' AND LastName = 'Smith';
                 SELECT @Customer3Id = Id FROM Customers WHERE FirstName = 'Mike' AND LastName = 'Johnson';
 
-                SELECT @Product1Id = Id FROM Products WHERE Name = 'Laptop';
-                SELECT @Product2Id = Id FROM Products WHERE Name = 'Smartphone';
-                SELECT @Product3Id = Id FROM Products WHERE Name = 'Headphones';
-
-                INSERT INTO Purchases (ProductId, CustomerId, PurchaseTime)
+                INSERT INTO Orders (ProductId, CustomerId, OrderedAt)
                 VALUES 
-                (@Product1Id, @Customer1Id, GETDATE()),
-                (@Product2Id, @Customer2Id, GETDATE()),
-                (@Product3Id, @Customer3Id, GETDATE()),
-                (@Product1Id, @Customer2Id, GETDATE()),
-                (@Product2Id, @Customer3Id, GETDATE());
+                (1, @Customer1Id, GETDATE()),
+                (2, @Customer2Id, GETDATE()),
+                (3, @Customer3Id, GETDATE()),
+                (1, @Customer2Id, GETDATE()),
+                (2, @Customer3Id, GETDATE());
             ");
         }
 
@@ -56,14 +41,9 @@ namespace ProductsService.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DeleteData(
-                table: "Purchases",
+                table: "Orders",
                 keyColumn: "Id",
                 keyValues: new object[] { 1, 2, 3, 4, 5 });
-
-            migrationBuilder.DeleteData(
-                table: "Products",
-                keyColumn: "Name",
-                keyValues: new object[] { "Laptop", "Smartphone", "Headphones" });
 
             migrationBuilder.DeleteData(
                 table: "Customers",

@@ -62,8 +62,12 @@ public class PricesRepository : IPricesRepository
                 updateOptions,
                 ct);
 
-            return updateResult.IsAcknowledged
-                   && (updateResult.ModifiedCount > 0 || (createIfNotExists && updateResult.UpsertedId != null));
+            if (updateResult.ModifiedCount != 0)
+            {
+                return true;
+            }
+
+            return updateResult is { IsAcknowledged: true, MatchedCount: > 0 };
         }
         catch (MongoException e)
         {
