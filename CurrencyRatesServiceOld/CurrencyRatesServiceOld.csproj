@@ -6,6 +6,7 @@
         <ImplicitUsings>enable</ImplicitUsings>
         <UserSecretsId>dotnet-CurrencyRatesService-433F708A-24A8-4F83-8547-0C2ACAA9027D</UserSecretsId>
         <DockerDefaultTargetOS>Linux</DockerDefaultTargetOS>
+        <RootNamespace>CurrencyRatesService</RootNamespace>
     </PropertyGroup>
 
     <ItemGroup>

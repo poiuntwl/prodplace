@@ -1,4 +1,4 @@
-﻿ARG PROJECT_NAME=CurrencyRatesService
+﻿ARG PROJECT_NAME=CurrencyRatesServiceOld
 
 # Build stage
 FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build

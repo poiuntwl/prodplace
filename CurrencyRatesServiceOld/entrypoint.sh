@@ -8,4 +8,4 @@ cd /app
 
 # Run the application
 echo "Starting the application..."
-exec dotnet CurrencyRatesService.dll
+exec dotnet CurrencyRatesServiceOld.dll

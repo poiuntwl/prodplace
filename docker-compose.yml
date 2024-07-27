@@ -43,7 +43,7 @@
     image: currency-rates-service
     build:
       context: .
-      dockerfile: ./CurrencyRatesService/Dockerfile
+      dockerfile: ./CurrencyRatesServiceOld/Dockerfile
     depends_on:
       db:
         condition: service_healthy
