@@ -6,5 +6,5 @@ public class ProductDto
     public string Name { get; set; } = string.Empty;
     public string Description { get; set; } = string.Empty;
     public decimal Price { get; set; }
-    public string CustomFields { get; set; } = string.Empty;
+    public IDictionary<string, string> CustomFields { get; set; } = new Dictionary<string, string>();
 }

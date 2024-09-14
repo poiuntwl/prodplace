@@ -13,17 +13,11 @@ var s = builder.Services;
 s.AddControllers();
 s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();
-s.AddSingleton<IAppConfigurationManager, AppConfigurationManager>();
-s.AddDbContext<AppDbContext>(o => { o.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")); });
-s.AddSingleton<MongoDbContext>();
+s.AddDbServices(builder);
 s.AddHealthChecks();
 
 s.AddSingleton<IRabbitMqRpcClient, RabbitMqRpcClient>();
-s.AddHostedService<ProductRpcConsumer>();
-s.AddScoped<IProductService, ProductService>();
-s.AddScoped<IProductRepository, ProductRepository>();
-s.AddScoped<IProductRequestRouter, ProductProductRequestRouter>();
-
+s.AddProductServices();
 
 var app = builder.Build();
 
