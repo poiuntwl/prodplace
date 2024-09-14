@@ -60,7 +60,7 @@
       - MSSQL_SA_PASSWORD=Password123!!
       - SA_PASSWORD=Password123!!
     ports:
-      - "1435:1433"
+      - "5400:1433"
     networks:
       - products-service
     volumes:
@@ -81,7 +81,7 @@
       - MSSQL_SA_PASSWORD=Password123!!
       - SA_PASSWORD=Password123!!
     ports:
-      - "1436:1433"
+      - "5401:1433"
     networks:
       - products-service
     volumes:
