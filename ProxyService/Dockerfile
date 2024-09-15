@@ -28,4 +28,4 @@ COPY ./${PROJECT_NAME}/entrypoint.sh /app/entrypoint.sh
 RUN sed -i 's/\r$//' /app/entrypoint.sh && \
     chmod +x /app/entrypoint.sh
 
-ENTRYPOINT ["/bin/bash", "-c", "/app/entrypoint.sh ${PROJECT_NAME}"]
+ENTRYPOINT ["/bin/bash", "-c", "/app/entrypoint.sh $PROJECT_NAME"]

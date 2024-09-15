@@ -23,4 +23,4 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 COPY --from=build /src /src
 
-ENTRYPOINT ["/bin/bash", "-c", "/app/entrypoint.sh ${PROJECT_NAME}"]
+ENTRYPOINT ["/bin/bash", "-c", "/app/entrypoint.sh $PROJECT_NAME"]

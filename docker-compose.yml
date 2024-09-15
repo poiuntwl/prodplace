@@ -8,6 +8,7 @@
       - products-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - PROJECT_NAME=ProxyService
     ports:
       - "8080:8080"
 
@@ -33,6 +34,7 @@
       - products-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - PROJECT_NAME=ProductsService
     expose:
       - "8080"
 
@@ -45,6 +47,7 @@
       - products-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - PROJECT_NAME=PriceService
 
   currency-rates-service:
     image: currency-rates-service
@@ -60,6 +63,7 @@
       - products-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - PROJECT_NAME=CurrencyRatesService
 
   playground-service:
     image: playground-service
@@ -73,6 +77,7 @@
       - products-service
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
+      - PROJECT_NAME=PlaygroundService
 
   products-db:
     build:

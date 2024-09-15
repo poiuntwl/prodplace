@@ -1,12 +1,12 @@
 #!/bin/bash
 set -e
 
-echo "Starting entrypoint script"
-SERVICE_NAME="$1"
+PROJECT_NAME="$1"
+echo "Starting entrypoint script for $PROJECT_NAME"
 
 # Navigate back to the app directory
 cd /app
 
 # Run the application
 echo "Starting the application..."
-exec dotnet PriceService.dll
+exec dotnet "$PROJECT_NAME.dll"

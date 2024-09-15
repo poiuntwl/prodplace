@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-echo "Starting entrypoint script"
-SERVICE_NAME="$1"
+PROJECT_NAME="$1"
+echo "Starting entrypoint script for $PROJECT_NAME"
 
 # Run the application
 echo "Starting the application..."
-exec dotnet ProxyService.dll
+exec dotnet "$PROJECT_NAME.dll"
