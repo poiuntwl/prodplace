@@ -2,6 +2,7 @@
 using ProductsService.Interfaces;
 using ProductsService.Mappers;
 using ProductsService.Models.MongoDbModels;
+using ProductsService.Validators;
 
 namespace ProductsService.Services;
 
@@ -28,6 +29,12 @@ public class ProductService : IProductService
 
     public async Task<int> CreateProductAsync(ProductModel product, CancellationToken ct)
     {
+        var validator = new CreateProductValidator();
+        if ((await validator.ValidateAsync(product, ct)).IsValid == false)
+        {
+            return -1;
+        }
+
         var productId = await _productRepository.CreateProductAsync(product, ct);
         return productId;
     }
