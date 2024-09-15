@@ -1,5 +1,5 @@
 ﻿CREATE
-DATABASE CurrenciesDB
+DATABASE CurrencyRatesDB
 GO
 
 CREATE
