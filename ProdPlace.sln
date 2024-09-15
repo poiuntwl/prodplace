@@ -16,6 +16,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProdPlaceMongoDatabaseTools
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyRatesService", "CurrencyRatesService\CurrencyRatesService.csproj", "{D2D70854-F7C6-40E6-A684-7E2729340129}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProxyService", "ProxyService\ProxyService.csproj", "{A51C0CFC-45D2-4690-826B-62C7C6D1B8D2}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -42,5 +44,9 @@ Global
 		{D2D70854-F7C6-40E6-A684-7E2729340129}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D2D70854-F7C6-40E6-A684-7E2729340129}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D2D70854-F7C6-40E6-A684-7E2729340129}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A51C0CFC-45D2-4690-826B-62C7C6D1B8D2}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A51C0CFC-45D2-4690-826B-62C7C6D1B8D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A51C0CFC-45D2-4690-826B-62C7C6D1B8D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A51C0CFC-45D2-4690-826B-62C7C6D1B8D2}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal
