@@ -23,13 +23,9 @@ WORKDIR /app
 COPY --from=publish /app/publish .
 COPY --from=build /src /src
 
-# Install EF Core tools
-RUN dotnet tool install --global dotnet-ef --version 8.0.6
-ENV PATH="$PATH:/root/.dotnet/tools"
-
 # Copy entrypoint script and ensure it uses LF line endings
 COPY ./${PROJECT_NAME}/entrypoint.sh /app/entrypoint.sh
 RUN sed -i 's/\r$//' /app/entrypoint.sh && \
     chmod +x /app/entrypoint.sh
 
-ENTRYPOINT ["/bin/bash", "/app/entrypoint.sh"]
+ENTRYPOINT ["/bin/bash", "-c", "/app/entrypoint.sh ${PROJECT_NAME}"]

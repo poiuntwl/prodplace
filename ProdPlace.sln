@@ -18,6 +18,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CurrencyRatesService", "Cur
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProxyService", "ProxyService\ProxyService.csproj", "{A51C0CFC-45D2-4690-826B-62C7C6D1B8D2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PlaygroundService", "PlaygroundService\PlaygroundService.csproj", "{2FA1DC5E-7633-4890-9909-F7BA658C26AE}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -48,5 +50,9 @@ Global
 		{A51C0CFC-45D2-4690-826B-62C7C6D1B8D2}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{A51C0CFC-45D2-4690-826B-62C7C6D1B8D2}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{A51C0CFC-45D2-4690-826B-62C7C6D1B8D2}.Release|Any CPU.Build.0 = Release|Any CPU
+		{2FA1DC5E-7633-4890-9909-F7BA658C26AE}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{2FA1DC5E-7633-4890-9909-F7BA658C26AE}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{2FA1DC5E-7633-4890-9909-F7BA658C26AE}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{2FA1DC5E-7633-4890-9909-F7BA658C26AE}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 EndGlobal

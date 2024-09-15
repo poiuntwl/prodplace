@@ -9,11 +9,13 @@ public class CurrencyRatesUpdater : ICurrencyRatesUpdater
 {
     private readonly AppDbContext _appDbContext;
     private readonly CurrencyApiHttpClient _httpClient;
+    private readonly IRedisCacheService _cache;
 
-    public CurrencyRatesUpdater(AppDbContext appDbContext, CurrencyApiHttpClient httpClient)
+    public CurrencyRatesUpdater(AppDbContext appDbContext, CurrencyApiHttpClient httpClient, IRedisCacheService cache)
     {
         _appDbContext = appDbContext;
         _httpClient = httpClient;
+        _cache = cache;
     }
 
     public async Task UpdateAllCurrencyRates(CancellationToken ct)
@@ -35,7 +37,11 @@ public class CurrencyRatesUpdater : ICurrencyRatesUpdater
         var lastUpdated = DateTime.UtcNow;
         foreach (var (code, newRate) in allCurrencyRates)
         {
-            if (existingRates.TryGetValue(code.Trim(), out var existingRate))
+            var trimmedCode = code.Trim();
+            var cacheKey = CacheConstants.GetCurrencyCacheKey(trimmedCode);
+            await _cache.SetAsync(cacheKey, newRate, TimeSpan.FromHours(24));
+
+            if (existingRates.TryGetValue(trimmedCode, out var existingRate))
             {
                 // Update existing rate
                 existingRate.ExchangeRate = newRate;

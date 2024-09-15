@@ -2,6 +2,7 @@
 set -e
 
 echo "Starting entrypoint script"
+SERVICE_NAME="$1"
 
 # Navigate to the directory containing the .csproj file
 cd /src/ProductsService

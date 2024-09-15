@@ -14,7 +14,10 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 var s = builder.Services;
 s.AddControllersWithViews();
-s.AddDbContext<AppDbContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection")));
+s.AddDbContext<AppDbContext>(x => x.UseSqlServer(builder.Configuration.GetConnectionString("DefaultConnection"), x =>
+{
+    x.EnableRetryOnFailure();
+}));
 s.Configure<CurrencyApiClientOptions>(x =>
 {
     x.BaseUrl = "https://cdn.jsdelivr.net/npm/@fawazahmed0/currency-api@latest/v1/";
@@ -25,6 +28,12 @@ s.AddHttpClient<CurrencyApiHttpClient>()
         .HandleTransientHttpError()
         .OrResult(x => x.StatusCode == HttpStatusCode.NotFound)
         .WaitAndRetryAsync(3, attempt => TimeSpan.FromSeconds(Math.Pow(2, attempt))));
+s.AddSingleton<IRedisCacheService, RedisCacheService>(x =>
+{
+    var connectionString = builder.Configuration.GetConnectionString("RedisCacheConnection");
+    return new RedisCacheService(connectionString);
+});
+s.AddTransient<ICurrencyRatesGetter, CurrencyRatesGetter>();
 s.AddTransient<ICurrencyRatesUpdater, CurrencyRatesUpdater>();
 s.AddTransient<IUpdateCurrencyRatesJob, UpdateCurrencyRatesJob>();
 

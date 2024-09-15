@@ -54,6 +54,21 @@
     depends_on:
       currencies-db:
         condition: service_healthy
+      redis-cache:
+        condition: service_healthy
+    networks:
+      - products-service
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+
+  playground-service:
+    image: playground-service
+    build:
+      context: .
+      dockerfile: ./PlaygroundService/Dockerfile
+    depends_on:
+      redis-cache:
+        condition: service_healthy
     networks:
       - products-service
     environment:
@@ -140,6 +155,23 @@
       retries: 5
       start_period: 10s
 
+  redis-cache:
+    build:
+      context: ./redis-cache
+      dockerfile: ./Dockerfile
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-cache-data:/data/db
+    networks:
+      - products-service
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
 
 volumes:
   rabbitmq-data:
@@ -149,6 +181,8 @@ volumes:
   products-db-data:
     driver: local
   currencies-db-data:
+    driver: local
+  redis-cache-data:
     driver: local
 
 

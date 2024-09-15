@@ -1,5 +1,5 @@
 # Use the official MongoDB image as the base image
-FROM mongo:latest
+FROM mongo:7.0.14
 
 # Copy the initialization script
 COPY ./init.js /docker-entrypoint-initdb.d/
