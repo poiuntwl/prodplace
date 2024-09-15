@@ -26,12 +26,14 @@ public class CurrencyRatesGetter : ICurrencyRatesGetter
         var key = CacheConstants.GetCurrencyCacheKey(trimmedCode);
         if (await _cache.HasKeyAsync(key))
         {
-            await _cache.GetAsync<decimal>(key);
+            return await _cache.GetAsync<decimal>(key);
         }
 
         var currencyRate =
             await _dbContext.CurrencyExchangeRates.FirstOrDefaultAsync(x => x.CurrencyCode.Equals(trimmedCode), ct);
-        return currencyRate?.ExchangeRate;
+        var exchangeRate = currencyRate?.ExchangeRate;
+        await _cache.SetAsync(key, exchangeRate, TimeSpan.FromHours(24));
+        return exchangeRate;
     }
 
     public async Task<IDictionary<string, decimal?>> GetCurrencyRatesAsync(ICollection<string> codes,

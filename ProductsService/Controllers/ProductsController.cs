@@ -7,7 +7,7 @@ using ProductsService.Models.RabbitMQRequests;
 
 namespace ProductsService.Controllers;
 
-[ApiController, Route("api/products")]
+[ApiController, Route("/api")]
 public class ProductsController : ControllerBase
 {
     private readonly IRabbitMqRpcClient _rabbitMqRpcClient;

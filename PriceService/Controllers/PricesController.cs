@@ -4,7 +4,7 @@ using PriceService.Commands;
 
 namespace PriceService.Controllers;
 
-[ApiController, Route("api/prices")]
+[ApiController, Route("/api")]
 public class PricesController : ControllerBase
 {
     private readonly IMediator _mediator;
