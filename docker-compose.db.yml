@@ -1,0 +1,79 @@
+﻿services:
+  products-db:
+    build:
+      context: ./dbs/products
+      dockerfile: ./Dockerfile
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Password123!!
+      - SA_PASSWORD=Password123!!
+    ports:
+      - "5400:1433"
+    networks:
+      - products-service
+    volumes:
+      - products-db-data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "IF DB_ID('ProductsDB') IS NOT NULL SELECT 1 ELSE SELECT 0" || exit 1
+      interval: 5s
+      retries: 15
+      start_period: 10s
+      timeout: 3s
+
+  currencies-db:
+    build:
+      context: ./dbs/currencies
+      dockerfile: ./Dockerfile
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Password123!!
+      - SA_PASSWORD=Password123!!
+    ports:
+      - "5401:1433"
+    networks:
+      - products-service
+    volumes:
+      - currencies-db-data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "IF DB_ID('HangfireDB') IS NOT NULL and DB_ID('HangfireDB') IS NOT NULL SELECT 1 ELSE SELECT 0" || exit 1
+      interval: 5s
+      retries: 15
+      start_period: 10s
+      timeout: 3s
+
+  mongodb:
+    build:
+      context: ./mongo
+      dockerfile: ./Dockerfile
+    environment:
+      - MONGO_INITDB_ROOT_USERNAME=admin
+      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
+    ports:
+      - "27017:27017"
+    volumes:
+      - mongodb-data:/data/db
+    networks:
+      - products-service
+    healthcheck:
+      test: echo 'db.runCommand("ping").ok' | mongosh localhost:27017/test --quiet
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
+
+  redis-cache:
+    build:
+      context: ./redis-cache
+      dockerfile: ./Dockerfile
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis-cache-data:/data/db
+    networks:
+      - products-service
+    healthcheck:
+      test: [ "CMD", "redis-cli", "--raw", "incr", "ping" ]
+      interval: 5s
+      timeout: 10s
+      retries: 5
+      start_period: 10s
