@@ -1,4 +1,24 @@
-﻿volumes:
+﻿services:
+  rbmq:
+    image: rabbitmq:3-management
+    container_name: prodplace-rabbitmq
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    volumes:
+      - rabbitmq-data:/var/lib/rabbitmq
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=password
+    networks:
+      - products-service
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
+volumes:
   mongodb-data:
     driver: local
   products-db-data:
