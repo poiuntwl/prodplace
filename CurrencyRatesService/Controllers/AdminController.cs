@@ -2,10 +2,10 @@
 
 namespace CurrencyRatesService.Controllers;
 
-[Route("/api/[controller]")]
+[Route("/api/[controller]/[action]")]
 public class AdminController : ControllerBase
 {
-    [HttpGet("[action]")]
+    [HttpGet]
     public async Task<IActionResult> ForceUpdateRates([FromServices] IUpdateCurrencyRatesJob updaterJob,
         CancellationToken ct)
     {

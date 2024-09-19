@@ -1,4 +1,5 @@
-﻿using CurrencyRatesService.Services;
+﻿using CurrencyRatesService.Exceptions;
+using CurrencyRatesService.Services;
 using Microsoft.AspNetCore.Mvc;
 
 namespace CurrencyRatesService.Controllers;
@@ -13,16 +14,22 @@ public class RatesController : ControllerBase
         CancellationToken ct)
     {
         var codesArray = codes.Split(",");
+
         if (codesArray.Length == 1)
         {
             var code = codesArray[0];
-            var rate = await ratesGetter.GetCurrencyRateAsync(code, ct);
-            if (rate == null)
+            try
             {
-                return NotFound();
+                var rate = await ratesGetter.GetCurrencyRateAsync(code, ct);
+                return Ok(new GetCurrencyRateByCodeResponse(rate));
             }
-
-            return Ok(new GetCurrencyRateByCodeResponse(rate.Value));
+            catch (CurrencyRateNotAvailableException e)
+            {
+                return NotFound(new
+                {
+                    Message = "Currency code not available",
+                });
+            }
         }
 
         var rates = await ratesGetter.GetCurrencyRatesAsync(codesArray, ct);
