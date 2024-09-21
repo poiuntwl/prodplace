@@ -5,7 +5,7 @@
       context: .
       dockerfile: ./ProxyService/Dockerfile
     networks:
-      - products-service
+      - prodplace
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - PROJECT_NAME=ProxyService
@@ -31,7 +31,7 @@
       retries: 10
       start_period: 10s
     networks:
-      - products-service
+      - prodplace
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - PROJECT_NAME=ProductsService
@@ -44,7 +44,7 @@
       context: .
       dockerfile: ./PriceService/Dockerfile
     networks:
-      - products-service
+      - prodplace
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - PROJECT_NAME=PriceService
@@ -60,7 +60,7 @@
       redis-cache:
         condition: service_healthy
     networks:
-      - products-service
+      - prodplace
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - PROJECT_NAME=CurrencyRatesService
@@ -74,7 +74,7 @@
       redis-cache:
         condition: service_healthy
     networks:
-      - products-service
+      - prodplace
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - PROJECT_NAME=PlaygroundService
