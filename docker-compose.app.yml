@@ -65,6 +65,20 @@
       - ASPNETCORE_ENVIRONMENT=Development
       - PROJECT_NAME=CurrencyRatesService
 
+  identity-service:
+    image: identity-service
+    build:
+      context: .
+      dockerfile: ./IdentityService/Dockerfile
+    depends_on:
+      identity-db:
+        condition: service_healthy
+    networks:
+      - prodplace
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - PROJECT_NAME=IdentityService
+
   playground-service:
     image: playground-service
     build:

@@ -41,6 +41,27 @@
       start_period: 10s
       timeout: 3s
 
+  identity-db:
+    build:
+      context: ./dbs/identity
+      dockerfile: ./Dockerfile
+    environment:
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=Password123!!
+      - SA_PASSWORD=Password123!!
+    ports:
+      - "5402:1433"
+    networks:
+      - prodplace
+    volumes:
+      - identity-db-data:/var/opt/mssql
+    healthcheck:
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "SELECT 1" || exit 1
+      interval: 5s
+      retries: 15
+      start_period: 10s
+      timeout: 3s
+
   mongodb:
     build:
       context: ./mongo

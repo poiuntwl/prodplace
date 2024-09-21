@@ -25,6 +25,8 @@ volumes:
     driver: local
   currencies-db-data:
     driver: local
+  identity-db-data:
+    driver: local
   redis-cache-data:
     driver: local
   rabbitmq-data:
