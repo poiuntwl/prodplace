@@ -5,7 +5,7 @@ PROJECT_NAME="$1"
 echo "Starting entrypoint script for $PROJECT_NAME"
 
 # Navigate to the directory containing the .csproj file
-cd /src/ProductsService
+cd /src/$PROJECT_NAME
 
 # Wait for the database to be ready
 echo "Waiting for database to be ready..."
