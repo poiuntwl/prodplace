@@ -76,6 +76,8 @@
     build:
       context: .
       dockerfile: ./IdentityService/Dockerfile
+      args:
+        PROJECT_NAME: IdentityService
     depends_on:
       identity-db:
         condition: service_healthy

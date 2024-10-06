@@ -1,12 +1,18 @@
+using AuthConfiguration;
+
 var builder = WebApplication.CreateBuilder(args);
 
 var s = builder.Services;
+
+s.AddJwtAuthConfiguration(builder.Configuration);
+
 s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();
 s.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
 var app = builder.Build();
+app.UseJwtAuthConfiguration();
 app.MapReverseProxy();
 
 if (app.Environment.IsDevelopment())
