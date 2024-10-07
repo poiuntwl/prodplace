@@ -1,6 +1,7 @@
 using System.Reflection;
 using AuthConfiguration;
 using IdentityService;
+using IdentityService.Data;
 using IdentityService.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -14,6 +15,7 @@ s.AddIdentity<AppUser, IdentityRole>(x =>
 {
     x.Password.RequireDigit = true;
     x.Password.RequiredLength = 8;
+    x.User.RequireUniqueEmail = true;
 })
 .AddEntityFrameworkStores<AppDbContext>();
 s.AddJwtAuthConfiguration(builder.Configuration);
