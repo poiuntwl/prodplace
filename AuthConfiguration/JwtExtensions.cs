@@ -1,4 +1,5 @@
 ﻿using System.Text;
+using System.Xml.Linq;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -14,7 +15,15 @@ public static class JwtExtensions
         var jwtSecret = config["jwt:secret"]!;
         var key = Encoding.UTF8.GetBytes(jwtSecret);
 
-        s.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+        s.AddAuthentication(x =>
+            {
+                x.DefaultAuthenticateScheme =
+                    x.DefaultChallengeScheme =
+                        x.DefaultForbidScheme =
+                            x.DefaultScheme =
+                                x.DefaultSignInScheme =
+                                    x.DefaultSignOutScheme = JwtBearerDefaults.AuthenticationScheme;
+            })
             .AddJwtBearer(x =>
             {
                 x.TokenValidationParameters = new TokenValidationParameters

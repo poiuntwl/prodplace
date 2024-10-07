@@ -1,13 +1,26 @@
+using System.Reflection;
+using AuthConfiguration;
 using IdentityService;
+using IdentityService.Models;
+using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<AppDbContext>(x =>
+var s = builder.Services;
+s.AddDbContext<AppDbContext>(x =>
     x.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection")));
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+s.AddIdentity<AppUser, IdentityRole>(x =>
+{
+    x.Password.RequireDigit = true;
+    x.Password.RequiredLength = 8;
+})
+.AddEntityFrameworkStores<AppDbContext>();
+s.AddJwtAuthConfiguration(builder.Configuration);
+
+s.AddControllers();
+s.AddEndpointsApiExplorer();
+s.AddSwaggerGen();
 
 var app = builder.Build();
 
