@@ -2,6 +2,7 @@
 using IdentityService.Constants;
 using IdentityService.Dtos;
 using IdentityService.Models;
+using IdentityService.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -11,15 +12,10 @@ namespace IdentityService.Controllers;
 [ApiController]
 public class AccountController : ControllerBase
 {
-    private readonly UserManager<AppUser> _userManager;
-
-    public AccountController(UserManager<AppUser> userManager)
-    {
-        _userManager = userManager;
-    }
-
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto)
+    public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto,
+        [FromServices] UserManager<AppUser> userManager,
+        [FromServices] ITokenService tokenService)
     {
         try
         {
@@ -34,7 +30,7 @@ public class AccountController : ControllerBase
                 UserName = registerDto.Username
             };
 
-            var createResult = await _userManager.CreateAsync(appUser, registerDto.Password);
+            var createResult = await userManager.CreateAsync(appUser, registerDto.Password);
 
             if (createResult.Succeeded == false)
             {
@@ -44,10 +40,15 @@ public class AccountController : ControllerBase
                 });
             }
 
-            var addToRoleResult = await _userManager.AddToRoleAsync(appUser, AppRoles.User);
+            var addToRoleResult = await userManager.AddToRoleAsync(appUser, AppRoles.User);
             if (addToRoleResult.Succeeded)
             {
-                return Ok();
+                return Ok(new RegisterUserResult
+                {
+                    Username = appUser.UserName,
+                    Email = appUser.Email,
+                    Token = tokenService.CreateToken(appUser)
+                });
             }
 
             return StatusCode((int)HttpStatusCode.InternalServerError, new

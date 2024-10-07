@@ -3,6 +3,7 @@ using AuthConfiguration;
 using IdentityService;
 using IdentityService.Data;
 using IdentityService.Models;
+using IdentityService.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 
@@ -23,6 +24,8 @@ s.AddJwtAuthConfiguration(builder.Configuration);
 s.AddControllers();
 s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();
+
+s.AddScoped<ITokenService, TokenService>();
 
 var app = builder.Build();
 
