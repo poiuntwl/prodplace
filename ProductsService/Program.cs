@@ -6,7 +6,6 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 // Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 var s = builder.Services;
-// s.AddJwtAuthConfiguration(builder.Configuration);
 s.AddControllers();
 s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();
@@ -17,7 +16,6 @@ s.AddSingleton<IRabbitMqRpcClient, RabbitMqRpcClient>();
 s.AddProductServices();
 
 var app = builder.Build();
-// app.UseJwtAuthConfiguration();
 
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
