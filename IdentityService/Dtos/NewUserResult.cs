@@ -1,6 +1,6 @@
 ﻿namespace IdentityService.Dtos;
 
-public class RegisterUserResult
+public class NewUserResult
 {
     public string Email { get; set; }
     public string Username { get; set; }
