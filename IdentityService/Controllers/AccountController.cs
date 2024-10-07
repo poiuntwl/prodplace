@@ -41,19 +41,19 @@ public class AccountController : ControllerBase
             }
 
             var addToRoleResult = await userManager.AddToRoleAsync(appUser, AppRoles.User);
-            if (addToRoleResult.Succeeded)
+            if (addToRoleResult.Succeeded == false)
             {
-                return Ok(new RegisterUserResult
+                return StatusCode((int)HttpStatusCode.InternalServerError, new
                 {
-                    Username = appUser.UserName,
-                    Email = appUser.Email,
-                    Token = tokenService.CreateToken(appUser)
+                    errors = addToRoleResult.Errors.Select(x => x.Description)
                 });
             }
 
-            return StatusCode((int)HttpStatusCode.InternalServerError, new
+            return Ok(new RegisterUserResult
             {
-                errors = addToRoleResult.Errors.Select(x => x.Description)
+                Username = appUser.UserName,
+                Email = appUser.Email,
+                Token = tokenService.CreateToken(appUser)
             });
         }
         catch (Exception e)
