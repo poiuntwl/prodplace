@@ -15,7 +15,7 @@ public class AuthHttpClient
 
     public async Task<bool> ValidateTokenAsync(string token, CancellationToken ct)
     {
-        var response = await _httpClient.GetAsync($"{_baseUrl}/validate?token={token}", ct);
+        var response = await _httpClient.GetAsync($"{_baseUrl}/api/auth/validate-token?token={token}", ct);
         return response.IsSuccessStatusCode;
     }
 
@@ -24,7 +24,7 @@ public class AuthHttpClient
         var rolesJson = JsonSerializer.Serialize(roles);
         var response =
             await _httpClient.GetAsync(
-                $"{_baseUrl}/validate-roles?token={token}&roles={Uri.EscapeDataString(rolesJson)}",
+                $"{_baseUrl}/api/auth/validate-roles?token={token}&roles={Uri.EscapeDataString(rolesJson)}",
                 ct);
         return response.IsSuccessStatusCode;
     }

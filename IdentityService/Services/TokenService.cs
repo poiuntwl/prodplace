@@ -9,6 +9,7 @@ namespace IdentityService.Services;
 public interface ITokenService
 {
     string CreateToken(AppUser user);
+    ClaimsPrincipal? ValidateToken(string token);
 }
 
 public class TokenService : ITokenService
@@ -42,5 +43,24 @@ public class TokenService : ITokenService
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
+    }
+
+    public ClaimsPrincipal? ValidateToken(string token)
+    {
+        var tokenHandler = new JwtSecurityTokenHandler();
+
+        var validationParameters = new TokenValidationParameters
+        {
+            ValidateIssuerSigningKey = true,
+            IssuerSigningKey = _key,
+            ValidateIssuer = true,
+            ValidateAudience = true,
+            ValidateLifetime = true,
+            ClockSkew = TimeSpan.Zero
+        };
+
+        var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
+
+        return principal;
     }
 }

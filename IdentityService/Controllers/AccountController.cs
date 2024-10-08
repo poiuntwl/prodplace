@@ -1,5 +1,4 @@
-﻿using System.Net;
-using IdentityService.Constants;
+﻿using IdentityService.Constants;
 using IdentityService.Dtos;
 using IdentityService.Models;
 using IdentityService.Services;
@@ -8,7 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityService.Controllers;
 
-[Microsoft.AspNetCore.Components.Route("api/account")]
+[Route("api/account")]
 [ApiController]
 public class AccountController : ControllerBase
 {

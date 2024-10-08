@@ -24,6 +24,7 @@ s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();
 
 s.AddScoped<ITokenService, TokenService>();
+s.AddScoped<IValidationService, ValidationService>();
 
 var app = builder.Build();
 
