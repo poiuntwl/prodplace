@@ -1,5 +1,5 @@
-﻿using System.Text;
-using System.Xml.Linq;
+﻿using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.Extensions.Configuration;
@@ -12,6 +12,7 @@ public static class JwtExtensions
 {
     public static IServiceCollection AddJwtAuthConfiguration(this IServiceCollection s, ConfigurationManager config)
     {
+        JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
         var jwtSecret = config["Jwt:secret"]!;
         var key = Encoding.UTF8.GetBytes(jwtSecret);
 

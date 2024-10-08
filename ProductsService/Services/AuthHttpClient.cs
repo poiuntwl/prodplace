@@ -21,10 +21,10 @@ public class AuthHttpClient
 
     public async Task<bool> ValidateRolesAsync(string token, string[] roles, CancellationToken ct)
     {
-        var rolesJson = JsonSerializer.Serialize(roles);
+        var rolesString = string.Join(",", roles);
         var response =
             await _httpClient.GetAsync(
-                $"{_baseUrl}/api/auth/validate-roles?token={token}&roles={Uri.EscapeDataString(rolesJson)}",
+                $"{_baseUrl}/api/auth/validate-roles?token={token}&roles={Uri.EscapeDataString(rolesString)}",
                 ct);
         return response.IsSuccessStatusCode;
     }

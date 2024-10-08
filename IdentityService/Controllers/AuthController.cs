@@ -40,7 +40,7 @@ public class AuthController : ControllerBase
 
         try
         {
-            var roles = JsonSerializer.Deserialize<string[]>(rolesString);
+            var roles = rolesString.Split(",");
             var isValid = await _validationService.ValidateRolesAsync(token, roles);
             return Ok(new TokenValidationResponse(isValid));
         }

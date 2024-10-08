@@ -56,7 +56,9 @@ public class TokenService : ITokenService
             ValidateIssuer = true,
             ValidateAudience = true,
             ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero
+            ClockSkew = TimeSpan.Zero,
+            ValidIssuer = _configuration["Jwt:issuer"],
+            ValidAudience = _configuration["Jwt:audience"],
         };
 
         var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
