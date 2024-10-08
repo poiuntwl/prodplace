@@ -41,7 +41,7 @@ public class AccountController : ControllerBase
 
             if (createResult.Succeeded == false)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new
+                return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
                     errors = createResult.Errors.Select(x => x.Description)
                 });
@@ -50,7 +50,7 @@ public class AccountController : ControllerBase
             var addToRoleResult = await _userManager.AddToRoleAsync(appUser, AppRoles.User);
             if (addToRoleResult.Succeeded == false)
             {
-                return StatusCode((int)HttpStatusCode.InternalServerError, new
+                return StatusCode(StatusCodes.Status500InternalServerError, new
                 {
                     errors = addToRoleResult.Errors.Select(x => x.Description)
                 });
@@ -65,7 +65,7 @@ public class AccountController : ControllerBase
         }
         catch (Exception e)
         {
-            return StatusCode((int)HttpStatusCode.InternalServerError, new
+            return StatusCode(StatusCodes.Status500InternalServerError, new
             {
                 error = e.Message
             });
