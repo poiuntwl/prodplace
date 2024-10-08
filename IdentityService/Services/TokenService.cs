@@ -19,7 +19,7 @@ public class TokenService : ITokenService
     public TokenService(IConfiguration configuration)
     {
         _configuration = configuration;
-        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["jwt:secret"]!));
+        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:secret"]!));
     }
 
     public string CreateToken(AppUser user)
@@ -28,6 +28,7 @@ public class TokenService : ITokenService
         {
             new Claim(JwtRegisteredClaimNames.Email, user.Email),
             new Claim(JwtRegisteredClaimNames.GivenName, user.UserName),
+            new Claim(JwtRegisteredClaimNames.Sub, user.Id)
         };
         var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
         var tokenDescriptor = new SecurityTokenDescriptor
@@ -35,8 +36,8 @@ public class TokenService : ITokenService
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.Now.AddDays(7),
             SigningCredentials = creds,
-            Issuer = _configuration["jwt:issuer"],
-            Audience = _configuration["jwt:audience"],
+            Issuer = _configuration["Jwt:issuer"],
+            Audience = _configuration["Jwt:audience"],
         };
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);

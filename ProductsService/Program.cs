@@ -1,5 +1,6 @@
 using AuthConfiguration;
 using ProductsService.Interfaces;
+using ProductsService.Middleware;
 using ProductsService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -13,6 +14,11 @@ s.AddSwaggerGen();
 s.AddDbServices(builder);
 s.AddHealthChecks();
 s.AddJwtAuthConfiguration(builder.Configuration);
+s.AddHttpClient<AuthHttpClient>((_, client) =>
+{
+    client.BaseAddress = new Uri(builder.Configuration["Auth:IdentityServiceConnectionString"]!);
+});
+s.AddScoped<IAuthService, AuthService>();
 
 s.AddSingleton<IRabbitMqRpcClient, RabbitMqRpcClient>();
 s.AddProductServices();
@@ -31,5 +37,6 @@ app.UseHttpsRedirection();
 app.MapControllers();
 app.MapHealthChecks("/api/health");
 app.UseJwtAuthConfiguration();
+app.UseMiddleware<RoleValidationMiddleware>();
 
 app.Run();

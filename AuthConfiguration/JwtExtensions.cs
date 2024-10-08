@@ -12,7 +12,7 @@ public static class JwtExtensions
 {
     public static IServiceCollection AddJwtAuthConfiguration(this IServiceCollection s, ConfigurationManager config)
     {
-        var jwtSecret = config["jwt:secret"]!;
+        var jwtSecret = config["Jwt:secret"]!;
         var key = Encoding.UTF8.GetBytes(jwtSecret);
 
         s.AddAuthentication(x =>
@@ -32,8 +32,8 @@ public static class JwtExtensions
                     IssuerSigningKey = new SymmetricSecurityKey(key),
                     ValidateIssuer = true,
                     ValidateAudience = true,
-                    ValidIssuer = config["jwt:issuer"],
-                    ValidAudience = config["jwt:audience"],
+                    ValidIssuer = config["Jwt:issuer"],
+                    ValidAudience = config["Jwt:audience"],
                 };
             });
 
