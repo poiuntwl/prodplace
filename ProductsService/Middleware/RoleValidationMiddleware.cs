@@ -1,4 +1,5 @@
 ﻿using Microsoft.AspNetCore.Authorization;
+using ProductsService.Constants;
 using ProductsService.Services;
 
 namespace ProductsService.Middleware;
@@ -15,6 +16,19 @@ public class RoleValidationMiddleware : IMiddleware
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         var ct = context.RequestAborted;
+
+        if (context.Items.TryGetValue(MiddlewareConsts.IsTokenValidContextItemName, out var isTokenValidItem) == false)
+        {
+            context.Response.StatusCode = StatusCodes.Status500InternalServerError;
+            return;
+        }
+
+        if (isTokenValidItem is false)
+        {
+            context.Response.StatusCode = StatusCodes.Status403Forbidden;
+            await context.Response.WriteAsync("Provided token is invalid.", ct);
+            return;
+        }
 
         var endpoint = context.GetEndpoint();
         var authorizeAttribute = endpoint?.Metadata.GetMetadata<AuthorizeAttribute>();

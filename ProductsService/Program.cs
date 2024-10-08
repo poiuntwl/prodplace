@@ -37,6 +37,7 @@ app.UseHttpsRedirection();
 app.MapControllers();
 app.MapHealthChecks("/api/health");
 app.UseJwtAuthConfiguration();
+app.UseMiddleware<TokenValidationMiddleware>();
 app.UseMiddleware<RoleValidationMiddleware>();
 
 app.Run();
