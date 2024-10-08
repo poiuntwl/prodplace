@@ -18,8 +18,4 @@
       </Content>
     </ItemGroup>
 
-    <ItemGroup>
-      <ProjectReference Include="..\AuthConfiguration\AuthConfiguration.csproj" />
-    </ItemGroup>
-
 </Project>

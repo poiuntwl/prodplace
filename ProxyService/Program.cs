@@ -10,17 +10,8 @@ s.AddSwaggerGen();
 s.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
-s.AddAuthentication(BearerTokenDefaults.AuthenticationScheme)
-    .AddBearerToken();
-
 var app = builder.Build();
-app.MapGet("login", () => Results.SignIn(new ClaimsPrincipal(new ClaimsIdentity([
-            new Claim("sub", Guid.NewGuid().ToString())
-        ],
-        BearerTokenDefaults.AuthenticationScheme)),
-    authenticationScheme: BearerTokenDefaults.AuthenticationScheme));
 
-app.UseAuthentication().UseAuthorization();
 app.MapReverseProxy();
 
 if (app.Environment.IsDevelopment())
