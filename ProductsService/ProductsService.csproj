@@ -11,6 +11,13 @@
         <PackageReference Include="FluentValidation" Version="11.9.2" />
         <PackageReference Include="FluentValidation.AspNetCore" Version="11.3.0" />
         <PackageReference Include="FluentValidation.DependencyInjectionExtensions" Version="11.9.2" />
+        <PackageReference Include="Google.Protobuf" Version="3.28.2" />
+        <PackageReference Include="Grpc.Net.Client" Version="2.66.0" />
+        <PackageReference Include="Grpc.Net.ClientFactory" Version="2.66.0" />
+        <PackageReference Include="Grpc.Tools" Version="2.67.0">
+          <PrivateAssets>all</PrivateAssets>
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+        </PackageReference>
         <PackageReference Include="MediatR" Version="12.4.0" />
         <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.5"/>
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.6">
@@ -35,6 +42,10 @@
     <ItemGroup>
       <ProjectReference Include="..\AuthConfiguration\AuthConfiguration.csproj" />
       <ProjectReference Include="..\ProdPlaceMongoDatabaseTools\ProdPlaceMongoDatabaseTools.csproj" />
+    </ItemGroup>
+
+    <ItemGroup>
+        <Protobuf Include="..\IdentityService\Protos\Identity.proto" GrpcServices="Client" />
     </ItemGroup>
 
 </Project>

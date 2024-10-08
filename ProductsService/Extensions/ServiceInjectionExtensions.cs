@@ -23,6 +23,5 @@ public static class ServiceInjectionExtensions
             .AddHostedService<ProductRpcConsumer>()
             .AddScoped<IProductService, ProductService>()
             .AddScoped<IProductRepository, ProductRepository>()
-            .AddScoped<IProductRequestRouter, ProductProductRequestRouter>()
-            .AddTransient<IAuthService, AuthService>();
+            .AddScoped<IProductRequestRouter, ProductProductRequestRouter>();
 }

@@ -1,0 +1,23 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "IdentityGrpc.Server";
+
+package identity;
+
+service IdentityService {
+  rpc ValidateToken (ValidateTokenRequest) returns (ValidateResponse);
+  rpc ValidateRoles (ValidateRolesRequest) returns (ValidateResponse);
+}
+
+message ValidateTokenRequest {
+  string token = 1;
+}
+
+message ValidateRolesRequest {
+  string token = 1;
+  repeated string roles = 2;
+}
+
+message ValidateResponse {
+  bool isValid = 1;
+}

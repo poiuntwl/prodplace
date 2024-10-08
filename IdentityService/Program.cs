@@ -11,12 +11,12 @@ var s = builder.Services;
 s.AddDbContext<AppDbContext>(x =>
     x.UseSqlServer(builder.Configuration.GetConnectionString("IdentityConnection")));
 s.AddIdentity<AppUser, IdentityRole>(x =>
-{
-    x.Password.RequireDigit = true;
-    x.Password.RequiredLength = 8;
-    x.User.RequireUniqueEmail = true;
-})
-.AddEntityFrameworkStores<AppDbContext>();
+    {
+        x.Password.RequireDigit = true;
+        x.Password.RequiredLength = 8;
+        x.User.RequireUniqueEmail = true;
+    })
+    .AddEntityFrameworkStores<AppDbContext>();
 s.AddJwtAuthConfiguration(builder.Configuration);
 
 s.AddControllers();
@@ -25,6 +25,7 @@ s.AddSwaggerGen();
 
 s.AddScoped<ITokenService, TokenService>();
 s.AddScoped<IValidationService, ValidationService>();
+s.AddGrpc(x => { x.EnableDetailedErrors = true; });
 
 var app = builder.Build();
 
@@ -40,6 +41,7 @@ app.UseAuthorization();
 ApplyMigrationsAsync(app);
 
 app.MapControllers();
+app.MapGrpcService<ValidationServiceGrpcWrapper>();
 app.Run();
 return;
 

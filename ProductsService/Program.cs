@@ -14,16 +14,17 @@ s.AddSwaggerGen();
 s.AddDbServices(builder);
 s.AddHealthChecks();
 s.AddJwtAuthConfiguration(builder.Configuration);
-s.AddHttpClient<AuthHttpClient>((_, client) =>
-{
-    client.BaseAddress = new Uri(builder.Configuration["Auth:IdentityServiceConnectionString"]!);
-});
 
 s.AddSingleton<IRabbitMqRpcClient, RabbitMqRpcClient>();
 s.AddProductServices();
 
 s.AddTransient<TokenValidationMiddleware>();
 s.AddTransient<RoleValidationMiddleware>();
+s.AddGrpcClient<IdentityGrpc.Server.IdentityService.IdentityServiceClient>(x =>
+{
+    x.Address = new Uri("https://localhost:44304");
+});
+s.AddScoped<IAuthService, AuthService>();
 
 var app = builder.Build();
 

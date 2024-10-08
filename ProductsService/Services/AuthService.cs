@@ -1,4 +1,6 @@
-﻿namespace ProductsService.Services;
+﻿using IdentityGrpc.Server;
+
+namespace ProductsService.Services;
 
 public interface IAuthService
 {
@@ -8,20 +10,30 @@ public interface IAuthService
 
 public class AuthService : IAuthService
 {
-    private readonly AuthHttpClient _httpClient;
+    private readonly IdentityGrpc.Server.IdentityService.IdentityServiceClient _identityServiceClient;
 
-    public AuthService(AuthHttpClient httpClient)
+    public AuthService(IdentityGrpc.Server.IdentityService.IdentityServiceClient identityServiceClient)
     {
-        _httpClient = httpClient;
+        _identityServiceClient = identityServiceClient;
     }
 
     public async Task<bool> ValidateTokenAsync(string token, CancellationToken ct)
     {
-        return await _httpClient.ValidateTokenAsync(token, ct);
+        var validateResponse = await _identityServiceClient.ValidateTokenAsync(new ValidateTokenRequest
+        {
+            Token = token
+        }, cancellationToken: ct);
+        return validateResponse?.IsValid ?? false;
     }
 
     public async Task<bool> ValidateRolesAsync(string token, string[] requiredRoles, CancellationToken ct)
     {
-        return await _httpClient.ValidateRolesAsync(token, requiredRoles, ct);
+        var validateResponse = await _identityServiceClient.ValidateRolesAsync(new ValidateRolesRequest
+        {
+            Token = token,
+            Roles = { requiredRoles }
+        }, cancellationToken: ct);
+
+        return validateResponse?.IsValid ?? false;
     }
 }
