@@ -18,10 +18,12 @@ s.AddHttpClient<AuthHttpClient>((_, client) =>
 {
     client.BaseAddress = new Uri(builder.Configuration["Auth:IdentityServiceConnectionString"]!);
 });
-s.AddScoped<IAuthService, AuthService>();
 
 s.AddSingleton<IRabbitMqRpcClient, RabbitMqRpcClient>();
 s.AddProductServices();
+
+s.AddTransient<TokenValidationMiddleware>();
+s.AddTransient<RoleValidationMiddleware>();
 
 var app = builder.Build();
 
