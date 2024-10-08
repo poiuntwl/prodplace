@@ -1,5 +1,6 @@
 ﻿namespace IdentityService.Constants;
 
+// todo: implement authorization
 public static class AppRoles
 {
     public const string Admin = "Admin";

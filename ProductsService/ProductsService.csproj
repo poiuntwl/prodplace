@@ -33,6 +33,7 @@
     </ItemGroup>
 
     <ItemGroup>
+      <ProjectReference Include="..\AuthConfiguration\AuthConfiguration.csproj" />
       <ProjectReference Include="..\ProdPlaceMongoDatabaseTools\ProdPlaceMongoDatabaseTools.csproj" />
     </ItemGroup>
 

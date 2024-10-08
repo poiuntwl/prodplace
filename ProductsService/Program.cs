@@ -1,3 +1,4 @@
+using AuthConfiguration;
 using ProductsService.Interfaces;
 using ProductsService.Services;
 
@@ -11,6 +12,7 @@ s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();
 s.AddDbServices(builder);
 s.AddHealthChecks();
+s.AddJwtAuthConfiguration(builder.Configuration);
 
 s.AddSingleton<IRabbitMqRpcClient, RabbitMqRpcClient>();
 s.AddProductServices();
@@ -28,5 +30,6 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 app.MapHealthChecks("/api/health");
+app.UseJwtAuthConfiguration();
 
 app.Run();
