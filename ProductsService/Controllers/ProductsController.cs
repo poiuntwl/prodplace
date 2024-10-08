@@ -107,7 +107,7 @@ public class ProductsController : ControllerBase
         CancellationToken ct)
     {
         var query = new GetExampleQuery(id);
-        var result = await mediator.Send(query);
+        var result = await mediator.Send(query, ct);
         return Ok(result);
     }
 

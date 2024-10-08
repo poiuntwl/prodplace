@@ -1,12 +1,7 @@
 ﻿using IdentityGrpc.Server;
+using ProductsService.Interfaces;
 
 namespace ProductsService.Services;
-
-public interface IAuthService
-{
-    Task<bool> ValidateTokenAsync(string token, CancellationToken ct);
-    Task<bool> ValidateRolesAsync(string token, string[] requiredRoles, CancellationToken ct);
-}
 
 public class AuthService : IAuthService
 {

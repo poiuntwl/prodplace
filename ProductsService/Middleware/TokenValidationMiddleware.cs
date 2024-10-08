@@ -1,5 +1,5 @@
 ﻿using ProductsService.Constants;
-using ProductsService.Services;
+using ProductsService.Interfaces;
 
 namespace ProductsService.Middleware;
 
