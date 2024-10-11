@@ -28,11 +28,8 @@ public class UnitTest1
 
         services.AddSingleton<MongoDbContext>();
 
-        services.AddSingleton<IRabbitMqRpcClient, RabbitMqRpcClient>();
-        services.AddHostedService<ProductRpcConsumer>();
         services.AddScoped<IProductService, ProductService>();
         services.AddScoped<IProductRepository, ProductRepository>();
-        services.AddScoped<IProductRequestRouter, ProductProductRequestRouter>();
 
         _serviceProvider = services.BuildServiceProvider();
     }

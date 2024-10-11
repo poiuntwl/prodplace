@@ -1,6 +1,6 @@
 ﻿namespace ProductsService.Constants;
 
-public class MiddlewareConsts
+public static class MiddlewareConsts
 {
     public const string IsTokenValidContextItemName = "IsTokenValid";
 }

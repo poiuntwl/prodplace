@@ -20,8 +20,6 @@ public static class ServiceInjectionExtensions
 
     public static IServiceCollection AddProductServices(this IServiceCollection s) =>
         s
-            .AddHostedService<ProductRpcConsumer>()
             .AddScoped<IProductService, ProductService>()
-            .AddScoped<IProductRepository, ProductRepository>()
-            .AddScoped<IProductRequestRouter, ProductProductRequestRouter>();
+            .AddScoped<IProductRepository, ProductRepository>();
 }

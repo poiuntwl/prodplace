@@ -2,36 +2,32 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 using ProductsService.Dtos.Product;
-using ProductsService.Interfaces;
-using ProductsService.Models.RabbitMQRequests;
+using ProductsService.Handlers;
+using ProductsService.Mappers;
 
 namespace ProductsService.Controllers;
 
 [ApiController, Route("/api")]
 public class ProductsController : ControllerBase
 {
-    private readonly IRabbitMqRpcClient _rabbitMqRpcClient;
+    private readonly IMediator _mediator;
 
-    public ProductsController(IRabbitMqRpcClient rabbitMqRpcClient)
+    public ProductsController(IMediator mediator)
     {
-        _rabbitMqRpcClient = rabbitMqRpcClient;
+        _mediator = mediator;
     }
 
     [HttpGet]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
-        var products =
-            await _rabbitMqRpcClient.CallAsync<GetProductsQueueRequest, ICollection<ProductDto>>(
-                new GetProductsQueueRequest(), ct);
+        var products = await _mediator.Send(new GetProductsRequest(), ct);
         return Ok(products);
     }
 
     [HttpGet("{id:int}")]
     public async Task<IActionResult> GetById(int id, CancellationToken ct)
     {
-        var product =
-            await _rabbitMqRpcClient.CallAsync<GetProductQueueRequest, ProductDto>(new GetProductQueueRequest
-                { Id = id }, ct);
+        var product = await _mediator.Send(new GetProductRequest(id), ct);
         if (product == null)
         {
             return NotFound();
@@ -43,8 +39,7 @@ public class ProductsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateProductRequestDto createDto, CancellationToken ct)
     {
-        var createdId = await _rabbitMqRpcClient.CallAsync<CreateProductQueueRequest, int>(
-            new CreateProductQueueRequest(createDto), ct);
+        var createdId = await _mediator.Send(new CreateProductRequest(createDto), ct);
         return CreatedAtAction(nameof(GetById), new { id = createdId });
     }
 
@@ -52,16 +47,7 @@ public class ProductsController : ControllerBase
     public async Task<IActionResult> Update(int id, [FromBody] UpdateProductRequestDto dto,
         CancellationToken ct)
     {
-        var model =
-            await _rabbitMqRpcClient.CallAsync<GetProductsQueueRequest, ICollection<ProductDto>>(
-                new GetProductsQueueRequest(), ct);
-        if (model == null)
-        {
-            return NotFound();
-        }
-
-        await _rabbitMqRpcClient.CallAsync(new UpdateProductQueueRequest(dto), ct);
-
+        await _mediator.Send(new UpdateProductRequest(id, dto), ct);
         return Ok();
     }
 
@@ -80,13 +66,12 @@ public class ProductsController : ControllerBase
             }
 
             var result =
-                await _rabbitMqRpcClient.CallAsync<BulkCreateUpdateQueueRequest, BulkCreateUpdateQueueResponse>(
-                    new BulkCreateUpdateQueueRequest(records), ct);
+                await _mediator.Send(new CreateOrUpdateProductsRequest(records.Select(x => x.ToModel()).ToList()), ct);
 
             return Ok(new
             {
-                created = result?.Created ?? 0,
-                updated = result?.Updated ?? 0
+                created = result.Created,
+                updated = result.Updated
             });
         }
         catch (JsonException ex)
@@ -95,23 +80,7 @@ public class ProductsController : ControllerBase
         }
         catch (Exception)
         {
-            // Log the exception
-            return StatusCode(500, "An error occurred while processing the file.");
+            return StatusCode(StatusCodes.Status500InternalServerError, "An error occurred while processing the file.");
         }
     }
-
-    [HttpGet("mediator/{id:int}")]
-    public async Task<IActionResult> GetByMediator(
-        int id,
-        [FromServices] IMediator mediator,
-        CancellationToken ct)
-    {
-        var query = new GetExampleQuery(id);
-        var result = await mediator.Send(query, ct);
-        return Ok(result);
-    }
-
-    public record GetExampleQuery(int Id) : IRequest<ExampleDto>;
-
-    public record ExampleDto(int Id, string Name);
 }

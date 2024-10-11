@@ -15,7 +15,6 @@ s.AddDbServices(builder);
 s.AddHealthChecks();
 s.AddJwtAuthConfiguration(builder.Configuration);
 
-s.AddSingleton<IRabbitMqRpcClient, RabbitMqRpcClient>();
 s.AddProductServices();
 
 s.AddTransient<TokenValidationMiddleware>();

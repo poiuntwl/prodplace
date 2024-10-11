@@ -1,7 +1,5 @@
 ﻿using System.Text.Json;
 using FluentValidation;
-using MongoDB.Bson.IO;
-using ProductsService.Dtos.Product;
 using ProductsService.Models.MongoDbModels;
 
 namespace ProductsService.Validators;
