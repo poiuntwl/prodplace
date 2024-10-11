@@ -38,11 +38,4 @@ public class ProductService : IProductService
         var productId = await _productRepository.CreateProductAsync(product, ct);
         return productId;
     }
-
-    public async Task<(long Created, long Updated)> CreateOrUpdateProductsAsync(ICollection<ProductModel> products,
-        CancellationToken ct)
-    {
-        var result = await _productRepository.CreateOrUpdateProductsAsync(products, ct);
-        return result;
-    }
 }

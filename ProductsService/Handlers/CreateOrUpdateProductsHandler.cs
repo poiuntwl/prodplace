@@ -8,17 +8,17 @@ namespace ProductsService.Handlers;
 public class
     CreateOrUpdateProductsHandler : IRequestHandler<CreateOrUpdateProductsRequest, (long Created, long Updated)>
 {
-    private readonly IProductService _productService;
+    private readonly IBulkProductsUploader _bulkProductsUploader;
 
-    public CreateOrUpdateProductsHandler(IProductService productService)
+    public CreateOrUpdateProductsHandler(IBulkProductsUploader bulkProductsUploader)
     {
-        _productService = productService;
+        _bulkProductsUploader = bulkProductsUploader;
     }
 
     public async Task<(long Created, long Updated)> Handle(CreateOrUpdateProductsRequest request,
         CancellationToken cancellationToken)
     {
-        return await _productService.CreateOrUpdateProductsAsync(request.Products, cancellationToken);
+        return await _bulkProductsUploader.UploadAsync(request.Products, cancellationToken);
     }
 }
 

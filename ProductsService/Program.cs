@@ -14,16 +14,13 @@ s.AddSwaggerGen();
 s.AddDbServices(builder);
 s.AddHealthChecks();
 s.AddJwtAuthConfiguration(builder.Configuration);
-
-s.AddProductServices();
-
-s.AddTransient<TokenValidationMiddleware>();
-s.AddTransient<RoleValidationMiddleware>();
 s.AddGrpcClient<IdentityGrpc.Server.IdentityService.IdentityServiceClient>(x =>
 {
     x.Address = new Uri("https://localhost:44304");
 });
-s.AddScoped<IAuthService, AuthService>();
+
+s.AddProductServices();
+s.AddValidationMiddleware();
 
 var app = builder.Build();
 
@@ -39,7 +36,6 @@ app.UseHttpsRedirection();
 app.MapControllers();
 app.MapHealthChecks("/api/health");
 app.UseJwtAuthConfiguration();
-app.UseMiddleware<TokenValidationMiddleware>();
-app.UseMiddleware<RoleValidationMiddleware>();
+app.UseValidationMiddleware();
 
 app.Run();
