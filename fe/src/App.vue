@@ -1,15 +1,10 @@
 <template>
-  <fetch-example/>
+  <update-price/>
+  <products-table/>
 </template>
 
-<script lang="ts">
-import { defineComponent } from 'vue';
-import FetchExample from '@/FetchExample.vue';
+<script setup lang="ts">
+import ProductsTable from '@/composables/ProductsTable.vue';
+import UpdatePrice from '@/composables/UpdatePrice.vue';
 
-export default defineComponent({
-  name: 'App',
-  components: {
-    FetchExample,
-  },
-});
 </script>

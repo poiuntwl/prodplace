@@ -52,11 +52,10 @@ public class ProductsController : ControllerBase
         }
     }
 
-    [HttpPut("{id:int}")]
-    public async Task<IActionResult> Update(int id, [FromBody] UpdateProductRequestDto dto,
-        CancellationToken ct)
+    [HttpPut("price")]
+    public async Task<IActionResult> UpdatePrice([FromBody] UpdateProductPriceRequestDto dto, CancellationToken ct)
     {
-        await _mediator.Send(new UpdateProductRequest(id, dto), ct);
+        await _mediator.Send(new UpdateProductPriceRequest(ObjectId.Parse(dto.Id), dto.Price), ct);
         return Ok();
     }
 
