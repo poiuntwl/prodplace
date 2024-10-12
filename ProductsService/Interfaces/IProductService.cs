@@ -1,11 +1,10 @@
-﻿using ProductsService.Dtos.Product;
-using ProductsService.Models.MongoDbModels;
+﻿using MongoDB.Bson;
+using ProductsService.Dtos.Product;
 
 namespace ProductsService.Interfaces;
 
 public interface IProductService
 {
-    Task<ProductDto?> GetProductAsync(int id, CancellationToken ct);
+    Task<ProductDto?> GetProductAsync(ObjectId id, CancellationToken ct);
     Task<ICollection<ProductDto>> GetProductsAsync(CancellationToken ct);
-    Task<int> CreateProductAsync(ProductModel product, CancellationToken ct);
 }

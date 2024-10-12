@@ -1,12 +1,9 @@
 using AuthConfiguration;
-using ProductsService.Interfaces;
-using ProductsService.Middleware;
-using ProductsService.Services;
+using FluentValidation;
+using ProductsService.Handlers.PreProcessors;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring Swagger/OpenAPI at https://aka.ms/aspnetcore/swashbuckle
 var s = builder.Services;
 s.AddControllers();
 s.AddEndpointsApiExplorer();
@@ -18,6 +15,13 @@ s.AddGrpcClient<IdentityGrpc.Server.IdentityService.IdentityServiceClient>(x =>
 {
     x.Address = new Uri("https://localhost:44304");
 });
+
+s.AddMediatR(x =>
+{
+    x.RegisterServicesFromAssemblyContaining<Program>();
+    x.AddRequestPreProcessor<CreateProductHandlerPreProcessor>();
+});
+s.AddValidatorsFromAssemblyContaining<Program>();
 
 s.AddProductServices();
 s.AddValidationMiddleware();

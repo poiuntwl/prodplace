@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using MongoDB.Bson;
 using ProductsService.Dtos.Product;
 using ProductsService.Models.MongoDbModels;
 
@@ -11,7 +12,7 @@ public static class ProductMappers
         var fieldsDeserialized = JsonSerializer.Deserialize<Dictionary<string, string>>(model.CustomFields) ?? new Dictionary<string, string>();
         return new ProductDto
         {
-            Id = model.Id,
+            Id = model.Id.ToString(),
             Name = model.Name,
             Description = model.Description,
             Price = model.Price,
@@ -24,7 +25,7 @@ public static class ProductMappers
         var fieldsSerialized = JsonSerializer.Serialize(model.CustomFields);
         return new ProductModel
         {
-            Id = model.Id,
+            Id = ObjectId.Parse(model.Id),
             Name = model.Name,
             Description = model.Description,
             Price = model.Price,

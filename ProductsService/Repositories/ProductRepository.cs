@@ -1,4 +1,5 @@
-﻿using MongoDB.Driver;
+﻿using MongoDB.Bson;
+using MongoDB.Driver;
 using ProductsService.Data;
 using ProductsService.Interfaces;
 using ProductsService.Models.MongoDbModels;
@@ -14,7 +15,7 @@ public class ProductRepository : IProductRepository
         _dbContext = dbContext;
     }
 
-    public async Task<ProductModel?> GetProductAsync(int id, CancellationToken ct)
+    public async Task<ProductModel?> GetProductAsync(ObjectId id, CancellationToken ct)
     {
         var product = await _dbContext.Products.Find(x => x.Id == id).FirstOrDefaultAsync(cancellationToken: ct);
         return product;
@@ -26,8 +27,10 @@ public class ProductRepository : IProductRepository
         return products;
     }
 
-    public async Task<int> CreateProductAsync(ProductModel product, CancellationToken ct)
+    public async Task<ObjectId> CreateProductAsync(ProductModel product, CancellationToken ct)
     {
+        product.Id = ObjectId.GenerateNewId();
+
         await _dbContext.Products.InsertOneAsync(product, cancellationToken: ct);
         return product.Id;
     }

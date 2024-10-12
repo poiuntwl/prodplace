@@ -1,4 +1,5 @@
-﻿using ProductsService.Dtos.Product;
+﻿using MongoDB.Bson;
+using ProductsService.Dtos.Product;
 using ProductsService.Interfaces;
 using ProductsService.Mappers;
 using ProductsService.Models.MongoDbModels;
@@ -15,7 +16,7 @@ public class ProductService : IProductService
         _productRepository = productRepository;
     }
 
-    public async Task<ProductDto?> GetProductAsync(int id, CancellationToken ct)
+    public async Task<ProductDto?> GetProductAsync(ObjectId id, CancellationToken ct)
     {
         var product = await _productRepository.GetProductAsync(id, ct);
         return product?.ToDto();
@@ -25,17 +26,5 @@ public class ProductService : IProductService
     {
         var products = await _productRepository.GetProductsAsync(ct);
         return products.Select<ProductModel, ProductDto>(x => x.ToDto()).ToList();
-    }
-
-    public async Task<int> CreateProductAsync(ProductModel product, CancellationToken ct)
-    {
-        var validator = new CreateProductValidator();
-        if ((await validator.ValidateAsync(product, ct)).IsValid == false)
-        {
-            return -1;
-        }
-
-        var productId = await _productRepository.CreateProductAsync(product, ct);
-        return productId;
     }
 }

@@ -1,6 +1,8 @@
 ﻿using System.Text.Json;
+using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using MongoDB.Bson;
 using ProductsService.Dtos.Product;
 using ProductsService.Handlers;
 using ProductsService.Mappers;
@@ -24,10 +26,10 @@ public class ProductsController : ControllerBase
         return Ok(products);
     }
 
-    [HttpGet("{id:int}")]
-    public async Task<IActionResult> GetById(int id, CancellationToken ct)
+    [HttpGet("{id=id}")]
+    public async Task<IActionResult> GetById(string id, CancellationToken ct)
     {
-        var product = await _mediator.Send(new GetProductRequest(id), ct);
+        var product = await _mediator.Send(new GetProductRequest(ObjectId.Parse(id)), ct);
         if (product == null)
         {
             return NotFound();
@@ -39,8 +41,15 @@ public class ProductsController : ControllerBase
     [HttpPost]
     public async Task<IActionResult> Create([FromBody] CreateProductRequestDto createDto, CancellationToken ct)
     {
-        var createdId = await _mediator.Send(new CreateProductRequest(createDto), ct);
-        return CreatedAtAction(nameof(GetById), new { id = createdId });
+        try
+        {
+            var createdId = await _mediator.Send(new CreateProductRequest(createDto), ct);
+            return await GetById(createdId.ToString(), ct);
+        }
+        catch (ValidationException e)
+        {
+            return BadRequest(e.Errors);
+        }
     }
 
     [HttpPut("{id:int}")]

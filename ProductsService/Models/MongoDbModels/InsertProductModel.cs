@@ -3,11 +3,8 @@ using MongoDB.Bson.Serialization.Attributes;
 
 namespace ProductsService.Models.MongoDbModels;
 
-public class ProductModel
+public class InsertProductModel
 {
-    [BsonId, BsonElement("_id")]
-    public ObjectId Id { get; set; }
-
     [BsonElement("name"), BsonRequired] public string Name { get; set; } = string.Empty;
     [BsonElement("description")] public string Description { get; set; } = string.Empty;
 

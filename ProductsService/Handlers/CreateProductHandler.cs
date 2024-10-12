@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using MongoDB.Bson;
 using ProductsService.Dtos.Product;
 using ProductsService.Interfaces;
 using ProductsService.Models.MongoDbModels;
@@ -6,22 +7,23 @@ using ProductsService.Models.MongoDbModels;
 namespace ProductsService.Handlers;
 
 // ReSharper disable once UnusedType.Global
-public class CreateProductHandler : IRequestHandler<CreateProductRequest, int>
+public class CreateProductHandler : IRequestHandler<CreateProductRequest, ObjectId>
 {
-    private readonly IProductService _productService;
+    private readonly IProductRepository _productRepository;
 
-    public CreateProductHandler(IProductService productService)
+    public CreateProductHandler(IProductRepository productRepository)
     {
-        _productService = productService;
+        _productRepository = productRepository;
     }
 
-    public async Task<int> Handle(CreateProductRequest request, CancellationToken cancellationToken)
+    public async Task<ObjectId> Handle(CreateProductRequest request, CancellationToken cancellationToken)
     {
-        return await _productService.CreateProductAsync(request.Product, cancellationToken);
+        var productId = await _productRepository.CreateProductAsync(request.Product, cancellationToken);
+        return productId;
     }
 }
 
-public record CreateProductRequest : IRequest<int>
+public record CreateProductRequest : IRequest<ObjectId>
 {
     public CreateProductRequest(CreateProductRequestDto dto)
     {

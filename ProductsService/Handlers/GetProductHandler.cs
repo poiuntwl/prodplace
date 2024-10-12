@@ -1,4 +1,5 @@
 ﻿using MediatR;
+using MongoDB.Bson;
 using ProductsService.Dtos.Product;
 using ProductsService.Interfaces;
 
@@ -20,4 +21,4 @@ public class GetProductHandler : IRequestHandler<GetProductRequest, ProductDto?>
     }
 }
 
-public record GetProductRequest(int Id) : IRequest<ProductDto?>;
+public record GetProductRequest(ObjectId Id) : IRequest<ProductDto?>;
