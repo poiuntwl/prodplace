@@ -5,10 +5,10 @@ namespace ProductsService.Models.MongoDbModels;
 
 public class ProductModel
 {
-    [BsonId, BsonElement("_id")]
+    [BsonId, BsonRepresentation(BsonType.ObjectId)]
     public ObjectId Id { get; set; }
 
-    [BsonElement("name"), BsonRequired] public string Name { get; set; } = string.Empty;
+    [BsonElement("name")] [BsonRequired] public string Name { get; set; } = string.Empty;
     [BsonElement("description")] public string Description { get; set; } = string.Empty;
 
     [BsonElement("price"), BsonRepresentation(BsonType.Decimal128)]

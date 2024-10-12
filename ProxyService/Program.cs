@@ -10,7 +10,14 @@ s.AddSwaggerGen();
 s.AddReverseProxy()
     .LoadFromConfig(builder.Configuration.GetSection("ReverseProxy"));
 
+s.AddCors(x =>
+{
+    x.AddPolicy("VueCorsPolicy",
+        y => { y.AllowAnyHeader().AllowAnyMethod().AllowCredentials().WithOrigins("http://localhost:12345"); });
+});
+
 var app = builder.Build();
+app.UseCors("VueCorsPolicy");
 
 app.MapReverseProxy();
 
