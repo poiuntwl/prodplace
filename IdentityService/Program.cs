@@ -22,7 +22,7 @@ s.AddJwtAuthConfiguration(builder.Configuration);
 s.AddMediatR(x =>
 {
     x.RegisterServicesFromAssemblyContaining<Program>();
-    x.AddRequestPreProcessor<RegisterUserMessagingPreprocessor>();
+    x.AddRequestPostProcessor<RegisterUserMessagingPreprocessor>();
 });
 
 s.AddControllers();
@@ -31,6 +31,7 @@ s.AddSwaggerGen();
 
 s.AddScoped<ITokenService, TokenService>();
 s.AddScoped<IValidationService, ValidationService>();
+s.AddSingleton<IRabbitMqService, RabbitMqService>();
 s.AddGrpc(x => { x.EnableDetailedErrors = true; });
 
 var app = builder.Build();
