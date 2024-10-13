@@ -6,7 +6,7 @@ using MediatR.Pipeline;
 
 namespace IdentityService.Handlers.Preprocessors;
 
-public class RegisterUserMessagingPreprocessor : IRequestPostProcessor<RegisterUserRequest, NewUserResult>
+public class RegisterUserMessagingPreprocessor : IRequestPostProcessor<RegisterUserRequest, UserDataResult>
 {
     private readonly IRabbitMqService _rabbitMqService;
 
@@ -15,7 +15,7 @@ public class RegisterUserMessagingPreprocessor : IRequestPostProcessor<RegisterU
         _rabbitMqService = rabbitMqService;
     }
 
-    public async Task Process(RegisterUserRequest request, NewUserResult response, CancellationToken cancellationToken)
+    public async Task Process(RegisterUserRequest request, UserDataResult response, CancellationToken cancellationToken)
     {
         _rabbitMqService.SendMessage(new RegisterUserMessage(request.RegisterDto.Email, request.RegisterDto.Username));
     }

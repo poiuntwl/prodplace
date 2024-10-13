@@ -9,7 +9,7 @@ using Microsoft.AspNetCore.Identity;
 
 namespace IdentityService.Handlers;
 
-public class RegisterUserHandler : IRequestHandler<RegisterUserRequest, NewUserResult>
+public class RegisterUserHandler : IRequestHandler<RegisterUserRequest, UserDataResult>
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly ITokenService _tokenService;
@@ -20,7 +20,7 @@ public class RegisterUserHandler : IRequestHandler<RegisterUserRequest, NewUserR
         _tokenService = tokenService;
     }
 
-    public async Task<NewUserResult> Handle(RegisterUserRequest request, CancellationToken cancellationToken)
+    public async Task<UserDataResult> Handle(RegisterUserRequest request, CancellationToken cancellationToken)
     {
         var registerDto = request.RegisterDto;
 
@@ -45,7 +45,7 @@ public class RegisterUserHandler : IRequestHandler<RegisterUserRequest, NewUserR
                 throw new RegisterUserException(createResult.Errors.Select(x => x.Description).ToList());
             }
 
-            return new NewUserResult
+            return new UserDataResult
             {
                 Username = appUser.UserName,
                 Email = appUser.Email,

@@ -1,10 +1,7 @@
 ﻿using IdentityService.Dtos;
 using IdentityService.Exceptions;
-using IdentityService.Models;
 using IdentityService.Requests;
-using IdentityService.Services;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
 namespace IdentityService.Controllers;
@@ -13,18 +10,15 @@ namespace IdentityService.Controllers;
 [ApiController]
 public class AccountController : ControllerBase
 {
-    private readonly ITokenService _tokenService;
-    private readonly UserManager<AppUser> _userManager;
+    private readonly IMediator _mediator;
 
-    public AccountController(ITokenService tokenService, UserManager<AppUser> userManager)
+    public AccountController(IMediator mediator)
     {
-        _tokenService = tokenService;
-        _userManager = userManager;
+        _mediator = mediator;
     }
 
     [HttpPost("register")]
     public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto,
-        [FromServices] IMediator mediator,
         CancellationToken ct)
     {
         try
@@ -34,7 +28,7 @@ public class AccountController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var result = await mediator.Send(new RegisterUserRequest(registerDto), ct);
+            var result = await _mediator.Send(new RegisterUserRequest(registerDto), ct);
 
             return Ok(result);
         }
@@ -57,30 +51,29 @@ public class AccountController : ControllerBase
     [HttpPost("login")]
     public async Task<IActionResult> LoginAsync(
         [FromBody] LoginDto loginDto,
-        [FromServices] SignInManager<AppUser> signInManager)
+        CancellationToken ct)
     {
         if (ModelState.IsValid == false)
         {
             return BadRequest(ModelState);
         }
 
-        var user = _userManager.Users.FirstOrDefault(x => x.UserName == loginDto.Username || x.Email == loginDto.Email);
-        if (user == null)
+        try
+        {
+            var result = await _mediator.Send(new LoginUserRequest(loginDto), ct);
+            return Ok(result);
+        }
+        catch (UserNotFoundException)
         {
             return NotFound();
         }
-
-        var result = await signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
-        if (result.Succeeded == false)
+        catch (UnauthorizedAccessException)
         {
             return Unauthorized();
         }
-
-        return Ok(new NewUserResult
+        catch (Exception e)
         {
-            Email = user.Email,
-            Username = user.UserName,
-            Token = _tokenService.CreateToken(user)
-        });
+            return BadRequest(e.Message);
+        }
     }
 }

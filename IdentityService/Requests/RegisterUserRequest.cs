@@ -3,4 +3,4 @@ using MediatR;
 
 namespace IdentityService.Requests;
 
-public record RegisterUserRequest(RegisterDto RegisterDto) : IRequest<NewUserResult>;
+public record RegisterUserRequest(RegisterDto RegisterDto) : IRequest<UserDataResult>;
