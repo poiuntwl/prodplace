@@ -15,16 +15,16 @@ public class RabbitMqService : IRabbitMqService
     private readonly IModel _channel;
     private readonly string _queueName;
 
-    public RabbitMqService()
+    public RabbitMqService(IConfiguration configuration)
     {
-        _queueName = "user-registrations";
+        _queueName = configuration["RabbitMq:QueueName"] ?? "eventsQueue";
 
         var factory = new ConnectionFactory
         {
-            HostName = "localhost",
-            Port = 5672,
-            UserName = "admin",
-            Password = "password"
+            HostName = configuration["RabbitMq:HostName"],
+            Port = int.TryParse(configuration["RabbitMq:Port"], out var port) ? port : 5672,
+            UserName = configuration["RabbitMq:UserName"],
+            Password = configuration["RabbitMq:Password"],
         };
         _connection = factory.CreateConnection();
         _channel = _connection.CreateModel();

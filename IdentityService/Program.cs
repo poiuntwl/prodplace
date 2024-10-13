@@ -1,4 +1,5 @@
 using AuthConfiguration;
+using IdentityService;
 using IdentityService.Data;
 using IdentityService.Handlers.Preprocessors;
 using IdentityService.Models;
@@ -29,6 +30,7 @@ s.AddControllers();
 s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();
 
+s.AddHostedService<OutboxPublisher>();
 s.AddTransient<ITokenService, TokenService>();
 s.AddScoped<IValidationService, ValidationService>();
 s.AddSingleton<IRabbitMqService, RabbitMqService>();
