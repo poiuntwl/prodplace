@@ -30,6 +30,8 @@ volumes:
     driver: local
   rabbitmq-data:
     driver: local
+  orders-data:
+    driver: local
 
 networks:
   prodplace:
