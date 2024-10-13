@@ -1,5 +1,6 @@
 using AuthConfiguration;
 using IdentityService.Data;
+using IdentityService.Handlers.Preprocessors;
 using IdentityService.Models;
 using IdentityService.Services;
 using Microsoft.AspNetCore.Identity;
@@ -18,6 +19,11 @@ s.AddIdentity<AppUser, IdentityRole>(x =>
     })
     .AddEntityFrameworkStores<AppDbContext>();
 s.AddJwtAuthConfiguration(builder.Configuration);
+s.AddMediatR(x =>
+{
+    x.RegisterServicesFromAssemblyContaining<Program>();
+    x.AddRequestPreProcessor<RegisterUserMessagingPreprocessor>();
+});
 
 s.AddControllers();
 s.AddEndpointsApiExplorer();

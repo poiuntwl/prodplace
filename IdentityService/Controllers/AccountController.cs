@@ -1,7 +1,9 @@
-﻿using IdentityService.Constants;
-using IdentityService.Dtos;
+﻿using IdentityService.Dtos;
+using IdentityService.Exceptions;
 using IdentityService.Models;
+using IdentityService.Requests;
 using IdentityService.Services;
+using MediatR;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
 
@@ -21,7 +23,9 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("register")]
-    public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto)
+    public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto,
+        [FromServices] IMediator mediator,
+        CancellationToken ct)
     {
         try
         {
@@ -30,36 +34,15 @@ public class AccountController : ControllerBase
                 return BadRequest(ModelState);
             }
 
-            var appUser = new AppUser
-            {
-                Email = registerDto.Email,
-                UserName = registerDto.Username
-            };
+            var result = await mediator.Send(new RegisterUserRequest(registerDto), ct);
 
-            var createResult = await _userManager.CreateAsync(appUser, registerDto.Password);
-
-            if (createResult.Succeeded == false)
+            return Ok(result);
+        }
+        catch (RegisterUserException e)
+        {
+            return StatusCode(StatusCodes.Status500InternalServerError, new
             {
-                return StatusCode(StatusCodes.Status500InternalServerError, new
-                {
-                    errors = createResult.Errors.Select(x => x.Description)
-                });
-            }
-
-            var addToRoleResult = await _userManager.AddToRoleAsync(appUser, AppRoles.User);
-            if (addToRoleResult.Succeeded == false)
-            {
-                return StatusCode(StatusCodes.Status500InternalServerError, new
-                {
-                    errors = addToRoleResult.Errors.Select(x => x.Description)
-                });
-            }
-
-            return Ok(new NewUserResult
-            {
-                Username = appUser.UserName,
-                Email = appUser.Email,
-                Token = _tokenService.CreateToken(appUser)
+                error = e.Message
             });
         }
         catch (Exception e)
