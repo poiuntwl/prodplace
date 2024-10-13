@@ -29,16 +29,7 @@ public class AppDbContext : DbContext
             .HasConversion<string>();
 
         modelBuilder.Entity<OrderModel>()
-            .Property(o => o.TotalAmount)
-            .HasComputedColumnSql(
-                """COALESCE((SELECT SUM("Quantity" * "UnitPrice") FROM "OrderItems" WHERE "OrderId" = "Id"), 0)""");
-
-        modelBuilder.Entity<OrderModel>()
             .Property(o => o.OrderDate)
             .HasDefaultValueSql("CURRENT_TIMESTAMP");
-
-        modelBuilder.Entity<OrderModel>()
-            .Property(o => o.TotalAmount)
-            .Metadata.SetAfterSaveBehavior(PropertySaveBehavior.Ignore);
     }
 }

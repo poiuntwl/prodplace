@@ -13,10 +13,6 @@ public sealed class OrderModel
 
     [Required] public DateTimeOffset OrderDate { get; set; }
 
-    [Required]
-    [Column(TypeName = "decimal(10, 2)")]
-    public decimal TotalAmount { get; }
-
     [Required] [MaxLength(20)] public OrderStatus Status { get; set; }
 
     [Required] public string ShippingAddress { get; set; }
