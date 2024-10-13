@@ -4,6 +4,7 @@ using IdentityService.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace IdentityService.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20241013202000_AddOutboxContext")]
+    partial class AddOutboxContext
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -45,7 +48,7 @@ namespace IdentityService.Migrations
                     b.Property<DateTime>("LastLoginDate")
                         .ValueGeneratedOnAdd()
                         .HasColumnType("datetime2")
-                        .HasDefaultValueSql("GETUTCDATE()");
+                        .HasDefaultValue(new DateTime(2024, 10, 13, 20, 20, 0, 633, DateTimeKind.Utc).AddTicks(7766));
 
                     b.Property<bool>("LockoutEnabled")
                         .HasColumnType("bit");
@@ -147,13 +150,13 @@ namespace IdentityService.Migrations
                     b.HasData(
                         new
                         {
-                            Id = "936beea8-ae32-4b76-b5fb-9b84e39e895b",
+                            Id = "631334dd-ae02-4aa0-926f-6311cc0745f7",
                             Name = "Admin",
                             NormalizedName = "ADMIN"
                         },
                         new
                         {
-                            Id = "f7d58429-81dc-4d75-8022-e7195db570ad",
+                            Id = "960ec648-632a-4d80-98b8-a5fbbc2186eb",
                             Name = "User",
                             NormalizedName = "USER"
                         });

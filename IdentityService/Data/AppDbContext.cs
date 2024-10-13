@@ -12,6 +12,8 @@ public class AppDbContext : IdentityDbContext<AppUser>
     {
     }
 
+    public DbSet<OutboxMessage> OutboxMessages { get; set; }
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -31,6 +33,6 @@ public class AppDbContext : IdentityDbContext<AppUser>
             },
         };
         builder.Entity<IdentityRole>().HasData(roles);
-        builder.Entity<AppUser>().Property(x => x.LastLoginDate).HasDefaultValue(DateTime.UtcNow);
+        builder.Entity<AppUser>().Property(x => x.LastLoginDate).HasDefaultValueSql("GETUTCDATE()");
     }
 }

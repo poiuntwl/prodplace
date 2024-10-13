@@ -29,9 +29,10 @@ s.AddControllers();
 s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();
 
-s.AddScoped<ITokenService, TokenService>();
+s.AddTransient<ITokenService, TokenService>();
 s.AddScoped<IValidationService, ValidationService>();
 s.AddSingleton<IRabbitMqService, RabbitMqService>();
+s.AddScoped<IOutboxService, OutboxService>();
 s.AddGrpc(x => { x.EnableDetailedErrors = true; });
 
 var app = builder.Build();

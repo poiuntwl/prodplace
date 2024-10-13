@@ -1,4 +1,5 @@
-﻿using IdentityService.Constants;
+﻿using System.Transactions;
+using IdentityService.Constants;
 using IdentityService.Dtos;
 using IdentityService.Exceptions;
 using IdentityService.Models;
@@ -13,15 +14,20 @@ public class RegisterUserHandler : IRequestHandler<RegisterUserRequest, UserData
 {
     private readonly UserManager<AppUser> _userManager;
     private readonly ITokenService _tokenService;
+    private readonly IOutboxService _outboxService;
 
-    public RegisterUserHandler(UserManager<AppUser> userManager, ITokenService tokenService)
+    public RegisterUserHandler(UserManager<AppUser> userManager, ITokenService tokenService,
+        IOutboxService outboxService)
     {
         _userManager = userManager;
         _tokenService = tokenService;
+        _outboxService = outboxService;
     }
 
     public async Task<UserDataResult> Handle(RegisterUserRequest request, CancellationToken cancellationToken)
     {
+        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
+
         var registerDto = request.RegisterDto;
 
         try
@@ -45,12 +51,18 @@ public class RegisterUserHandler : IRequestHandler<RegisterUserRequest, UserData
                 throw new RegisterUserException(createResult.Errors.Select(x => x.Description).ToList());
             }
 
-            return new UserDataResult
+            var userDataResult = new UserDataResult
             {
                 Username = appUser.UserName,
                 Email = appUser.Email,
                 Token = _tokenService.CreateToken(appUser)
             };
+
+            await _outboxService.CreateOutboxMessageAsync("identity.registerUser", userDataResult, cancellationToken);
+
+            scope.Complete();
+
+            return userDataResult;
         }
         catch (Exception e)
         {
