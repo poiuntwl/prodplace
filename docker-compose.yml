@@ -32,6 +32,8 @@ volumes:
     driver: local
   orders-data:
     driver: local
+  customers-data:
+    driver: local
 
 networks:
   prodplace:

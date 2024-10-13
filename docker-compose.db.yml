@@ -77,7 +77,27 @@
     volumes:
       - orders-data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U yourusername -d yourdbname" ]
+      test: [ "CMD-SHELL", "pg_isready -U admin -d ordersDb" ]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  customers-db:
+    build:
+      context: ./dbs/users
+      dockerfile: ./Dockerfile
+    environment:
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=Password123!!
+      - POSTGRES_DB=customersDb
+    ports:
+      - "5404:5432"
+    networks:
+      - prodplace
+    volumes:
+      - customers-data:/var/lib/postgresql/data
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U admin -d customersDb" ]
       interval: 5s
       timeout: 5s
       retries: 5

@@ -5,7 +5,9 @@ namespace OrderService.Models;
 
 public sealed class OrderModel
 {
-    [Key] public long Id { get; set; }
+    [Key]
+    [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+    public long Id { get; set; }
 
     [Required] public int CustomerId { get; set; }
 
