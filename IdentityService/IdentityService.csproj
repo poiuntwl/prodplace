@@ -32,6 +32,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AuthConfiguration\AuthConfiguration.csproj" />
+      <ProjectReference Include="..\CommonModels\CommonModels.csproj" />
     </ItemGroup>
 
     <ItemGroup>

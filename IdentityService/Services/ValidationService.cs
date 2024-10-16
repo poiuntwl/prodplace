@@ -1,5 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using IdentityService.Models;
+﻿using IdentityService.Models;
 using Microsoft.AspNetCore.Identity;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 

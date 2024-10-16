@@ -1,5 +1,5 @@
 using AuthConfiguration;
-using IdentityService;
+using IdentityService.BackgroundServices;
 using IdentityService.Data;
 using IdentityService.Handlers.Preprocessors;
 using IdentityService.Models;

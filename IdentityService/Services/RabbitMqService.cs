@@ -6,7 +6,7 @@ namespace IdentityService.Services;
 
 public interface IRabbitMqService : IDisposable
 {
-    void SendMessage<T>(T message);
+    Task SendMessageAsync<T>(T message, string? queueName = null);
 }
 
 public class RabbitMqService : IRabbitMqService
@@ -30,21 +30,23 @@ public class RabbitMqService : IRabbitMqService
         _channel = _connection.CreateModel();
 
         _channel.QueueDeclare(queue: _queueName,
-            durable: false,
+            durable: true,
             exclusive: false,
             autoDelete: false,
             arguments: null);
     }
 
-    public void SendMessage<T>(T message)
+    public Task SendMessageAsync<T>(T message, string? queueName = null)
     {
         var jsonMessage = JsonSerializer.Serialize(message);
         var body = Encoding.UTF8.GetBytes(jsonMessage);
 
         _channel.BasicPublish(exchange: "",
-            routingKey: _queueName,
+            routingKey: queueName ?? _queueName,
             basicProperties: null,
             body: body);
+
+        return Task.CompletedTask;
     }
 
     public void Dispose()

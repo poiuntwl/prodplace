@@ -1,4 +1,5 @@
 using Microsoft.EntityFrameworkCore;
+using UserService.BackgroundServices;
 using UserService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -10,6 +11,8 @@ s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();
 s.AddDbContext<AppDbContext>(x =>
     x.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection")));
+
+s.AddHostedService<OutboxListener>();
 
 var app = builder.Build();
 

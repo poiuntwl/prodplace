@@ -1,4 +1,5 @@
 ﻿using System.Transactions;
+using CommonModels.OutboxModels;
 using IdentityService.Constants;
 using IdentityService.Dtos;
 using IdentityService.Exceptions;
@@ -58,7 +59,14 @@ public class RegisterUserHandler : IRequestHandler<RegisterUserRequest, UserData
                 Token = _tokenService.CreateToken(appUser)
             };
 
-            await _outboxService.CreateOutboxMessageAsync("identity.registerUser", userDataResult, cancellationToken);
+            var eventData = new UserCreatedEventData
+            {
+                Email = userDataResult.Email,
+                Username = userDataResult.Username,
+                FirstName = userDataResult.Username,
+                LastName = null
+            };
+            await _outboxService.CreateOutboxMessageAsync("identity.registerUser", eventData, cancellationToken);
 
             scope.Complete();
 

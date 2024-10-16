@@ -87,6 +87,22 @@
       - ASPNETCORE_ENVIRONMENT=Development
       - PROJECT_NAME=IdentityService
 
+  customer-service:
+    image: customer-service
+    build:
+      context: .
+      dockerfile: ./CustomerService/Dockerfile
+      args:
+        PROJECT_NAME: CustomerService
+    depends_on:
+      customer-db:
+        condition: service_healthy
+    networks:
+      - prodplace
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - PROJECT_NAME=CustomerService
+
   playground-service:
     image: playground-service
     build:
