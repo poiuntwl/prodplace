@@ -7,20 +7,16 @@ using Microsoft.Extensions.DependencyInjection;
 
 namespace IdentityServiceTests;
 
-public class UnitTests : IClassFixture<IdentityServiceFactory>
+public class UnitTests : TestFixtureBase, IClassFixture<IdentityServiceFactory>
 {
-    private IServiceProvider ServiceProvider { get; set; }
-
-    public UnitTests(IdentityServiceFactory factory)
+    public UnitTests(IdentityServiceFactory factory) : base(factory)
     {
-        ServiceProvider = factory.Services;
     }
 
     [Fact]
     public async Task Test1()
     {
-        using var scope = ServiceProvider.CreateScope();
-        var dbContext = scope.ServiceProvider.GetService<AppDbContext>();
+        var dbContext = ServiceProvider.GetRequiredService<AppDbContext>();
         dbContext.OutboxMessages.Add(new OutboxMessage
         {
             Type = "sometype",
@@ -30,7 +26,7 @@ public class UnitTests : IClassFixture<IdentityServiceFactory>
         });
         await dbContext.SaveChangesAsync();
         var result = await dbContext.OutboxMessages.ToListAsync();
-        // var outboxService = scope.ServiceProvider.GetService<IOutboxService>();
-        // await outboxService.CreateOutboxMessageAsync("identity.registerUser", 1, CancellationToken.None);
+        var outboxService = ServiceProvider.GetRequiredService<IOutboxService>();
+        await outboxService.CreateOutboxMessageAsync("identity.registerUser", 1, CancellationToken.None);
     }
 }

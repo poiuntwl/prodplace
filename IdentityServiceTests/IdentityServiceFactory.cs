@@ -7,6 +7,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Testcontainers.MsSql;
+using Testcontainers.RabbitMq;
 
 namespace IdentityServiceTests;
 
@@ -14,21 +15,12 @@ public partial class IdentityServiceFactory : WebApplicationFactory<IAppMarker>,
 {
     private readonly MsSqlContainer _dbContainer;
     private readonly IConfiguration _unitTestsConfiguration;
+    private readonly RabbitMqContainer _rabbitMqContainer;
 
     public IdentityServiceFactory()
     {
-        var unitTestsDir = Path.GetDirectoryName(typeof(IdentityServiceFactory).Assembly.Location)!;
-        var unitTestsConfigPath = Path.Combine(unitTestsDir, "testsettings.json");
-        _unitTestsConfiguration = new ConfigurationBuilder().SetBasePath(unitTestsDir)
-            .AddJsonFile(unitTestsConfigPath, optional: false, reloadOnChange: true).Build();
-
-        var connectionString = _unitTestsConfiguration.GetConnectionString("TestIdentityConnection");
-        if (string.IsNullOrWhiteSpace(connectionString))
-        {
-            throw new ArgumentException("Missing connection string");
-        }
-
-        var password = GetPasswordFromConnectionString(connectionString);
+        _unitTestsConfiguration = SetupConfig();
+        var password = GetPasswordFromConnectionString();
 
         _dbContainer = new MsSqlBuilder()
             .WithPortBinding(5402, 1433)
@@ -36,11 +28,48 @@ public partial class IdentityServiceFactory : WebApplicationFactory<IAppMarker>,
             .WithPassword(password)
             .WithCleanUp(true)
             .Build();
+
+        _rabbitMqContainer = new RabbitMqBuilder()
+            .WithImage("rabbitmq:3-management")
+            .WithPortBinding(5672, 5672)
+            .WithPortBinding(15672, 15672)
+            .WithUsername("admin")
+            .WithPassword("password")
+            .Build();
+    }
+
+    [GeneratedRegex(@"(?<=Password\=).+?(?=(;|$))", RegexOptions.IgnoreCase)]
+    private static partial Regex PasswordMatchRegex();
+
+    private string GetPasswordFromConnectionString()
+    {
+        var connectionString = _unitTestsConfiguration.GetConnectionString("TestIdentityConnection");
+        if (string.IsNullOrWhiteSpace(connectionString))
+        {
+            throw new KeyNotFoundException("Missing connection string");
+        }
+
+        return PasswordMatchRegex().Match(connectionString).Value;
+    }
+
+    private static IConfiguration SetupConfig()
+    {
+        var unitTestsDir = Path.GetDirectoryName(typeof(IdentityServiceFactory).Assembly.Location)!;
+        var unitTestsConfigPath = Path.Combine(unitTestsDir, "testsettings.json");
+        var unitTestsConfiguration = new ConfigurationBuilder().SetBasePath(unitTestsDir)
+            .AddJsonFile(unitTestsConfigPath, optional: false, reloadOnChange: true).Build();
+        if (unitTestsConfiguration == null)
+        {
+            throw new FileNotFoundException("Missing configuration file");
+        }
+
+        return unitTestsConfiguration;
     }
 
     public async Task InitializeAsync()
     {
         await _dbContainer.StartAsync();
+        await _rabbitMqContainer.StartAsync();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -60,14 +89,7 @@ public partial class IdentityServiceFactory : WebApplicationFactory<IAppMarker>,
     async Task IAsyncLifetime.DisposeAsync()
     {
         await _dbContainer.DisposeAsync();
+        await _rabbitMqContainer.DisposeAsync();
         await DisposeAsync();
-    }
-
-    [GeneratedRegex(@"(?<=Password\=).+?(?=(;|$))")]
-    private static partial Regex PasswordMatchRegex();
-
-    private static string GetPasswordFromConnectionString(string connectionString)
-    {
-        return PasswordMatchRegex().Match(connectionString).Value;
     }
 }
