@@ -6,13 +6,14 @@ namespace IdentityService.BackgroundServices;
 
 public class OutboxPublisher : BackgroundService
 {
-    private readonly AppDbContext _dbContext;
     private readonly IRabbitMqService _rabbitMqService;
     private readonly ILogger _logger;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public OutboxPublisher(AppDbContext dbContext, IRabbitMqService rabbitMqService, ILoggerFactory loggerFactory)
+    public OutboxPublisher(IServiceScopeFactory serviceScopeFactory, IRabbitMqService rabbitMqService,
+        ILoggerFactory loggerFactory)
     {
-        _dbContext = dbContext;
+        _serviceScopeFactory = serviceScopeFactory;
         _rabbitMqService = rabbitMqService;
         _logger = loggerFactory.CreateLogger(GetType());
     }
@@ -21,9 +22,11 @@ public class OutboxPublisher : BackgroundService
     {
         while (!stoppingToken.IsCancellationRequested)
         {
+            await using var scope = _serviceScopeFactory.CreateAsyncScope();
+            var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
             try
             {
-                var outboxEvents = await _dbContext.OutboxMessages
+                var outboxEvents = await dbContext.OutboxMessages
                     .Where(x => x.ProcessedAt == null)
                     .OrderBy(x => x.CreatedAt)
                     .Take(100)
@@ -34,7 +37,7 @@ public class OutboxPublisher : BackgroundService
                     {
                         await _rabbitMqService.SendMessageAsync(e, "outboxQueue");
                         e.ProcessedAt = DateTime.UtcNow;
-                        _dbContext.OutboxMessages.Update(e);
+                        dbContext.OutboxMessages.Update(e);
                     }
                     catch (Exception ex)
                     {
@@ -52,7 +55,7 @@ public class OutboxPublisher : BackgroundService
                 await Task.Delay(2500, stoppingToken);
             }
 
-            await _dbContext.SaveChangesAsync(stoppingToken);
+            await dbContext.SaveChangesAsync(stoppingToken);
         }
     }
 }

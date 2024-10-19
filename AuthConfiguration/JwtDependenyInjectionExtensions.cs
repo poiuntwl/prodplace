@@ -8,9 +8,9 @@ using Microsoft.IdentityModel.Tokens;
 
 namespace AuthConfiguration;
 
-public static class JwtExtensions
+public static class JwtDependenyInjectionExtensions
 {
-    public static IServiceCollection AddJwtAuthConfiguration(this IServiceCollection s, ConfigurationManager config)
+    public static IServiceCollection AddJwtAuthConfiguration(this IServiceCollection s, IConfiguration config)
     {
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
         var jwtSecret = config["Jwt:secret"]!;
