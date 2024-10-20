@@ -22,14 +22,14 @@ if (app.Environment.IsDevelopment())
 app.UseHttpsRedirection();
 app.UseAuthorization();
 
-ApplyMigrationsAsync(app);
+ApplyMigrations();
 
 app.MapControllers();
 app.MapGrpcService<ValidationServiceGrpcWrapper>();
 app.Run();
 return;
 
-void ApplyMigrationsAsync(WebApplication app)
+void ApplyMigrations()
 {
     using var serviceScope = app.Services.CreateScope();
     var dbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
