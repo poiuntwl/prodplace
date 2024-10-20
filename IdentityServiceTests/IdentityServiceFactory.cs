@@ -1,11 +1,14 @@
-﻿using System.Text.RegularExpressions;
+﻿using System.Data.Common;
+using System.Text.RegularExpressions;
 using IdentityService;
 using IdentityService.Data;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Respawn;
 using Testcontainers.MsSql;
 using Testcontainers.RabbitMq;
 
@@ -13,9 +16,14 @@ namespace IdentityServiceTests;
 
 public partial class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLifetime
 {
+    public HttpClient HttpClient = default!;
+
+
     private readonly MsSqlContainer _dbContainer;
     private readonly IConfiguration _unitTestsConfiguration;
     private readonly RabbitMqContainer _rabbitMqContainer;
+    private DbConnection _dbConnection;
+    private Respawner _respawner;
 
     public IdentityServiceFactory()
     {
@@ -38,6 +46,43 @@ public partial class IdentityServiceFactory : WebApplicationFactory<IAppMarker>,
             .WithPassword("password")
             .Build();
     }
+
+    public async Task InitializeAsync()
+    {
+        var dbContainerStartTask = _dbContainer.StartAsync();
+        var rabbitMqContainerStartTask = _rabbitMqContainer.StartAsync();
+
+        await Task.WhenAll(dbContainerStartTask, rabbitMqContainerStartTask);
+        HttpClient = CreateClient();
+        await InitRespawner();
+    }
+
+    protected override void ConfigureWebHost(IWebHostBuilder builder)
+    {
+        builder.ConfigureServices((_, s) =>
+        {
+            s.Remove(s.Single(x => x.ServiceType == typeof(DbContextOptions<AppDbContext>)));
+            s.AddDbContext<AppDbContext>(y =>
+            {
+                y.UseSqlServer(_unitTestsConfiguration.GetConnectionString("TestIdentityConnection"));
+            });
+        });
+
+        base.ConfigureWebHost(builder);
+    }
+
+    async Task IAsyncLifetime.DisposeAsync()
+    {
+        await _dbContainer.DisposeAsync();
+        await _rabbitMqContainer.DisposeAsync();
+        await DisposeAsync();
+    }
+
+    public async Task ResetDbAsync()
+    {
+        await _respawner.ResetAsync(_dbConnection);
+    }
+
 
     [GeneratedRegex(@"(?<=Password\=).+?(?=(;|$))", RegexOptions.IgnoreCase)]
     private static partial Regex PasswordMatchRegex();
@@ -67,33 +112,15 @@ public partial class IdentityServiceFactory : WebApplicationFactory<IAppMarker>,
         return unitTestsConfiguration;
     }
 
-    public async Task InitializeAsync()
+    private async Task InitRespawner()
     {
-        var dbContainerStartTask = _dbContainer.StartAsync();
-        var rabbitMqContainerStartTask = _rabbitMqContainer.StartAsync();
-
-        await Task.WhenAll(dbContainerStartTask, rabbitMqContainerStartTask);
-    }
-
-    protected override void ConfigureWebHost(IWebHostBuilder builder)
-    {
-        builder.ConfigureServices((_, s) =>
+        _dbConnection = new SqlConnection(_dbContainer.GetConnectionString());
+        await _dbConnection.OpenAsync();
+        _respawner = await Respawner.CreateAsync(_dbConnection, new RespawnerOptions
         {
-            s.Remove(s.Single(x => x.ServiceType == typeof(DbContextOptions<AppDbContext>)));
-            s.AddDbContext<AppDbContext>(y =>
-            {
-                y.UseSqlServer(_unitTestsConfiguration.GetConnectionString("TestIdentityConnection"));
-            });
+            DbAdapter = DbAdapter.SqlServer,
+            SchemasToInclude = new[] { "dbo" }
         });
-
-        base.ConfigureWebHost(builder);
-    }
-
-    async Task IAsyncLifetime.DisposeAsync()
-    {
-        await _dbContainer.DisposeAsync();
-        await _rabbitMqContainer.DisposeAsync();
-        await DisposeAsync();
     }
 }
 

@@ -13,12 +13,12 @@ public class TestFixtureBase : IAsyncLifetime
         ServiceProvider = ServiceScope.ServiceProvider;
     }
 
-    public Task InitializeAsync()
+    public virtual Task InitializeAsync()
     {
         return Task.CompletedTask;
     }
 
-    public async Task DisposeAsync()
+    public virtual async Task DisposeAsync()
     {
         await ServiceScope.DisposeAsync();
     }

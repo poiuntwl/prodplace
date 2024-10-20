@@ -16,11 +16,20 @@ public class UnitTests : TestFixtureBase, IClassFixture<RegisterUserFixture>
 {
     private readonly RegisterDto _dto;
     private readonly UserDataResult? _user;
+    private readonly Func<Task> _resetDb;
 
-    public UnitTests(IdentityServiceFactory factory, RegisterUserFixture registerUserFixture) : base(factory)
+    public UnitTests(IdentityServiceFactory identityServiceFactory, RegisterUserFixture registerUserFixture) : base(identityServiceFactory)
     {
         _dto = registerUserFixture.Dto;
         _user = registerUserFixture.User;
+        _resetDb = identityServiceFactory.ResetDbAsync;
+    }
+
+    public override async Task DisposeAsync()
+    {
+        await _resetDb();
+
+        await base.DisposeAsync();
     }
 
     [Fact]

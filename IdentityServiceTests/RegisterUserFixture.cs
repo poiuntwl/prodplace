@@ -14,7 +14,7 @@ public class RegisterUserFixture : IAsyncLifetime
 
     public RegisterUserFixture(IdentityServiceFactory identityServiceFactory)
     {
-        _httpClient = identityServiceFactory.CreateClient();
+        _httpClient = identityServiceFactory.HttpClient;
     }
 
     private static RegisterDto GenerateRegisterDto()
