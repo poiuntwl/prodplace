@@ -33,7 +33,7 @@
     <ItemGroup>
       <ProjectReference Include="..\AuthConfiguration\AuthConfiguration.csproj" />
       <ProjectReference Include="..\CommonModels\CommonModels.csproj" />
-      <ProjectReference Include="..\RabbitMqTools\RabbitMqTools.csproj" />
+      <ProjectReference Include="..\MessagingTools\MessagingTools.csproj" />
     </ItemGroup>
 
     <ItemGroup>

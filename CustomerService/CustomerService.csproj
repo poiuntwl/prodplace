@@ -25,7 +25,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\CommonModels\CommonModels.csproj" />
-      <ProjectReference Include="..\RabbitMqTools\RabbitMqTools.csproj" />
+      <ProjectReference Include="..\MessagingTools\MessagingTools.csproj" />
     </ItemGroup>
 
 </Project>
