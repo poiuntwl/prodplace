@@ -24,6 +24,14 @@ public static class ServiceInjectionExtensions
         s.AddHostedService<OutboxPublisher>();
         s.AddTransient<ITokenService, TokenService>();
         s.AddScoped<IValidationService, ValidationService>();
+        s.AddSingleton<RabbitMqSettings>(x => new RabbitMqSettings
+        {
+            QueueName = configuration["RabbitMq:QueueName"],
+            HostName = configuration["RabbitMq:HostName"],
+            Port = int.TryParse(configuration["RabbitMq:Port"], out var port) ? port : 5672,
+            UserName = configuration["RabbitMq:UserName"],
+            Password = configuration["RabbitMq:Password"],
+        });
         s.AddSingleton<IRabbitMqService, RabbitMqService>();
         s.AddScoped<IOutboxService, OutboxService>();
         s.AddGrpc(x => { x.EnableDetailedErrors = true; });

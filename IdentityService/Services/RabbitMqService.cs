@@ -1,5 +1,6 @@
 ﻿using System.Text;
 using System.Text.Json;
+using IdentityService.Models;
 using RabbitMQ.Client;
 
 namespace IdentityService.Services;
@@ -15,16 +16,16 @@ public class RabbitMqService : IRabbitMqService
     private readonly IModel _channel;
     private readonly string _queueName;
 
-    public RabbitMqService(IConfiguration configuration)
+    public RabbitMqService(RabbitMqSettings settings)
     {
-        _queueName = configuration["RabbitMq:QueueName"] ?? "eventsQueue";
+        _queueName = settings.QueueName ?? "eventsQueue";
 
         var factory = new ConnectionFactory
         {
-            HostName = configuration["RabbitMq:HostName"],
-            Port = int.TryParse(configuration["RabbitMq:Port"], out var port) ? port : 5672,
-            UserName = configuration["RabbitMq:UserName"],
-            Password = configuration["RabbitMq:Password"],
+            HostName = settings.HostName,
+            Port = settings.Port,
+            UserName = settings.UserName,
+            Password = settings.Password,
         };
         _connection = factory.CreateConnection();
         _channel = _connection.CreateModel();

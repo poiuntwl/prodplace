@@ -11,28 +11,31 @@ namespace UserService.BackgroundServices;
 
 public class OutboxListener : BackgroundService
 {
-    private readonly IConnection _connection;
     private readonly IModel _channel;
-    private readonly string _queueName;
     private readonly ILogger<OutboxListener> _logger;
     private readonly AppDbContext _dbContext;
+    private readonly IServiceScope _serviceScope;
+    private string _queueName;
 
-    public OutboxListener(IConfiguration configuration, ILoggerFactory loggerFactory, AppDbContext dbContext)
+    public OutboxListener(RabbitMqSettings rabbitMqSettings, ILoggerFactory loggerFactory,
+        IServiceScopeFactory serviceScopeFactory)
     {
-        _dbContext = dbContext;
+        _serviceScope = serviceScopeFactory.CreateScope();
+
+        _dbContext = _serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
         _logger = loggerFactory.CreateLogger<OutboxListener>();
 
-        _queueName = configuration["RabbitMq:QueueName"] ?? "outboxQueue";
+        _queueName = rabbitMqSettings.QueueName ?? "outboxQueue";
 
         var factory = new ConnectionFactory
         {
-            HostName = configuration["RabbitMq:HostName"],
-            Port = int.TryParse(configuration["RabbitMq:Port"], out var port) ? port : 5672,
-            UserName = configuration["RabbitMq:UserName"],
-            Password = configuration["RabbitMq:Password"],
+            HostName = rabbitMqSettings.HostName,
+            Port = rabbitMqSettings.Port,
+            UserName = rabbitMqSettings.UserName,
+            Password = rabbitMqSettings.Password,
         };
-        _connection = factory.CreateConnection();
-        _channel = _connection.CreateModel();
+        var connection = factory.CreateConnection();
+        _channel = connection.CreateModel();
 
         _channel.QueueDeclare(queue: _queueName,
             durable: true,
@@ -49,7 +52,7 @@ public class OutboxListener : BackgroundService
             var body = ea.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
 
-            _logger.LogInformation($"Received message: {message}");
+            _logger.LogInformation("Received message: {Message}", message);
 
             var outboxEventEntity = JsonSerializer.Deserialize<OutboxMessage>(message);
             if (outboxEventEntity == null)
@@ -85,7 +88,14 @@ public class OutboxListener : BackgroundService
             await _dbContext.SaveChangesAsync(stoppingToken);
         };
 
-        _channel.BasicConsume(queue: "orderEventsQueue", autoAck: true, consumer: consumer);
+        _channel.BasicConsume(queue: _queueName, autoAck: true, consumer: consumer);
         return Task.CompletedTask;
+    }
+
+    public override void Dispose()
+    {
+        _serviceScope.Dispose();
+        GC.SuppressFinalize(this);
+        base.Dispose();
     }
 }

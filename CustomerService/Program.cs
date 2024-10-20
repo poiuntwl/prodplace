@@ -1,6 +1,7 @@
 using Microsoft.EntityFrameworkCore;
 using UserService.BackgroundServices;
 using UserService.Data;
+using UserService.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,6 +13,7 @@ s.AddSwaggerGen();
 s.AddDbContext<AppDbContext>(x =>
     x.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection")));
 
+s.AddSingleton<RabbitMqSettings>();
 s.AddHostedService<OutboxListener>();
 
 var app = builder.Build();

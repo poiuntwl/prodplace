@@ -5,8 +5,10 @@ using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
 using Respawn;
 using Testcontainers.PostgreSql;
+using Testcontainers.RabbitMq;
 using UserService;
 using UserService.Data;
+using UserService.Models;
 
 namespace IntegrationTests;
 
@@ -16,10 +18,12 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     private readonly PostgreSqlContainer _dbContainer;
     private NpgsqlConnection _sqlConnection = default!;
     private Respawner _respawner = default!;
+    private RabbitMqContainer _rabbitMqContainer;
 
     public CustomerServiceFactory(ContainersFactory containersFactory)
     {
         _dbContainer = containersFactory.CustomerDbContainer;
+        _rabbitMqContainer = containersFactory.RabbitMqContainer;
     }
 
     public async Task InitializeAsync()
@@ -33,7 +37,17 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         builder.ConfigureServices((_, s) =>
         {
             s.Remove(s.Single(x => x.ServiceType == typeof(DbContextOptions<AppDbContext>)));
-            s.AddDbContext<AppDbContext>(y => { y.UseSqlServer(_dbContainer.GetConnectionString()); });
+            s.AddDbContext<AppDbContext>(y => { y.UseNpgsql(_dbContainer.GetConnectionString()); });
+
+            s.Remove(s.Single(x => x.ServiceType == typeof(RabbitMqSettings)));
+            s.AddSingleton(new RabbitMqSettings
+            {
+                QueueName = "rabbitmq",
+                HostName = _rabbitMqContainer.Hostname,
+                Port = int.Parse(_rabbitMqContainer.GetConnectionString().Split(":").Last().Split("/")[0]),
+                UserName = "rabbitmq",
+                Password = "rabbitmq"
+            });
         });
 
         base.ConfigureWebHost(builder);
