@@ -3,7 +3,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
-using RabbitMqTools;
+using MessagingTools;
 using Respawn;
 using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;

@@ -2,7 +2,7 @@
 using System.Text.Json;
 using RabbitMQ.Client;
 
-namespace RabbitMqTools;
+namespace MessagingTools;
 
 public interface IRabbitMqService : IDisposable
 {

@@ -2,9 +2,11 @@
 using System.Text.Json;
 using CommonModels.OutboxModels;
 using IdentityService.Models;
+using MassTransit;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
-using RabbitMqTools;
+using MessagingTools;
+using MessagingTools.Contracts;
 using UserService.Data;
 using UserService.Models;
 
@@ -16,11 +18,13 @@ public class OutboxListener : BackgroundService
     private readonly ILogger<OutboxListener> _logger;
     private readonly string _queueName;
     private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly IPublishEndpoint _publishEndpoint;
 
     public OutboxListener(RabbitMqSettings rabbitMqSettings, ILoggerFactory loggerFactory,
-        IServiceScopeFactory serviceScopeFactory)
+        IServiceScopeFactory serviceScopeFactory, IPublishEndpoint publishEndpoint)
     {
         _serviceScopeFactory = serviceScopeFactory;
+        _publishEndpoint = publishEndpoint;
 
         _logger = loggerFactory.CreateLogger<OutboxListener>();
 
@@ -83,10 +87,17 @@ public class OutboxListener : BackgroundService
             };
 
             var createdCustomer = dbContext.Customers.Add(newCustomer);
+            await dbContext.SaveChangesAsync(stoppingToken);
+            await createdCustomer.ReloadAsync(stoppingToken);
+
+            await _publishEndpoint.Publish(new CustomerCreatedEvent
+            {
+                ConsumerId = createdCustomer.Entity.Id,
+                CreatedOnUtc = default
+            }, stoppingToken);
 
             _logger.LogInformation("Created new customer: {Id}", createdCustomer.Entity.Id);
 
-            await dbContext.SaveChangesAsync(stoppingToken);
             await dbContext.DisposeAsync();
             serviceScope.Dispose();
         };

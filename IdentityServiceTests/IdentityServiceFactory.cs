@@ -8,7 +8,7 @@ using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Moq;
-using RabbitMqTools;
+using MessagingTools;
 using Respawn;
 using Testcontainers.MsSql;
 

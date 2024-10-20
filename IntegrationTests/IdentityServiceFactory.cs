@@ -5,7 +5,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using RabbitMqTools;
+using MessagingTools;
 using Respawn;
 using Testcontainers.MsSql;
 using Testcontainers.RabbitMq;

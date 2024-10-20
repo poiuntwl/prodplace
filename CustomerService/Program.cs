@@ -1,5 +1,5 @@
 using Microsoft.EntityFrameworkCore;
-using RabbitMqTools;
+using MessagingTools;
 using UserService.BackgroundServices;
 using UserService.Data;
 

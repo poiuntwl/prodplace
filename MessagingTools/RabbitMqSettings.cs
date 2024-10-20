@@ -1,4 +1,4 @@
-﻿namespace RabbitMqTools;
+﻿namespace MessagingTools;
 
 public class RabbitMqSettings
 {
@@ -7,4 +7,7 @@ public class RabbitMqSettings
     public int Port { get; set; }
     public string UserName { get; set; }
     public string Password { get; set; }
+
+    public string ConnectionString =>
+        $"amqp://{Uri.EscapeDataString(UserName)}:{Uri.EscapeDataString(Password)}@{HostName}:{Port}";
 }

@@ -1,7 +1,7 @@
 ﻿using IdentityService.Data;
 using IdentityService.Services;
 using Microsoft.EntityFrameworkCore;
-using RabbitMqTools;
+using MessagingTools;
 
 namespace IdentityService.BackgroundServices;
 

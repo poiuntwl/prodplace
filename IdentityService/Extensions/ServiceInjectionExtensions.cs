@@ -1,11 +1,12 @@
 ﻿using AuthConfiguration;
 using IdentityService.BackgroundServices;
 using IdentityService.Data;
+using IdentityService.Handlers.PostProcessors;
 using IdentityService.Models;
 using IdentityService.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using RabbitMqTools;
+using MessagingTools;
 
 namespace IdentityService.Extensions;
 
@@ -18,6 +19,8 @@ public static class ServiceInjectionExtensions
         s.AddMediatR(x =>
         {
             x.RegisterServicesFromAssemblyContaining<Program>();
+
+            x.AddRequestPostProcessor<RegisterUserPostProcessor>();
         });
 
         s.AddHostedService<OutboxPublisher>();
