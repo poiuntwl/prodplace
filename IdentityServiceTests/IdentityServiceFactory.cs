@@ -29,6 +29,7 @@ public partial class IdentityServiceFactory : WebApplicationFactory<IAppMarker>,
             .WithCleanUp(true)
             .Build();
 
+        // todo: we don't actually need this queue. Mock rbmq client and remove unnecessary container setup
         _rabbitMqContainer = new RabbitMqBuilder()
             .WithImage("rabbitmq:3-management")
             .WithPortBinding(5672, 5672)
@@ -96,5 +97,5 @@ public partial class IdentityServiceFactory : WebApplicationFactory<IAppMarker>,
     }
 }
 
-[CollectionDefinition("coll")]
-public class Collection : ICollectionFixture<IdentityServiceFactory>;
+[CollectionDefinition(nameof(IdentityServiceCollectionDefinition))]
+public class IdentityServiceCollectionDefinition : ICollectionFixture<IdentityServiceFactory>;

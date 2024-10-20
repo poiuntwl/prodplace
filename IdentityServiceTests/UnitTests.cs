@@ -11,7 +11,7 @@ using Newtonsoft.Json.Linq;
 
 namespace IdentityServiceTests;
 
-[Collection("coll")]
+[Collection(nameof(IdentityServiceCollectionDefinition))]
 public class UnitTests : TestFixtureBase, IClassFixture<RegisterUserFixture>
 {
     private readonly RegisterDto _dto;

@@ -4,7 +4,7 @@ using IdentityService.Dtos;
 
 namespace IdentityServiceTests;
 
-[Collection("coll")]
+[Collection(nameof(IdentityServiceCollectionDefinition))]
 public class RegisterUserFixture : IAsyncLifetime
 {
     public UserDataResult? User { get; set; }
