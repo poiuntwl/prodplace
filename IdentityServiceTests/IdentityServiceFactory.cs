@@ -1,14 +1,15 @@
 ﻿using System.Data.Common;
 using IdentityService;
 using IdentityService.Data;
+using IdentityService.Services;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Moq;
 using Respawn;
 using Testcontainers.MsSql;
-using Testcontainers.RabbitMq;
 
 namespace IdentityServiceTests;
 
@@ -18,9 +19,9 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
 
 
     private readonly MsSqlContainer _dbContainer;
-    private readonly RabbitMqContainer _rabbitMqContainer;
     private DbConnection _dbConnection = default!;
     private Respawner _respawner = default!;
+    private readonly Mock<IRabbitMqService> _rabbitMqServiceMock = new();
 
     public IdentityServiceFactory()
     {
@@ -29,22 +30,13 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
             .WithCleanUp(true)
             .Build();
 
-        // todo: we don't actually need this queue. Mock rbmq client and remove unnecessary container setup
-        _rabbitMqContainer = new RabbitMqBuilder()
-            .WithImage("rabbitmq:3-management")
-            .WithPortBinding(5672, 5672)
-            .WithPortBinding(15672, 15672)
-            .WithUsername("admin")
-            .WithPassword("password")
-            .Build();
+        _rabbitMqServiceMock.Setup(x => x.SendMessageAsync(It.IsAny<object>(), It.IsAny<string>()));
     }
 
     public async Task InitializeAsync()
     {
-        var dbContainerStartTask = _dbContainer.StartAsync();
-        var rabbitMqContainerStartTask = _rabbitMqContainer.StartAsync();
+        await _dbContainer.StartAsync();
 
-        await Task.WhenAll(dbContainerStartTask, rabbitMqContainerStartTask);
         HttpClient = CreateClient();
         await InitRespawner();
     }
@@ -55,6 +47,8 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         {
             s.Remove(s.Single(x => x.ServiceType == typeof(DbContextOptions<AppDbContext>)));
             s.AddDbContext<AppDbContext>(y => { y.UseSqlServer(_dbContainer.GetConnectionString()); });
+            s.Remove(s.Single(x => x.ServiceType == typeof(IRabbitMqService)));
+            s.AddSingleton(_rabbitMqServiceMock.Object);
         });
 
         base.ConfigureWebHost(builder);
@@ -63,7 +57,6 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     async Task IAsyncLifetime.DisposeAsync()
     {
         await _dbContainer.DisposeAsync();
-        await _rabbitMqContainer.DisposeAsync();
         await DisposeAsync();
     }
 
