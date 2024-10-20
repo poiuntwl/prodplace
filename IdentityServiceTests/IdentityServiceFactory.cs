@@ -22,8 +22,8 @@ public partial class IdentityServiceFactory : WebApplicationFactory<IAppMarker>,
     private readonly MsSqlContainer _dbContainer;
     private readonly IConfiguration _unitTestsConfiguration;
     private readonly RabbitMqContainer _rabbitMqContainer;
-    private DbConnection _dbConnection;
-    private Respawner _respawner;
+    private DbConnection _dbConnection = default!;
+    private Respawner _respawner = default!;
 
     public IdentityServiceFactory()
     {
