@@ -95,3 +95,6 @@ public partial class IdentityServiceFactory : WebApplicationFactory<IAppMarker>,
         await DisposeAsync();
     }
 }
+
+[CollectionDefinition("coll")]
+public class Collection : ICollectionFixture<IdentityServiceFactory>;

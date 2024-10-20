@@ -11,53 +11,51 @@ using Newtonsoft.Json.Linq;
 
 namespace IdentityServiceTests;
 
-public class UnitTests : TestFixtureBase, IClassFixture<IdentityServiceFactory>
+[Collection("coll")]
+public class UnitTests : TestFixtureBase, IClassFixture<RegisterUserFixture>
 {
-    private readonly HttpClient _httpClient;
+    private readonly RegisterDto _dto;
+    private readonly UserDataResult? _user;
 
-    public UnitTests(IdentityServiceFactory factory) : base(factory)
+    public UnitTests(IdentityServiceFactory factory, RegisterUserFixture registerUserFixture) : base(factory)
     {
-        _httpClient = factory.CreateClient();
+        _dto = registerUserFixture.Dto;
+        _user = registerUserFixture.User;
     }
 
     [Fact]
     public async Task Register_ShouldCreateNewUser()
     {
-        var registerBody = new RegisterDto
-        {
-            Email = "someemail@gmail.com",
-            Password = "Somevalidpassword1!",
-            Username = "some_username"
-        };
-        var jsonBody = JsonSerializer.Serialize(registerBody);
-        var content = new StringContent(jsonBody, Encoding.UTF8, "application/json");
+        _user.Should().NotBeNull();
+        _user!.Email.Should().Be(_dto.Email);
+        _user.Username.Should().Be(_dto.Username);
+        _user.Token.Should().NotBeNullOrWhiteSpace();
+    }
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "api/account/register");
-        request.Content = content;
-        using var result = await _httpClient.SendAsync(request);
-        var responseJson = await result.Content.ReadAsStringAsync();
-        var response = JsonSerializer.Deserialize<UserDataResult>(responseJson, new JsonSerializerOptions
-        {
-            PropertyNameCaseInsensitive = true
-        });
-        response.Should().NotBeNull();
-        response!.Email.Should().Be(registerBody.Email);
-        response.Username.Should().Be(registerBody.Username);
-        response.Token.Should().NotBeNullOrWhiteSpace();
+    [Fact]
+    public async Task Register_ShouldContainValidToken()
+    {
+        var tokenBodyJson = JToken.Parse(Base64ToJson(_user.Token.Split('.')[1] + '='));
+        tokenBodyJson.Value<string>("email").Should().Be(_dto.Email);
+        tokenBodyJson.Value<string>("given_name").Should().Be(_dto.Username);
+    }
 
-        var tokenBodyJson = JToken.Parse(Base64ToJson(response.Token.Split('.')[1] + '='));
-        tokenBodyJson.Value<string>("email").Should().Be(registerBody.Email);
-        tokenBodyJson.Value<string>("given_name").Should().Be(registerBody.Username);
-
+    [Fact]
+    public async Task Register_ShouldCreateUserInDatabase()
+    {
         var userManager = ServiceProvider.GetRequiredService<UserManager<AppUser>>();
-        userManager.Users.ToList().Should().ContainSingle(x => x.Email == registerBody.Email);
+        userManager.Users.ToList().Should().ContainSingle(x => x.Email == _dto.Email);
+    }
 
+    [Fact]
+    public async Task Register_ShouldCreateOutboxMessageInDatabase()
+    {
         var dbContext = ServiceProvider.GetRequiredService<AppDbContext>();
         var foundMessage = dbContext.OutboxMessages.Should().ContainSingle(x => x.Content != null).Subject;
         var contentDeserialized = JsonSerializer.Deserialize<UserCreatedEventData>(foundMessage.Content);
-        contentDeserialized.Email.Should().Be(registerBody.Email);
-        contentDeserialized.Username.Should().Be(registerBody.Username);
-        contentDeserialized.FirstName.Should().Be(registerBody.Username);
+        contentDeserialized.Email.Should().Be(_dto.Email);
+        contentDeserialized.Username.Should().Be(_dto.Username);
+        contentDeserialized.FirstName.Should().Be(_dto.Username);
     }
 
     private static string Base64ToJson(string base64EncodedData)
