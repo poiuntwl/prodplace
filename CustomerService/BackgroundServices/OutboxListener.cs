@@ -4,6 +4,7 @@ using CommonModels.OutboxModels;
 using IdentityService.Models;
 using RabbitMQ.Client;
 using RabbitMQ.Client.Events;
+using RabbitMqTools;
 using UserService.Data;
 using UserService.Models;
 
@@ -13,19 +14,17 @@ public class OutboxListener : BackgroundService
 {
     private readonly IModel _channel;
     private readonly ILogger<OutboxListener> _logger;
-    private readonly AppDbContext _dbContext;
-    private readonly IServiceScope _serviceScope;
-    private string _queueName;
+    private readonly string _queueName;
+    private readonly IServiceScopeFactory _serviceScopeFactory;
 
     public OutboxListener(RabbitMqSettings rabbitMqSettings, ILoggerFactory loggerFactory,
         IServiceScopeFactory serviceScopeFactory)
     {
-        _serviceScope = serviceScopeFactory.CreateScope();
+        _serviceScopeFactory = serviceScopeFactory;
 
-        _dbContext = _serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
         _logger = loggerFactory.CreateLogger<OutboxListener>();
 
-        _queueName = rabbitMqSettings.QueueName ?? "outboxQueue";
+        _queueName = rabbitMqSettings.QueueName;
 
         var factory = new ConnectionFactory
         {
@@ -49,6 +48,8 @@ public class OutboxListener : BackgroundService
         var consumer = new EventingBasicConsumer(_channel);
         consumer.Received += async (_, ea) =>
         {
+            var serviceScope = _serviceScopeFactory.CreateScope();
+            var dbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
             var body = ea.Body.ToArray();
             var message = Encoding.UTF8.GetString(body);
 
@@ -69,33 +70,28 @@ public class OutboxListener : BackgroundService
             var newCustomer = new CustomerModel
             {
                 FirstName = userCreatedResult.Username,
-                LastName = null,
+                LastName = string.Empty,
                 Email = userCreatedResult.Email,
-                PhoneNumber = null,
+                PhoneNumber = "",
                 DateOfBirth = default,
                 CreatedAt = default,
                 LastUpdated = null,
-                Address = null,
-                City = null,
-                Country = null,
-                PostalCode = null
+                Address = "",
+                City = "",
+                Country = "",
+                PostalCode = ""
             };
 
-            var createdCustomer = _dbContext.Customers.Add(newCustomer);
+            var createdCustomer = dbContext.Customers.Add(newCustomer);
 
             _logger.LogInformation("Created new customer: {Id}", createdCustomer.Entity.Id);
 
-            await _dbContext.SaveChangesAsync(stoppingToken);
+            await dbContext.SaveChangesAsync(stoppingToken);
+            await dbContext.DisposeAsync();
+            serviceScope.Dispose();
         };
 
         _channel.BasicConsume(queue: _queueName, autoAck: true, consumer: consumer);
         return Task.CompletedTask;
-    }
-
-    public override void Dispose()
-    {
-        _serviceScope.Dispose();
-        GC.SuppressFinalize(this);
-        base.Dispose();
     }
 }

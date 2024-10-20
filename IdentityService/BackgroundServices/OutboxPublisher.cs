@@ -1,6 +1,7 @@
 ﻿using IdentityService.Data;
 using IdentityService.Services;
 using Microsoft.EntityFrameworkCore;
+using RabbitMqTools;
 
 namespace IdentityService.BackgroundServices;
 
@@ -35,7 +36,7 @@ public class OutboxPublisher : BackgroundService
                 {
                     try
                     {
-                        await _rabbitMqService.SendMessageAsync(e, "outboxQueue");
+                        await _rabbitMqService.SendMessageAsync(e);
                         e.ProcessedAt = DateTime.UtcNow;
                         dbContext.OutboxMessages.Update(e);
                     }

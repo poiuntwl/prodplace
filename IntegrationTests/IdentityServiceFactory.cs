@@ -1,11 +1,11 @@
 ﻿using IdentityService;
 using IdentityService.Data;
-using IdentityService.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using RabbitMqTools;
 using Respawn;
 using Testcontainers.MsSql;
 using Testcontainers.RabbitMq;

@@ -1,4 +1,4 @@
-﻿namespace IdentityService.Models;
+﻿namespace RabbitMqTools;
 
 public class RabbitMqSettings
 {

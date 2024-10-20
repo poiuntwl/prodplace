@@ -24,6 +24,8 @@ public class ContainersFactory : IAsyncLifetime
 
         RabbitMqContainer = new RabbitMqBuilder()
             .WithImage("rabbitmq:3-management")
+            .WithPortBinding(15672, true)
+            .WithPortBinding(5672, true)
             .WithCleanUp(true)
             .Build();
     }

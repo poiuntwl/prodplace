@@ -3,12 +3,12 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using Npgsql;
+using RabbitMqTools;
 using Respawn;
 using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
 using UserService;
 using UserService.Data;
-using UserService.Models;
 
 namespace IntegrationTests;
 

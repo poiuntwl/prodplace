@@ -33,9 +33,11 @@
     <ItemGroup>
       <ProjectReference Include="..\AuthConfiguration\AuthConfiguration.csproj" />
       <ProjectReference Include="..\CommonModels\CommonModels.csproj" />
+      <ProjectReference Include="..\RabbitMqTools\RabbitMqTools.csproj" />
     </ItemGroup>
 
     <ItemGroup>
+      <Folder Include="Handlers\Preprocessors\" />
       <Folder Include="Migrations\" />
     </ItemGroup>
 

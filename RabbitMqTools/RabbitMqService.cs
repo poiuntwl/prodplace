@@ -1,9 +1,8 @@
 ﻿using System.Text;
 using System.Text.Json;
-using IdentityService.Models;
 using RabbitMQ.Client;
 
-namespace IdentityService.Services;
+namespace RabbitMqTools;
 
 public interface IRabbitMqService : IDisposable
 {

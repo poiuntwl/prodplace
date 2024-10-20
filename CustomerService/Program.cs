@@ -1,7 +1,7 @@
 using Microsoft.EntityFrameworkCore;
+using RabbitMqTools;
 using UserService.BackgroundServices;
 using UserService.Data;
-using UserService.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
