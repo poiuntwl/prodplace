@@ -12,13 +12,13 @@ using Newtonsoft.Json.Linq;
 namespace IdentityServiceTests;
 
 [Collection(nameof(IdentityServiceCollectionDefinition))]
-public class UnitTests : TestFixtureBase, IClassFixture<RegisterUserFixture>
+public class AccountControllerTests : TestFixtureBase, IClassFixture<RegisterUserFixture>
 {
     private readonly RegisterDto _dto;
     private readonly UserDataResult? _user;
     private readonly Func<Task> _resetDb;
 
-    public UnitTests(IdentityServiceFactory identityServiceFactory, RegisterUserFixture registerUserFixture) : base(identityServiceFactory)
+    public AccountControllerTests(IdentityServiceFactory identityServiceFactory, RegisterUserFixture registerUserFixture) : base(identityServiceFactory)
     {
         _dto = registerUserFixture.Dto;
         _user = registerUserFixture.User;
