@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using System.Transactions;
 using IdentityService.Data;
 using IdentityService.Models;
 
@@ -20,26 +21,18 @@ public class OutboxService : IOutboxService
 
     public async Task CreateOutboxMessageAsync(string messageType, object content, CancellationToken ct)
     {
-        await using var tx = await _dbContext.Database.BeginTransactionAsync(ct);
+        using var txs = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
-        try
+        var msg = new OutboxMessage
         {
-            var msg = new OutboxMessage
-            {
-                Id = Guid.NewGuid(),
-                Type = messageType,
-                Content = JsonSerializer.Serialize(content),
-                CreatedAt = DateTime.UtcNow,
-            };
+            Id = Guid.NewGuid(),
+            Type = messageType,
+            Content = JsonSerializer.Serialize(content),
+            CreatedAt = DateTime.UtcNow,
+        };
 
-            await _dbContext.OutboxMessages.AddAsync(msg, ct);
-            await _dbContext.SaveChangesAsync(ct);
-            await tx.CommitAsync(ct);
-        }
-        catch (Exception)
-        {
-            await tx.RollbackAsync(ct);
-            throw;
-        }
+        await _dbContext.OutboxMessages.AddAsync(msg, ct);
+        await _dbContext.SaveChangesAsync(ct);
+        txs.Complete();
     }
 }

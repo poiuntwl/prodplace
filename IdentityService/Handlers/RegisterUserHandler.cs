@@ -1,6 +1,7 @@
 ﻿using System.Transactions;
 using CommonModels.OutboxModels;
 using IdentityService.Constants;
+using IdentityService.Data;
 using IdentityService.Dtos;
 using IdentityService.Exceptions;
 using IdentityService.Models;
@@ -8,6 +9,7 @@ using IdentityService.Requests;
 using IdentityService.Services;
 using MediatR;
 using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace IdentityService.Handlers;
 
@@ -16,13 +18,15 @@ public class RegisterUserHandler : IRequestHandler<RegisterUserRequest, UserData
     private readonly UserManager<AppUser> _userManager;
     private readonly ITokenService _tokenService;
     private readonly IOutboxService _outboxService;
+    private readonly AppDbContext _dbContext;
 
     public RegisterUserHandler(UserManager<AppUser> userManager, ITokenService tokenService,
-        IOutboxService outboxService)
+        IOutboxService outboxService, AppDbContext dbContext)
     {
         _userManager = userManager;
         _tokenService = tokenService;
         _outboxService = outboxService;
+        _dbContext = dbContext;
     }
 
     public async Task<UserDataResult> Handle(RegisterUserRequest request, CancellationToken cancellationToken)
@@ -38,7 +42,6 @@ public class RegisterUserHandler : IRequestHandler<RegisterUserRequest, UserData
                 Email = registerDto.Email,
                 UserName = registerDto.Username
             };
-
             var createResult = await _userManager.CreateAsync(appUser, registerDto.Password);
 
             if (createResult.Succeeded == false)

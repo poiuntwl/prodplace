@@ -68,8 +68,10 @@ public partial class IdentityServiceFactory : WebApplicationFactory<IAppMarker>,
 
     public async Task InitializeAsync()
     {
-        await _dbContainer.StartAsync();
-        await _rabbitMqContainer.StartAsync();
+        var dbContainerStartTask = _dbContainer.StartAsync();
+        var rabbitMqContainerStartTask = _rabbitMqContainer.StartAsync();
+
+        await Task.WhenAll(dbContainerStartTask, rabbitMqContainerStartTask);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

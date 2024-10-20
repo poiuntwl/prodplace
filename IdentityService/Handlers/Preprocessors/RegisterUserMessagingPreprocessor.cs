@@ -17,6 +17,7 @@ public class RegisterUserMessagingPreprocessor : IRequestPostProcessor<RegisterU
 
     public async Task Process(RegisterUserRequest request, UserDataResult response, CancellationToken cancellationToken)
     {
-        _rabbitMqService.SendMessageAsync(new RegisterUserMessage(request.RegisterDto.Email, request.RegisterDto.Username));
+        await _rabbitMqService.SendMessageAsync(new RegisterUserMessage(request.RegisterDto.Email,
+            request.RegisterDto.Username));
     }
 }
