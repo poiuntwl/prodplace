@@ -20,7 +20,7 @@ public class RegisterTests : IClassFixture<IdentityServiceFactory>, IClassFixtur
     private readonly HttpClient _identityHttpClient;
     private readonly IServiceScope _customerServiceScope;
     private readonly IServiceScope _identityServiceScope;
-    // private readonly ITestHarness _testHarness;
+    private ITestHarness _testHarness;
 
     public RegisterTests(IdentityServiceFactory identityServiceFactory,
         CustomerServiceFactory customerServiceFactory)
@@ -28,12 +28,12 @@ public class RegisterTests : IClassFixture<IdentityServiceFactory>, IClassFixtur
         _identityHttpClient = identityServiceFactory.HttpClient;
         _customerServiceScope = customerServiceFactory.Services.CreateScope();
         _identityServiceScope = identityServiceFactory.Services.CreateScope();
-        // _testHarness = _serviceScope.ServiceProvider.GetRequiredService<ITestHarness>();
+        _testHarness = _customerServiceScope.ServiceProvider.GetTestHarness();
     }
 
-    public Task InitializeAsync()
+    public async Task InitializeAsync()
     {
-        return Task.CompletedTask;
+        await _testHarness.Start();
     }
 
     public Task DisposeAsync()
@@ -45,9 +45,6 @@ public class RegisterTests : IClassFixture<IdentityServiceFactory>, IClassFixtur
     [Fact]
     public async Task Register_ShouldCreateCustomer()
     {
-        var testHarness = _customerServiceScope.ServiceProvider.GetTestHarness();
-        await testHarness.Start();
-
         var registerDto = new RegisterDto
         {
             Username = "someusername",
@@ -74,7 +71,7 @@ public class RegisterTests : IClassFixture<IdentityServiceFactory>, IClassFixtur
 
         await WaitUntilAllMessagesProcessedAsync();
 
-        var consumerTestHarness = testHarness.GetConsumerHarness<OutboxMessagePostedConsumer>();
+        var consumerTestHarness = _testHarness.GetConsumerHarness<OutboxMessagePostedConsumer>();
         var anyMessages = await consumerTestHarness.Consumed.Any<OutboxMessagePostedEvent>();
         anyMessages.Should().BeTrue();
 
