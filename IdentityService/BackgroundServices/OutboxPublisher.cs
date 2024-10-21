@@ -1,21 +1,19 @@
 ﻿using IdentityService.Data;
-using IdentityService.Services;
+using MassTransit;
+using MessagingTools.Contracts;
 using Microsoft.EntityFrameworkCore;
-using MessagingTools;
 
 namespace IdentityService.BackgroundServices;
 
 public class OutboxPublisher : BackgroundService
 {
-    private readonly IRabbitMqService _rabbitMqService;
     private readonly ILogger _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
 
-    public OutboxPublisher(IServiceScopeFactory serviceScopeFactory, IRabbitMqService rabbitMqService,
+    public OutboxPublisher(IServiceScopeFactory serviceScopeFactory,
         ILoggerFactory loggerFactory)
     {
         _serviceScopeFactory = serviceScopeFactory;
-        _rabbitMqService = rabbitMqService;
         _logger = loggerFactory.CreateLogger(GetType());
     }
 
@@ -25,6 +23,7 @@ public class OutboxPublisher : BackgroundService
         {
             await using var scope = _serviceScopeFactory.CreateAsyncScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+            var publishEndpoint = scope.ServiceProvider.GetRequiredService<IPublishEndpoint>();
             try
             {
                 var outboxEvents = await dbContext.OutboxMessages
@@ -36,7 +35,10 @@ public class OutboxPublisher : BackgroundService
                 {
                     try
                     {
-                        await _rabbitMqService.SendMessageAsync(e);
+                        await publishEndpoint.Publish(new OutboxMessagePostedEvent
+                        {
+                            OutboxMessage = e
+                        }, stoppingToken);
                         e.ProcessedAt = DateTime.UtcNow;
                         dbContext.OutboxMessages.Update(e);
                     }

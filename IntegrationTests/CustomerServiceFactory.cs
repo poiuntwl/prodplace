@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Hosting;
+﻿using MassTransit;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
@@ -46,7 +47,24 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
                 HostName = _rabbitMqContainer.Hostname,
                 Port = int.Parse(_rabbitMqContainer.GetConnectionString().Split(":").Last().Split("/")[0]),
                 UserName = "rabbitmq",
-                Password = "rabbitmq"
+                Password = "rabbitmq",
+                ConnectionString = _rabbitMqContainer.GetConnectionString()
+            });
+
+            s.AddMassTransitTestHarness(x =>
+            {
+                x.AddConsumers(typeof(IAppMarker).Assembly);
+                x.UsingRabbitMq((ctx, cfg) =>
+                {
+                    var rabbitMqSettings = ctx.GetRequiredService<RabbitMqSettings>();
+                    cfg.Host(new Uri(rabbitMqSettings.ConnectionString), y =>
+                    {
+                        y.Username(rabbitMqSettings.UserName);
+                        y.Password(rabbitMqSettings.Password);
+                    });
+
+                    cfg.ConfigureEndpoints(ctx);
+                });
             });
         });
 

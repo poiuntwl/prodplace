@@ -29,4 +29,8 @@
       <ProjectReference Include="..\MessagingTools\MessagingTools.csproj" />
     </ItemGroup>
 
+    <ItemGroup>
+      <Folder Include="BackgroundServices\" />
+    </ItemGroup>
+
 </Project>

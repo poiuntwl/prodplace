@@ -1,4 +1,5 @@
-﻿using AuthConfiguration;
+﻿using System.Reflection;
+using AuthConfiguration;
 using IdentityService.BackgroundServices;
 using IdentityService.Data;
 using IdentityService.Handlers.PostProcessors;
@@ -7,6 +8,7 @@ using IdentityService.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MessagingTools;
+using Microsoft.Extensions.DependencyInjection.MessagingTools;
 
 namespace IdentityService.Extensions;
 
@@ -34,9 +36,9 @@ public static class ServiceInjectionExtensions
             UserName = configuration["RabbitMq:UserName"],
             Password = configuration["RabbitMq:Password"],
         });
-        s.AddSingleton<IRabbitMqService, RabbitMqService>();
         s.AddScoped<IOutboxService, OutboxService>();
         s.AddGrpc(x => { x.EnableDetailedErrors = true; });
+        s.AddMassTransitInjections(Assembly.GetExecutingAssembly());
 
         return s;
     }

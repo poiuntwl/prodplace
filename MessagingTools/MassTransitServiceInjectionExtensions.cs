@@ -1,15 +1,18 @@
-﻿using MassTransit;
+﻿using System.Reflection;
+using MassTransit;
 using MessagingTools;
 
 namespace Microsoft.Extensions.DependencyInjection.MessagingTools;
 
 public static class MassTransitServiceInjectionExtensions
 {
-    public static IServiceCollection AddMassTransitInjections(this IServiceCollection s)
+    public static IServiceCollection AddMassTransitInjections(this IServiceCollection s, Assembly assembly)
     {
         s.AddMassTransit(x =>
         {
             x.SetKebabCaseEndpointNameFormatter();
+
+            x.AddConsumers(assembly);
 
             x.UsingRabbitMq((ctx, cfg) =>
             {

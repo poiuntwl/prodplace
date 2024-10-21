@@ -1,6 +1,7 @@
+using System.Reflection;
 using Microsoft.EntityFrameworkCore;
 using MessagingTools;
-using UserService.BackgroundServices;
+using Microsoft.Extensions.DependencyInjection.MessagingTools;
 using UserService.Data;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -14,7 +15,7 @@ s.AddDbContext<AppDbContext>(x =>
     x.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection")));
 
 s.AddSingleton<RabbitMqSettings>();
-s.AddHostedService<OutboxListener>();
+s.AddMassTransitInjections(Assembly.GetExecutingAssembly());
 
 var app = builder.Build();
 

@@ -2,6 +2,7 @@
 using IdentityService;
 using IdentityService.Data;
 using IdentityService.Services;
+using MassTransit;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
@@ -22,7 +23,7 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     private readonly MsSqlContainer _dbContainer;
     private DbConnection _dbConnection = default!;
     private Respawner _respawner = default!;
-    private readonly Mock<IRabbitMqService> _rabbitMqServiceMock = new();
+    // private readonly Mock<IRabbitMqService> _rabbitMqServiceMock = new();
 
     public IdentityServiceFactory()
     {
@@ -31,7 +32,7 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
             .WithCleanUp(true)
             .Build();
 
-        _rabbitMqServiceMock.Setup(x => x.SendMessageAsync(It.IsAny<object>(), It.IsAny<string>()));
+        // _rabbitMqServiceMock.Setup(x => x.SendMessageAsync(It.IsAny<object>(), It.IsAny<string>()));
     }
 
     public async Task InitializeAsync()
@@ -46,10 +47,11 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     {
         builder.ConfigureServices((_, s) =>
         {
+            s.AddMassTransitTestHarness();
             s.Remove(s.Single(x => x.ServiceType == typeof(DbContextOptions<AppDbContext>)));
             s.AddDbContext<AppDbContext>(y => { y.UseSqlServer(_dbContainer.GetConnectionString()); });
-            s.Remove(s.Single(x => x.ServiceType == typeof(IRabbitMqService)));
-            s.AddSingleton(_rabbitMqServiceMock.Object);
+            // s.Remove(s.Single(x => x.ServiceType == typeof(IRabbitMqService)));
+            // s.AddSingleton(_rabbitMqServiceMock.Object);
         });
 
         base.ConfigureWebHost(builder);
