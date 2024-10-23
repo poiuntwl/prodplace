@@ -1,36 +1,40 @@
-﻿using MassTransit;
+﻿using IdentityService;
+using IdentityService.Data;
+using MassTransit;
+using MessagingTools;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Npgsql;
-using MessagingTools;
 using Respawn;
-using Testcontainers.PostgreSql;
+using Testcontainers.MsSql;
 using Testcontainers.RabbitMq;
-using UserService;
-using UserService.Data;
 
-namespace IntegrationTests;
+namespace IntegrationTests.Factories;
 
-public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLifetime
+[Collection(nameof(ContainersFactoryCollectionDefinition))]
+public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLifetime
 {
     public HttpClient HttpClient = default!;
-    private readonly PostgreSqlContainer _dbContainer;
-    private NpgsqlConnection _sqlConnection = default!;
-    private Respawner _respawner = default!;
-    private RabbitMqContainer _rabbitMqContainer;
+    public AsyncServiceScope ServiceScope;
 
-    public CustomerServiceFactory(ContainersFactory containersFactory)
+    private readonly MsSqlContainer _dbContainer;
+    private SqlConnection _sqlConnection = default!;
+    private Respawner _respawner = default!;
+    private readonly RabbitMqContainer _rabbitMqContainer;
+
+    public IdentityServiceFactory(ContainersFactory containersFactory)
     {
-        _dbContainer = containersFactory.CustomerDbContainer;
+        _dbContainer = containersFactory.IdentityDbContainer;
         _rabbitMqContainer = containersFactory.RabbitMqContainer;
     }
 
     public async Task InitializeAsync()
     {
         HttpClient = CreateClient();
-        await InitRespawnerAsync();
+        await InitRespawner();
+        ServiceScope = Services.CreateAsyncScope();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -38,7 +42,10 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         builder.ConfigureServices((_, s) =>
         {
             s.Remove(s.Single(x => x.ServiceType == typeof(DbContextOptions<AppDbContext>)));
-            s.AddDbContext<AppDbContext>(y => { y.UseNpgsql(_dbContainer.GetConnectionString()); });
+            s.AddDbContext<AppDbContext>(y =>
+            {
+                SqlServerDbContextOptionsExtensions.UseSqlServer(y, _dbContainer.GetConnectionString());
+            });
 
             s.Remove(s.Single(x => x.ServiceType == typeof(RabbitMqSettings)));
             s.AddSingleton(new RabbitMqSettings
@@ -75,19 +82,20 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     {
         await ResetDbAsync();
         await _sqlConnection.DisposeAsync();
+        await ServiceScope.DisposeAsync();
         await DisposeAsync();
     }
 
-    private async Task InitRespawnerAsync()
+    private async Task InitRespawner()
     {
-        _sqlConnection = new NpgsqlConnection(_dbContainer.GetConnectionString());
+        _sqlConnection = new SqlConnection(_dbContainer.GetConnectionString());
 
         await _sqlConnection.OpenAsync();
 
         _respawner = await Respawner.CreateAsync(_sqlConnection, new RespawnerOptions
         {
-            DbAdapter = DbAdapter.Postgres,
-            SchemasToInclude = ["public"]
+            DbAdapter = DbAdapter.SqlServer,
+            SchemasToInclude = ["dbo"]
         });
     }
 
@@ -97,5 +105,5 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     }
 }
 
-[CollectionDefinition(nameof(CustomerServiceCollectionDefinition))]
-public class CustomerServiceCollectionDefinition : ICollectionFixture<CustomerServiceFactory>;
+[CollectionDefinition(nameof(IdentityServiceCollectionDefinition))]
+public class IdentityServiceCollectionDefinition : ICollectionFixture<IdentityServiceFactory>;

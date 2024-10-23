@@ -4,6 +4,7 @@ using System.Text.Json;
 using CommonModels.OutboxModels;
 using FluentAssertions;
 using IdentityService.Dtos;
+using IntegrationTests.Factories;
 using MassTransit.Testing;
 using MessagingTools.Contracts;
 using Microsoft.Extensions.DependencyInjection;
@@ -14,20 +15,21 @@ using JsonSerializer = System.Text.Json.JsonSerializer;
 namespace IntegrationTests;
 
 [Collection(nameof(ContainersFactoryCollectionDefinition))]
-public class RegisterTests : IClassFixture<IdentityServiceFactory>, IClassFixture<CustomerServiceFactory>,
+public class RegisterTests :
+    IClassFixture<IdentityServiceFactory>,
+    IClassFixture<CustomerServiceFactory>,
     IAsyncLifetime
 {
     private readonly HttpClient _identityHttpClient;
     private readonly IServiceScope _customerServiceScope;
     private readonly IServiceScope _identityServiceScope;
-    private ITestHarness _testHarness;
+    private readonly ITestHarness _testHarness;
 
-    public RegisterTests(IdentityServiceFactory identityServiceFactory,
-        CustomerServiceFactory customerServiceFactory)
+    public RegisterTests(IdentityServiceFactory identityServiceFactory, CustomerServiceFactory customerServiceFactory)
     {
         _identityHttpClient = identityServiceFactory.HttpClient;
-        _customerServiceScope = customerServiceFactory.Services.CreateScope();
-        _identityServiceScope = identityServiceFactory.Services.CreateScope();
+        _customerServiceScope = customerServiceFactory.ServiceScope;
+        _identityServiceScope = identityServiceFactory.ServiceScope;
         _testHarness = _customerServiceScope.ServiceProvider.GetTestHarness();
     }
 

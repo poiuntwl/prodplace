@@ -2,7 +2,7 @@
 using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
 
-namespace IntegrationTests;
+namespace IntegrationTests.Factories;
 
 public class ContainersFactory : IAsyncLifetime
 {
