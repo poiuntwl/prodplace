@@ -1,6 +1,4 @@
-﻿using System.Text.Json;
-using IdentityService.Dtos;
-using ProductsService.Dtos.Product;
+﻿using IdentityService.Dtos;
 
 namespace IntegrationTests.HttpClients;
 

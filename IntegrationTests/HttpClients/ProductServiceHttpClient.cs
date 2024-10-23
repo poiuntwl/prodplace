@@ -1,5 +1,5 @@
-﻿using System.Text.Json;
-using ProductsService.Dtos.Product;
+﻿extern alias ProductsServiceSUT;
+using ProductsServiceSUT::ProductsService.Dtos.Product;
 
 namespace IntegrationTests.HttpClients;
 

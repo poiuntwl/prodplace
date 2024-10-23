@@ -1,11 +1,15 @@
-﻿using IntegrationTests.HttpClients;
+﻿extern alias ProductsServiceSUT;
+using Grpc.Core;
+using IntegrationTests.HttpClients;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using ProductsService;
-using ProductsService.Data;
+using NSubstitute;
+using ProductsServiceSUT::IdentityGrpc.Server;
+using ProductsServiceSUT::ProductsService;
+using ProductsServiceSUT::ProductsService.Data;
 using Respawn;
 using Testcontainers.MsSql;
 using Testcontainers.RabbitMq;
@@ -46,6 +50,22 @@ public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLi
             s.AddHttpClient<IProductServiceHttpClient, ProductServiceHttpClient>(x =>
                 new ProductServiceHttpClient(CreateClient()));
 
+            // todo: don't mock, make it work with identity service
+            var grpcMock =
+                Substitute.For<ProductsServiceSUT::IdentityGrpc.Server.IdentityService.IdentityServiceClient>();
+            grpcMock.ValidateRolesAsync(Arg.Any<ValidateRolesRequest>(), Arg.Any<Metadata>(), Arg.Any<DateTime>(),
+                Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
+                new AsyncUnaryCall<ValidateResponse>(Task.FromResult<ValidateResponse>(new ValidateResponse
+                {
+                    IsValid = true
+                }), default, default, default, default));
+            grpcMock.ValidateTokenAsync(Arg.Any<ValidateTokenRequest>(), Arg.Any<Metadata>(), Arg.Any<DateTime>(),
+                Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
+                new AsyncUnaryCall<ValidateResponse>(Task.FromResult<ValidateResponse>(new ValidateResponse
+                {
+                    IsValid = true
+                }), default, default, default, default));
+            s.AddSingleton(grpcMock);
             /*
             s.Remove(s.Single(x => x.ServiceType == typeof(RabbitMqSettings)));
             s.AddSingleton(new RabbitMqSettings
