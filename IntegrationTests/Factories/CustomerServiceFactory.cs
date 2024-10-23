@@ -21,7 +21,7 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     private readonly PostgreSqlContainer _dbContainer;
     private NpgsqlConnection _sqlConnection = default!;
     private Respawner _respawner = default!;
-    private RabbitMqContainer _rabbitMqContainer;
+    private readonly RabbitMqContainer _rabbitMqContainer;
 
     public CustomerServiceFactory(ContainersFactory containersFactory)
     {
@@ -103,6 +103,3 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         await _respawner.ResetAsync(_sqlConnection);
     }
 }
-
-[CollectionDefinition(nameof(CustomerServiceCollectionDefinition))]
-public class CustomerServiceCollectionDefinition : ICollectionFixture<CustomerServiceFactory>;
