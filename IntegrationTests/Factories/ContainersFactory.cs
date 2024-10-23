@@ -45,6 +45,3 @@ public class ContainersFactory : IAsyncLifetime
         await RabbitMqContainer.DisposeAsync();
     }
 }
-
-[CollectionDefinition(nameof(ContainersFactoryCollectionDefinition))]
-public class ContainersFactoryCollectionDefinition : ICollectionFixture<ContainersFactory>;

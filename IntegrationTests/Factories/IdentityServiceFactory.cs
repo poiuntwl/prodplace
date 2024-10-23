@@ -13,7 +13,6 @@ using Testcontainers.RabbitMq;
 
 namespace IntegrationTests.Factories;
 
-[Collection(nameof(ContainersFactoryCollectionDefinition))]
 public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLifetime
 {
     public HttpClient HttpClient = default!;
@@ -105,5 +104,3 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     }
 }
 
-[CollectionDefinition(nameof(IdentityServiceCollectionDefinition))]
-public class IdentityServiceCollectionDefinition : ICollectionFixture<IdentityServiceFactory>;

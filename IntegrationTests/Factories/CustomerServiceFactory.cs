@@ -103,6 +103,3 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         await _respawner.ResetAsync(_sqlConnection);
     }
 }
-
-[CollectionDefinition(nameof(CustomerServiceCollectionDefinition))]
-public class CustomerServiceCollectionDefinition : ICollectionFixture<CustomerServiceFactory>;
