@@ -50,22 +50,7 @@ public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLi
             s.AddHttpClient<IProductServiceHttpClient, ProductServiceHttpClient>(x =>
                 new ProductServiceHttpClient(CreateClient()));
 
-            // todo: don't mock, make it work with identity service
-            var grpcMock =
-                Substitute.For<ProductsServiceSUT::IdentityGrpc.Server.IdentityService.IdentityServiceClient>();
-            grpcMock.ValidateRolesAsync(Arg.Any<ValidateRolesRequest>(), Arg.Any<Metadata>(), Arg.Any<DateTime>(),
-                Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
-                new AsyncUnaryCall<ValidateResponse>(Task.FromResult<ValidateResponse>(new ValidateResponse
-                {
-                    IsValid = true
-                }), default, default, default, default));
-            grpcMock.ValidateTokenAsync(Arg.Any<ValidateTokenRequest>(), Arg.Any<Metadata>(), Arg.Any<DateTime>(),
-                Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
-                new AsyncUnaryCall<ValidateResponse>(Task.FromResult<ValidateResponse>(new ValidateResponse
-                {
-                    IsValid = true
-                }), default, default, default, default));
-            s.AddSingleton(grpcMock);
+            MockGrpcDummy(s);
             /*
             s.Remove(s.Single(x => x.ServiceType == typeof(RabbitMqSettings)));
             s.AddSingleton(new RabbitMqSettings
@@ -97,6 +82,26 @@ public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLi
         });
 
         base.ConfigureWebHost(builder);
+    }
+
+    private static void MockGrpcDummy(IServiceCollection s)
+    {
+        // todo: don't mock, make it work with identity service
+        var grpcMock =
+            Substitute.For<ProductsServiceSUT::IdentityGrpc.Server.IdentityService.IdentityServiceClient>();
+        grpcMock.ValidateRolesAsync(Arg.Any<ValidateRolesRequest>(), Arg.Any<Metadata>(), Arg.Any<DateTime>(),
+            Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
+            new AsyncUnaryCall<ValidateResponse>(Task.FromResult<ValidateResponse>(new ValidateResponse
+            {
+                IsValid = true
+            }), default, default, default, default));
+        grpcMock.ValidateTokenAsync(Arg.Any<ValidateTokenRequest>(), Arg.Any<Metadata>(), Arg.Any<DateTime>(),
+            Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
+            new AsyncUnaryCall<ValidateResponse>(Task.FromResult<ValidateResponse>(new ValidateResponse
+            {
+                IsValid = true
+            }), default, default, default, default));
+        s.AddSingleton(grpcMock);
     }
 
     async Task IAsyncLifetime.DisposeAsync()
