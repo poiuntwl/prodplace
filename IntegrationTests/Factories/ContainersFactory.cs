@@ -8,22 +8,32 @@ public class ContainersFactory : IAsyncLifetime
 {
     public readonly MsSqlContainer IdentityDbContainer;
     public readonly PostgreSqlContainer CustomerDbContainer;
+    public readonly MsSqlContainer ProductDbContainer;
     public readonly RabbitMqContainer RabbitMqContainer;
 
     public ContainersFactory()
     {
+        const string sqlServerImageName = "mcr.microsoft.com/mssql/server:2022-CU13-ubuntu-22.04";
+        const string postgresImageName = "postgres:17-alpine";
+        const string rabbitmqImageName = "rabbitmq:3-management";
+
         IdentityDbContainer = new MsSqlBuilder()
-            .WithImage("mcr.microsoft.com/mssql/server:2022-CU13-ubuntu-22.04")
+            .WithImage(sqlServerImageName)
             .WithCleanUp(true)
             .Build();
 
         CustomerDbContainer = new PostgreSqlBuilder()
-            .WithImage("postgres:17-alpine")
+            .WithImage(postgresImageName)
+            .WithCleanUp(true)
+            .Build();
+
+        ProductDbContainer = new MsSqlBuilder()
+            .WithImage(sqlServerImageName)
             .WithCleanUp(true)
             .Build();
 
         RabbitMqContainer = new RabbitMqBuilder()
-            .WithImage("rabbitmq:3-management")
+            .WithImage(rabbitmqImageName)
             .WithPortBinding(15672, true)
             .WithPortBinding(5672, true)
             .WithCleanUp(true)
@@ -35,6 +45,7 @@ public class ContainersFactory : IAsyncLifetime
         await Task.WhenAll(
             IdentityDbContainer.StartAsync(),
             CustomerDbContainer.StartAsync(),
+            ProductDbContainer.StartAsync(),
             RabbitMqContainer.StartAsync());
     }
 
@@ -42,6 +53,7 @@ public class ContainersFactory : IAsyncLifetime
     {
         await IdentityDbContainer.DisposeAsync();
         await CustomerDbContainer.DisposeAsync();
+        await ProductDbContainer.DisposeAsync();
         await RabbitMqContainer.DisposeAsync();
     }
 }

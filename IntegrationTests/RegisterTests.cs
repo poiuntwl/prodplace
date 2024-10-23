@@ -5,6 +5,7 @@ using CommonModels.OutboxModels;
 using FluentAssertions;
 using IdentityService.Dtos;
 using IntegrationTests.Factories;
+using IntegrationTests.HttpClients;
 using MassTransit.Testing;
 using MessagingTools.Contracts;
 using Microsoft.Extensions.DependencyInjection;
@@ -20,16 +21,16 @@ public class RegisterTests :
     IClassFixture<CustomerServiceFactory>,
     IAsyncLifetime
 {
-    private readonly HttpClient _identityHttpClient;
+    private readonly IIdentityServiceHttpClient _identityHttpClient;
     private readonly IServiceScope _customerServiceScope;
-    private readonly IServiceScope _identityServiceScope;
+    private readonly IServiceProvider _identityServiceScope;
     private readonly ITestHarness _testHarness;
 
     public RegisterTests(IdentityServiceFactory identityServiceFactory, CustomerServiceFactory customerServiceFactory)
     {
         _identityHttpClient = identityServiceFactory.HttpClient;
         _customerServiceScope = customerServiceFactory.ServiceScope;
-        _identityServiceScope = identityServiceFactory.ServiceScope;
+        _identityServiceScope = identityServiceFactory.ServiceProvider;
         _testHarness = _customerServiceScope.ServiceProvider.GetTestHarness();
     }
 
@@ -54,22 +55,9 @@ public class RegisterTests :
             Password = "Somevalidpassword1!"
         };
 
-        using var request = new HttpRequestMessage(HttpMethod.Post, "api/account/register");
-        request.Content = new StringContent(JsonSerializer.Serialize(registerDto), Encoding.UTF8,
-            MediaTypeNames.Application.Json);
-
-        using var response = await _identityHttpClient.SendAsync(request);
-        UserDataResult userDataResult;
-        {
-            var responseJson = await response.Content.ReadAsStringAsync();
-            userDataResult = JsonSerializer.Deserialize<UserDataResult>(responseJson, new JsonSerializerOptions
-            {
-                PropertyNameCaseInsensitive = true
-            });
-        }
-
-        userDataResult.Should().NotBeNull();
-        userDataResult!.Email.Should().Be(registerDto.Email);
+        var response = await _identityHttpClient.Register(registerDto);
+        response.Should().NotBeNull();
+        response!.Email.Should().Be(registerDto.Email);
 
         await WaitUntilAllMessagesProcessedAsync();
 
@@ -89,7 +77,7 @@ public class RegisterTests :
 
     private async Task WaitUntilAllMessagesProcessedAsync()
     {
-        var dbContext = _identityServiceScope.ServiceProvider.GetRequiredService<IdentityService.Data.AppDbContext>();
+        var dbContext = _identityServiceScope.GetRequiredService<IdentityService.Data.AppDbContext>();
         while (dbContext.OutboxMessages.Any(x => x.ProcessedAt == null))
         {
             await Task.Delay(TimeSpan.FromSeconds(1));

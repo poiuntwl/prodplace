@@ -1,39 +1,40 @@
-﻿using MassTransit;
-using MessagingTools;
+﻿using IntegrationTests.HttpClients;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
+using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
-using Npgsql;
+using ProductsService;
+using ProductsService.Data;
 using Respawn;
-using Testcontainers.PostgreSql;
+using Testcontainers.MsSql;
 using Testcontainers.RabbitMq;
-using UserService;
-using UserService.Data;
 
 namespace IntegrationTests.Factories;
 
-public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLifetime
+public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLifetime
 {
-    public HttpClient HttpClient = default!;
-    public AsyncServiceScope ServiceScope;
+    public IProductServiceHttpClient HttpClient = default!;
+    private AsyncServiceScope _serviceScope;
+    public IServiceProvider ServiceProvider = default!;
 
-    private readonly PostgreSqlContainer _dbContainer;
-    private NpgsqlConnection _sqlConnection = default!;
+    private readonly MsSqlContainer _dbContainer;
+    private SqlConnection _sqlConnection = default!;
     private Respawner _respawner = default!;
     private readonly RabbitMqContainer _rabbitMqContainer;
 
-    public CustomerServiceFactory(ContainersFactory containersFactory)
+    public ProductServiceFactory(ContainersFactory containersFactory)
     {
-        _dbContainer = containersFactory.CustomerDbContainer;
+        _dbContainer = containersFactory.ProductDbContainer;
         _rabbitMqContainer = containersFactory.RabbitMqContainer;
     }
 
     public async Task InitializeAsync()
     {
-        HttpClient = CreateClient();
         await InitRespawnerAsync();
-        ServiceScope = Services.CreateAsyncScope();
+        _serviceScope = Services.CreateAsyncScope();
+        ServiceProvider = _serviceScope.ServiceProvider;
+        HttpClient = ServiceProvider.GetRequiredService<IProductServiceHttpClient>();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -41,11 +42,11 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         builder.ConfigureServices((_, s) =>
         {
             s.Remove(s.Single(x => x.ServiceType == typeof(DbContextOptions<AppDbContext>)));
-            s.AddDbContext<AppDbContext>(y =>
-            {
-                NpgsqlDbContextOptionsBuilderExtensions.UseNpgsql(y, _dbContainer.GetConnectionString());
-            });
+            s.AddDbContext<AppDbContext>(y => { y.UseSqlServer(_dbContainer.GetConnectionString()); });
+            s.AddHttpClient<IProductServiceHttpClient, ProductServiceHttpClient>(x =>
+                new ProductServiceHttpClient(CreateClient()));
 
+            /*
             s.Remove(s.Single(x => x.ServiceType == typeof(RabbitMqSettings)));
             s.AddSingleton(new RabbitMqSettings
             {
@@ -72,6 +73,7 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
                     cfg.ConfigureEndpoints(ctx);
                 });
             });
+            */
         });
 
         base.ConfigureWebHost(builder);
@@ -82,20 +84,20 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         HttpClient.Dispose();
         await ResetDbAsync();
         await _sqlConnection.DisposeAsync();
-        await ServiceScope.DisposeAsync();
+        await _serviceScope.DisposeAsync();
         await DisposeAsync();
     }
 
     private async Task InitRespawnerAsync()
     {
-        _sqlConnection = new NpgsqlConnection(_dbContainer.GetConnectionString());
+        _sqlConnection = new SqlConnection(_dbContainer.GetConnectionString());
 
         await _sqlConnection.OpenAsync();
 
         _respawner = await Respawner.CreateAsync(_sqlConnection, new RespawnerOptions
         {
-            DbAdapter = DbAdapter.Postgres,
-            SchemasToInclude = ["public"]
+            DbAdapter = DbAdapter.SqlServer,
+            SchemasToInclude = ["dbo"]
         });
     }
 

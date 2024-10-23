@@ -1,5 +1,6 @@
 ﻿using IdentityService;
 using IdentityService.Data;
+using IntegrationTests.HttpClients;
 using MassTransit;
 using MessagingTools;
 using Microsoft.AspNetCore.Hosting;
@@ -15,9 +16,10 @@ namespace IntegrationTests.Factories;
 
 public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLifetime
 {
-    public HttpClient HttpClient = default!;
-    public AsyncServiceScope ServiceScope;
+    public IIdentityServiceHttpClient HttpClient = default!;
+    public IServiceProvider ServiceProvider;
 
+    private AsyncServiceScope _serviceScope;
     private readonly MsSqlContainer _dbContainer;
     private SqlConnection _sqlConnection = default!;
     private Respawner _respawner = default!;
@@ -31,19 +33,23 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
 
     public async Task InitializeAsync()
     {
-        HttpClient = CreateClient();
         await InitRespawner();
-        ServiceScope = Services.CreateAsyncScope();
+        _serviceScope = Services.CreateAsyncScope();
+        ServiceProvider = _serviceScope.ServiceProvider;
+        HttpClient = ServiceProvider.GetRequiredService<IIdentityServiceHttpClient>();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.ConfigureServices((_, s) =>
         {
+            s.AddHttpClient<IIdentityServiceHttpClient, IdentityServiceHttpClient>(y =>
+                new IdentityServiceHttpClient(CreateClient()));
+
             s.Remove(s.Single(x => x.ServiceType == typeof(DbContextOptions<AppDbContext>)));
             s.AddDbContext<AppDbContext>(y =>
             {
-                SqlServerDbContextOptionsExtensions.UseSqlServer(y, _dbContainer.GetConnectionString());
+                y.UseSqlServer(_dbContainer.GetConnectionString());
             });
 
             s.Remove(s.Single(x => x.ServiceType == typeof(RabbitMqSettings)));
@@ -79,9 +85,10 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
 
     async Task IAsyncLifetime.DisposeAsync()
     {
+        HttpClient.Dispose();
         await ResetDbAsync();
         await _sqlConnection.DisposeAsync();
-        await ServiceScope.DisposeAsync();
+        await _serviceScope.DisposeAsync();
         await DisposeAsync();
     }
 
@@ -103,4 +110,3 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         await _respawner.ResetAsync(_sqlConnection);
     }
 }
-
