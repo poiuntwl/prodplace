@@ -8,9 +8,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
-using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Hosting;
 using Respawn;
 using Testcontainers.MsSql;
 using Testcontainers.RabbitMq;
@@ -19,14 +17,14 @@ namespace IntegrationTests.Factories;
 
 public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLifetime
 {
-    public IIdentityServiceHttpClient HttpClient = default!;
-    public IServiceProvider ServiceProvider = default!;
+    private readonly MsSqlContainer _dbContainer;
+    private readonly RabbitMqContainer _rabbitMqContainer;
+    private Respawner _respawner = default!;
 
     private AsyncServiceScope _serviceScope;
-    private MsSqlContainer _dbContainer;
     private SqlConnection _sqlConnection = default!;
-    private Respawner _respawner = default!;
-    private RabbitMqContainer _rabbitMqContainer;
+    public IIdentityServiceHttpClient HttpClient = default!;
+    public IServiceProvider ServiceProvider = default!;
 
     public IdentityServiceFactory(ContainersFactory containersFactory)
     {

@@ -1,5 +1,4 @@
 ﻿extern alias ProductsServiceSUT;
-using EphemeralMongo;
 using Grpc.Core;
 using IntegrationTests.HttpClients;
 using Microsoft.AspNetCore.Hosting;
@@ -10,11 +9,9 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using MongoDB.Driver;
 using NSubstitute;
-using ProdPlaceMongoDatabaseTools;
 using ProductsServiceSUT::IdentityGrpc.Server;
 using ProductsServiceSUT::ProductsService;
 using ProductsServiceSUT::ProductsService.Data;
-using ProductsServiceSUT::ProductsService.Helpers;
 using Respawn;
 using Testcontainers.MongoDb;
 using Testcontainers.RabbitMq;
@@ -23,14 +20,13 @@ namespace IntegrationTests.Factories;
 
 public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLifetime
 {
-    public IProductServiceHttpClient HttpClient = default!;
-    private AsyncServiceScope _serviceScope;
-    public IServiceProvider ServiceProvider = default!;
-
-    private MongoDbContainer _dbContainer;
+    private readonly MongoDbContainer _dbContainer;
     private MongoClient _mongoClient;
-    private Respawner _respawner = default!;
     private RabbitMqContainer _rabbitMqContainer;
+    private Respawner _respawner = default!;
+    private AsyncServiceScope _serviceScope;
+    public IProductServiceHttpClient HttpClient = default!;
+    public IServiceProvider ServiceProvider = default!;
 
     public ProductServiceFactory(ContainersFactory containersFactory)
     {
@@ -119,13 +115,13 @@ public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLi
             Substitute.For<ProductsServiceSUT::IdentityGrpc.Server.IdentityService.IdentityServiceClient>();
         grpcMock.ValidateRolesAsync(Arg.Any<ValidateRolesRequest>(), Arg.Any<Metadata>(), Arg.Any<DateTime>(),
             Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
-            new AsyncUnaryCall<ValidateResponse>(Task.FromResult<ValidateResponse>(new ValidateResponse
+            new AsyncUnaryCall<ValidateResponse>(Task.FromResult(new ValidateResponse
             {
                 IsValid = true
             }), default, default, default, default));
         grpcMock.ValidateTokenAsync(Arg.Any<ValidateTokenRequest>(), Arg.Any<Metadata>(), Arg.Any<DateTime>(),
             Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
-            new AsyncUnaryCall<ValidateResponse>(Task.FromResult<ValidateResponse>(new ValidateResponse
+            new AsyncUnaryCall<ValidateResponse>(Task.FromResult(new ValidateResponse
             {
                 IsValid = true
             }), default, default, default, default));

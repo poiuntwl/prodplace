@@ -11,24 +11,24 @@
 
     <ItemGroup>
         <PackageReference Include="coverlet.collector" Version="6.0.0"/>
-        <PackageReference Include="EphemeralMongo7" Version="1.1.3" />
-        <PackageReference Include="FluentAssertions" Version="6.12.1" />
-        <PackageReference Include="Google.Protobuf" Version="3.28.3" />
-        <PackageReference Include="Grpc.Net.Client" Version="2.66.0" />
+        <PackageReference Include="EphemeralMongo7" Version="1.1.3"/>
+        <PackageReference Include="FluentAssertions" Version="6.12.1"/>
+        <PackageReference Include="Google.Protobuf" Version="3.28.3"/>
+        <PackageReference Include="Grpc.Net.Client" Version="2.66.0"/>
         <PackageReference Include="Grpc.Tools" Version="2.67.0">
-          <PrivateAssets>all</PrivateAssets>
-          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+            <PrivateAssets>all</PrivateAssets>
+            <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Meziantou.Xunit.ParallelTestFramework" Version="2.3.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.10" />
+        <PackageReference Include="Meziantou.Xunit.ParallelTestFramework" Version="2.3.0"/>
+        <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.10"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
-        <PackageReference Include="Mongo2Go" Version="3.1.3" />
-        <PackageReference Include="NSubstitute" Version="5.1.0" />
-        <PackageReference Include="Respawn" Version="6.2.1" />
-        <PackageReference Include="Testcontainers.MongoDb" Version="3.10.0" />
-        <PackageReference Include="Testcontainers.MsSql" Version="3.10.0" />
-        <PackageReference Include="Testcontainers.PostgreSql" Version="3.10.0" />
-        <PackageReference Include="Testcontainers.RabbitMq" Version="3.10.0" />
+        <PackageReference Include="Mongo2Go" Version="3.1.3"/>
+        <PackageReference Include="NSubstitute" Version="5.1.0"/>
+        <PackageReference Include="Respawn" Version="6.2.1"/>
+        <PackageReference Include="Testcontainers.MongoDb" Version="3.10.0"/>
+        <PackageReference Include="Testcontainers.MsSql" Version="3.10.0"/>
+        <PackageReference Include="Testcontainers.PostgreSql" Version="3.10.0"/>
+        <PackageReference Include="Testcontainers.RabbitMq" Version="3.10.0"/>
         <PackageReference Include="xunit" Version="2.5.3"/>
         <PackageReference Include="xunit.runner.visualstudio" Version="2.5.3"/>
     </ItemGroup>
@@ -38,11 +38,11 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\CustomerService\CustomerService.csproj" />
-      <ProjectReference Include="..\IdentityService\IdentityService.csproj" />
-      <ProjectReference Include="..\ProductsService\ProductsService.csproj">
-          <Aliases>ProductsServiceSUT</Aliases>
-      </ProjectReference>
+        <ProjectReference Include="..\CustomerService\CustomerService.csproj"/>
+        <ProjectReference Include="..\IdentityService\IdentityService.csproj"/>
+        <ProjectReference Include="..\ProductsService\ProductsService.csproj">
+            <Aliases>ProductsServiceSUT</Aliases>
+        </ProjectReference>
     </ItemGroup>
 
     <ItemGroup>

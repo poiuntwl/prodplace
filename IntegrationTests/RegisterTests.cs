@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using CommonModels.OutboxModels;
 using FluentAssertions;
 using IdentityService.Dtos;
@@ -10,7 +9,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using UserService.Consumers;
 using UserService.Data;
-using Xunit.Abstractions;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace IntegrationTests;
@@ -21,8 +19,8 @@ public class RegisterTests :
     IClassFixture<CustomerServiceFactory>,
     IAsyncLifetime
 {
-    private readonly IIdentityServiceHttpClient _identityHttpClient;
     private readonly IServiceScope _customerServiceScope;
+    private readonly IIdentityServiceHttpClient _identityHttpClient;
     private readonly IServiceProvider _identityServiceScope;
     private readonly ITestHarness _testHarness;
 
@@ -80,8 +78,6 @@ public class RegisterTests :
         var counter = 3;
         var dbContext = _identityServiceScope.GetRequiredService<IdentityService.Data.AppDbContext>();
         while (counter-- > 0 && dbContext.OutboxMessages.AsNoTracking().Any(x => x.ProcessedAt == null))
-        {
             await Task.Delay(TimeSpan.FromMilliseconds(1000));
-        }
     }
 }

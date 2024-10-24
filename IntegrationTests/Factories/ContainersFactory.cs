@@ -7,8 +7,8 @@ namespace IntegrationTests.Factories;
 
 public class ContainersFactory : IAsyncLifetime
 {
-    public readonly MsSqlContainer IdentityDbContainer;
     public readonly PostgreSqlContainer CustomerDbContainer;
+    public readonly MsSqlContainer IdentityDbContainer;
     public readonly MongoDbContainer ProductDbContainer;
     public readonly RabbitMqContainer RabbitMqContainer;
 

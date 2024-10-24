@@ -15,13 +15,12 @@ namespace IntegrationTests.Factories;
 
 public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLifetime
 {
+    private readonly PostgreSqlContainer _dbContainer;
+    private readonly RabbitMqContainer _rabbitMqContainer;
+    private Respawner _respawner = default!;
+    private NpgsqlConnection _sqlConnection = default!;
     public HttpClient HttpClient = default!;
     public AsyncServiceScope ServiceScope;
-
-    private PostgreSqlContainer _dbContainer;
-    private NpgsqlConnection _sqlConnection = default!;
-    private Respawner _respawner = default!;
-    private RabbitMqContainer _rabbitMqContainer;
 
     public CustomerServiceFactory(ContainersFactory containersFactory)
     {
@@ -50,10 +49,7 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         builder.ConfigureServices((_, s) =>
         {
             s.Remove(s.Single(x => x.ServiceType == typeof(DbContextOptions<AppDbContext>)));
-            s.AddDbContext<AppDbContext>(y =>
-            {
-                NpgsqlDbContextOptionsBuilderExtensions.UseNpgsql(y, _dbContainer.GetConnectionString());
-            });
+            s.AddDbContext<AppDbContext>(y => { y.UseNpgsql(_dbContainer.GetConnectionString()); });
 
             s.Remove(s.Single(x => x.ServiceType == typeof(RabbitMqSettings)));
             s.AddSingleton(new RabbitMqSettings

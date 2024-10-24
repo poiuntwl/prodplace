@@ -7,7 +7,7 @@ namespace IntegrationTests.HttpClients;
 
 public static class HttpClientExtensions
 {
-    private static readonly JsonSerializerOptions JsonSerializerOptions = new JsonSerializerOptions
+    private static readonly JsonSerializerOptions JsonSerializerOptions = new()
     {
         PropertyNameCaseInsensitive = true
     };
@@ -18,15 +18,11 @@ public static class HttpClientExtensions
         using var httpRequestMessage = new HttpRequestMessage(httpMethod ?? HttpMethod.Get, url);
 
         if (string.IsNullOrWhiteSpace(jwt) == false)
-        {
             httpRequestMessage.Headers.Authorization = new AuthenticationHeaderValue("Bearer", jwt);
-        }
 
         if (body != null)
-        {
             httpRequestMessage.Content =
                 new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, MediaTypeNames.Application.Json);
-        }
 
         using var response = await httpClient.SendAsync(httpRequestMessage);
         var responseJson = await response.Content.ReadAsStringAsync();

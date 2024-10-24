@@ -11,8 +11,8 @@ namespace IntegrationTests;
 [Collection(nameof(ContainersFactoryCollectionDefinition))]
 public class ProductTests : IClassFixture<ProductServiceFactory>, IClassFixture<IdentityServiceFactory>
 {
-    private readonly IProductServiceHttpClient _productServiceHttpClient;
     private readonly IIdentityServiceHttpClient _identityServiceHttpClient;
+    private readonly IProductServiceHttpClient _productServiceHttpClient;
 
     public ProductTests(ProductServiceFactory productServiceFactory, IdentityServiceFactory identityServiceFactory)
     {
