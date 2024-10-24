@@ -1,4 +1,5 @@
 ﻿using IdentityService.Data;
+using IdentityService.Models;
 using MassTransit;
 using MessagingTools.Contracts;
 using Microsoft.EntityFrameworkCore;
@@ -9,11 +10,13 @@ public class OutboxPublisher : BackgroundService
 {
     private readonly ILogger _logger;
     private readonly IServiceScopeFactory _serviceScopeFactory;
+    private readonly OutboxPublisherConfiguration _configuration;
 
     public OutboxPublisher(IServiceScopeFactory serviceScopeFactory,
-        ILoggerFactory loggerFactory)
+        ILoggerFactory loggerFactory, OutboxPublisherConfiguration configuration)
     {
         _serviceScopeFactory = serviceScopeFactory;
+        _configuration = configuration;
         _logger = loggerFactory.CreateLogger(GetType());
     }
 
@@ -41,6 +44,7 @@ public class OutboxPublisher : BackgroundService
                         }, stoppingToken);
                         e.ProcessedAt = DateTime.UtcNow;
                         dbContext.OutboxMessages.Update(e);
+                        await dbContext.SaveChangesAsync(stoppingToken);
                     }
                     catch (Exception ex)
                     {
@@ -55,10 +59,8 @@ public class OutboxPublisher : BackgroundService
             }
             finally
             {
-                await Task.Delay(2500, stoppingToken);
+                await Task.Delay(_configuration.Delay, stoppingToken);
             }
-
-            await dbContext.SaveChangesAsync(stoppingToken);
         }
     }
 }

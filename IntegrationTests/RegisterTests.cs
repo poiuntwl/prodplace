@@ -1,3 +1,4 @@
+using System.Diagnostics;
 using CommonModels.OutboxModels;
 using FluentAssertions;
 using IdentityService.Dtos;
@@ -5,9 +6,11 @@ using IntegrationTests.Factories;
 using IntegrationTests.HttpClients;
 using MassTransit.Testing;
 using MessagingTools.Contracts;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using UserService.Consumers;
 using UserService.Data;
+using Xunit.Abstractions;
 using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace IntegrationTests;
@@ -74,10 +77,11 @@ public class RegisterTests :
 
     private async Task WaitUntilAllMessagesProcessedAsync()
     {
+        var counter = 3;
         var dbContext = _identityServiceScope.GetRequiredService<IdentityService.Data.AppDbContext>();
-        while (dbContext.OutboxMessages.Any(x => x.ProcessedAt == null))
+        while (counter-- > 0 && dbContext.OutboxMessages.AsNoTracking().Any(x => x.ProcessedAt == null))
         {
-            await Task.Delay(TimeSpan.FromSeconds(1));
+            await Task.Delay(TimeSpan.FromMilliseconds(1000));
         }
     }
 }

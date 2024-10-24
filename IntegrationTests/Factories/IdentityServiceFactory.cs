@@ -1,5 +1,6 @@
 ﻿using IdentityService;
 using IdentityService.Data;
+using IdentityService.Models;
 using IntegrationTests.HttpClients;
 using MassTransit;
 using MessagingTools;
@@ -7,7 +8,9 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
 using Respawn;
 using Testcontainers.MsSql;
 using Testcontainers.RabbitMq;
@@ -43,6 +46,12 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     {
         builder.ConfigureServices((_, s) =>
         {
+            s.Remove(s.Single(x => x.ServiceType == typeof(OutboxPublisherConfiguration)));
+            s.AddSingleton<OutboxPublisherConfiguration>(x => new OutboxPublisherConfiguration
+            {
+                Delay = TimeSpan.FromMilliseconds(500)
+            });
+
             s.AddHttpClient<IIdentityServiceHttpClient, IdentityServiceHttpClient>(y =>
                 new IdentityServiceHttpClient(CreateClient()));
 
