@@ -47,10 +47,7 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
                 new IdentityServiceHttpClient(CreateClient()));
 
             s.Remove(s.Single(x => x.ServiceType == typeof(DbContextOptions<AppDbContext>)));
-            s.AddDbContext<AppDbContext>(y =>
-            {
-                y.UseSqlServer(_dbContainer.GetConnectionString());
-            });
+            s.AddDbContext<AppDbContext>(y => { y.UseSqlServer(_dbContainer.GetConnectionString()); });
 
             s.Remove(s.Single(x => x.ServiceType == typeof(RabbitMqSettings)));
             s.AddSingleton(new RabbitMqSettings

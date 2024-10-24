@@ -24,11 +24,12 @@ public class ProductTests : IClassFixture<ProductServiceFactory>, IClassFixture<
     public async Task CreateProduct_ShouldCreateProductAndReturn()
     {
         var user = await _identityServiceHttpClient.Register(new RegisterDto
-        {
-            Username = "someusername",
-            Email = "someusername@gmail.com",
-            Password = "Somevalidpassword1!"
-        });
+            {
+                Username = Guid.NewGuid().ToString()[..10],
+                Email = $"{Guid.NewGuid().ToString()[..5]}@gmail.com",
+                Password = $"Some{Guid.NewGuid().ToString()[..5]}password1!"
+            }
+        );
         user.Should().NotBeNull();
 
         await _productServiceHttpClient.Create(new CreateProductRequestDto
