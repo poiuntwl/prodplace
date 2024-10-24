@@ -18,10 +18,10 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     public HttpClient HttpClient = default!;
     public AsyncServiceScope ServiceScope;
 
-    private readonly PostgreSqlContainer _dbContainer;
+    private PostgreSqlContainer _dbContainer;
     private NpgsqlConnection _sqlConnection = default!;
     private Respawner _respawner = default!;
-    private readonly RabbitMqContainer _rabbitMqContainer;
+    private RabbitMqContainer _rabbitMqContainer;
 
     public CustomerServiceFactory(ContainersFactory containersFactory)
     {
@@ -34,6 +34,15 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         HttpClient = CreateClient();
         await InitRespawnerAsync();
         ServiceScope = Services.CreateAsyncScope();
+    }
+
+    async Task IAsyncLifetime.DisposeAsync()
+    {
+        HttpClient.Dispose();
+        await ResetDbAsync();
+        await _sqlConnection.DisposeAsync();
+        await ServiceScope.DisposeAsync();
+        await DisposeAsync();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -75,16 +84,6 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         });
 
         base.ConfigureWebHost(builder);
-    }
-
-    async Task IAsyncLifetime.DisposeAsync()
-    {
-        // HttpClient.Dispose();
-        // await ResetDbAsync();
-        // await _sqlConnection.DisposeAsync();
-        // await ServiceScope.DisposeAsync();
-        // await _dbContainer.DisposeAsync();
-        // await DisposeAsync();
     }
 
     private async Task InitRespawnerAsync()

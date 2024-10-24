@@ -20,13 +20,13 @@ namespace IntegrationTests.Factories;
 public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLifetime
 {
     public IIdentityServiceHttpClient HttpClient = default!;
-    public IServiceProvider ServiceProvider;
+    public IServiceProvider ServiceProvider = default!;
 
     private AsyncServiceScope _serviceScope;
-    private readonly MsSqlContainer _dbContainer;
+    private MsSqlContainer _dbContainer;
     private SqlConnection _sqlConnection = default!;
     private Respawner _respawner = default!;
-    private readonly RabbitMqContainer _rabbitMqContainer;
+    private RabbitMqContainer _rabbitMqContainer;
 
     public IdentityServiceFactory(ContainersFactory containersFactory)
     {
@@ -41,6 +41,16 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         ServiceProvider = _serviceScope.ServiceProvider;
         HttpClient = ServiceProvider.GetRequiredService<IIdentityServiceHttpClient>();
     }
+
+    async Task IAsyncLifetime.DisposeAsync()
+    {
+        HttpClient.Dispose();
+        await ResetDbAsync();
+        await _sqlConnection.DisposeAsync();
+        await _serviceScope.DisposeAsync();
+        await DisposeAsync();
+    }
+
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
@@ -87,16 +97,6 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         });
 
         base.ConfigureWebHost(builder);
-    }
-
-    async Task IAsyncLifetime.DisposeAsync()
-    {
-        // HttpClient.Dispose();
-        // await ResetDbAsync();
-        // await _sqlConnection.DisposeAsync();
-        // await _serviceScope.DisposeAsync();
-        // await _dbContainer.DisposeAsync();
-        // await DisposeAsync();
     }
 
     private async Task InitRespawner()

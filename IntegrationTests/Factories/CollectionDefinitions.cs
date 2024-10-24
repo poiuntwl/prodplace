@@ -1,4 +1,4 @@
 ﻿namespace IntegrationTests.Factories;
 
-[CollectionDefinition(nameof(ContainersFactoryCollectionDefinition), DisableParallelization = false)]
+[CollectionDefinition(nameof(ContainersFactoryCollectionDefinition))]
 public class ContainersFactoryCollectionDefinition : ICollectionFixture<ContainersFactory>;

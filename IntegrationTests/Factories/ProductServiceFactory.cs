@@ -27,10 +27,10 @@ public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLi
     private AsyncServiceScope _serviceScope;
     public IServiceProvider ServiceProvider = default!;
 
-    private readonly MongoDbContainer _dbContainer;
+    private MongoDbContainer _dbContainer;
     private MongoClient _mongoClient;
     private Respawner _respawner = default!;
-    private readonly RabbitMqContainer _rabbitMqContainer;
+    private RabbitMqContainer _rabbitMqContainer;
 
     public ProductServiceFactory(ContainersFactory containersFactory)
     {
@@ -48,6 +48,13 @@ public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLi
         var db = new MongoClient(_dbContainer.GetConnectionString()).GetDatabase("default");
         await db.CreateCollectionAsync("prices");
         await db.CreateCollectionAsync("product");
+    }
+
+    async Task IAsyncLifetime.DisposeAsync()
+    {
+        HttpClient.Dispose();
+        await _serviceScope.DisposeAsync();
+        await DisposeAsync();
     }
 
     protected override IHost CreateHost(IHostBuilder builder)
@@ -123,13 +130,5 @@ public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLi
                 IsValid = true
             }), default, default, default, default));
         s.AddSingleton(grpcMock);
-    }
-
-    async Task IAsyncLifetime.DisposeAsync()
-    {
-        // HttpClient.Dispose();
-        // await _serviceScope.DisposeAsync();
-        // await _dbContainer.DisposeAsync();
-        // await DisposeAsync();
     }
 }

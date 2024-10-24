@@ -53,9 +53,9 @@ public class ContainersFactory : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        // await IdentityDbContainer.DisposeAsync();
-        // await CustomerDbContainer.DisposeAsync();
-        // await ProductDbContainer.DisposeAsync();
-        // await RabbitMqContainer.DisposeAsync();
+        await IdentityDbContainer.DisposeAsync();
+        await CustomerDbContainer.DisposeAsync();
+        await ProductDbContainer.DisposeAsync();
+        await RabbitMqContainer.DisposeAsync();
     }
 }
