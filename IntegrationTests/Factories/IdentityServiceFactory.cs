@@ -85,11 +85,12 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
 
     async Task IAsyncLifetime.DisposeAsync()
     {
-        HttpClient.Dispose();
-        await ResetDbAsync();
-        await _sqlConnection.DisposeAsync();
-        await _serviceScope.DisposeAsync();
-        await DisposeAsync();
+        // HttpClient.Dispose();
+        // await ResetDbAsync();
+        // await _sqlConnection.DisposeAsync();
+        // await _serviceScope.DisposeAsync();
+        // await _dbContainer.DisposeAsync();
+        // await DisposeAsync();
     }
 
     private async Task InitRespawner()

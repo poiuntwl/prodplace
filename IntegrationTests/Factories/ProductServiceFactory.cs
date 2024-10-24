@@ -1,17 +1,22 @@
 ﻿extern alias ProductsServiceSUT;
+using EphemeralMongo;
 using Grpc.Core;
 using IntegrationTests.HttpClients;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
-using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using MongoDB.Driver;
 using NSubstitute;
+using ProdPlaceMongoDatabaseTools;
 using ProductsServiceSUT::IdentityGrpc.Server;
 using ProductsServiceSUT::ProductsService;
 using ProductsServiceSUT::ProductsService.Data;
+using ProductsServiceSUT::ProductsService.Helpers;
 using Respawn;
-using Testcontainers.MsSql;
+using Testcontainers.MongoDb;
 using Testcontainers.RabbitMq;
 
 namespace IntegrationTests.Factories;
@@ -22,23 +27,39 @@ public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLi
     private AsyncServiceScope _serviceScope;
     public IServiceProvider ServiceProvider = default!;
 
-    private readonly MsSqlContainer _dbContainer;
-    private SqlConnection _sqlConnection = default!;
+    private readonly MongoDbContainer _dbContainer;
+    private MongoClient _mongoClient;
     private Respawner _respawner = default!;
     private readonly RabbitMqContainer _rabbitMqContainer;
 
     public ProductServiceFactory(ContainersFactory containersFactory)
     {
         _dbContainer = containersFactory.ProductDbContainer;
+        _mongoClient = new MongoClient(_dbContainer.GetConnectionString());
         _rabbitMqContainer = containersFactory.RabbitMqContainer;
     }
 
     public async Task InitializeAsync()
     {
-        await InitRespawnerAsync();
         _serviceScope = Services.CreateAsyncScope();
         ServiceProvider = _serviceScope.ServiceProvider;
         HttpClient = ServiceProvider.GetRequiredService<IProductServiceHttpClient>();
+
+        var db = new MongoClient(_dbContainer.GetConnectionString()).GetDatabase("default");
+        await db.CreateCollectionAsync("prices");
+        await db.CreateCollectionAsync("product");
+    }
+
+    protected override IHost CreateHost(IHostBuilder builder)
+    {
+        builder.ConfigureAppConfiguration((context, configurationBuilder) =>
+        {
+            configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ConnectionStrings:MongoDefaultConnection"] = _dbContainer.GetConnectionString()
+            });
+        });
+        return base.CreateHost(builder);
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)
@@ -106,28 +127,9 @@ public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLi
 
     async Task IAsyncLifetime.DisposeAsync()
     {
-        HttpClient.Dispose();
-        await ResetDbAsync();
-        await _sqlConnection.DisposeAsync();
-        await _serviceScope.DisposeAsync();
-        await DisposeAsync();
-    }
-
-    private async Task InitRespawnerAsync()
-    {
-        _sqlConnection = new SqlConnection(_dbContainer.GetConnectionString());
-
-        await _sqlConnection.OpenAsync();
-
-        _respawner = await Respawner.CreateAsync(_sqlConnection, new RespawnerOptions
-        {
-            DbAdapter = DbAdapter.SqlServer,
-            SchemasToInclude = ["dbo"]
-        });
-    }
-
-    private async Task ResetDbAsync()
-    {
-        await _respawner.ResetAsync(_sqlConnection);
+        // HttpClient.Dispose();
+        // await _serviceScope.DisposeAsync();
+        // await _dbContainer.DisposeAsync();
+        // await DisposeAsync();
     }
 }

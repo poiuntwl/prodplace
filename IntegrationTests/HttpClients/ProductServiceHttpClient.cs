@@ -7,7 +7,7 @@ public interface IProductServiceHttpClient : IDisposable
 {
     Task<ICollection<ProductDto>?> GetAll(string? jwt = null);
     Task<ICollection<ProductDto>?> GetById(string id);
-    Task<ICollection<ProductDto>?> Create(CreateProductRequestDto dto, string? jwt = null);
+    Task<ProductDto?> Create(CreateProductRequestDto dto, string? jwt = null);
     Task<ICollection<ProductDto>?> UpdatePrice(UpdateProductPriceRequestDto dto);
     Task<ICollection<ProductDto>?> UploadBulk(ICollection<ProductDto> dto);
 }
@@ -37,9 +37,9 @@ public class ProductServiceHttpClient : IProductServiceHttpClient
         return await _httpClient.SendRequestAsync<ICollection<ProductDto>>($"api/{id}");
     }
 
-    public async Task<ICollection<ProductDto>?> Create(CreateProductRequestDto dto, string? jwt = null)
+    public async Task<ProductDto?> Create(CreateProductRequestDto dto, string? jwt = null)
     {
-        return await _httpClient.SendRequestAsync<ICollection<ProductDto>>("api", HttpMethod.Post, dto, jwt);
+        return await _httpClient.SendRequestAsync<ProductDto>("api", HttpMethod.Post, dto, jwt);
     }
 
     public async Task<ICollection<ProductDto>?> UpdatePrice(UpdateProductPriceRequestDto dto)

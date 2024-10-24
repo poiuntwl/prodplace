@@ -1,4 +1,5 @@
-﻿using Testcontainers.MsSql;
+﻿using Testcontainers.MongoDb;
+using Testcontainers.MsSql;
 using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
 
@@ -8,7 +9,7 @@ public class ContainersFactory : IAsyncLifetime
 {
     public readonly MsSqlContainer IdentityDbContainer;
     public readonly PostgreSqlContainer CustomerDbContainer;
-    public readonly MsSqlContainer ProductDbContainer;
+    public readonly MongoDbContainer ProductDbContainer;
     public readonly RabbitMqContainer RabbitMqContainer;
 
     public ContainersFactory()
@@ -16,6 +17,7 @@ public class ContainersFactory : IAsyncLifetime
         const string sqlServerImageName = "mcr.microsoft.com/mssql/server:2022-CU13-ubuntu-22.04";
         const string postgresImageName = "postgres:17-alpine";
         const string rabbitmqImageName = "rabbitmq:3-management";
+        const string mongoImageName = "mongo:7.0.14";
 
         IdentityDbContainer = new MsSqlBuilder()
             .WithImage(sqlServerImageName)
@@ -27,8 +29,8 @@ public class ContainersFactory : IAsyncLifetime
             .WithCleanUp(true)
             .Build();
 
-        ProductDbContainer = new MsSqlBuilder()
-            .WithImage(sqlServerImageName)
+        ProductDbContainer = new MongoDbBuilder()
+            .WithImage(mongoImageName)
             .WithCleanUp(true)
             .Build();
 
@@ -51,9 +53,9 @@ public class ContainersFactory : IAsyncLifetime
 
     public async Task DisposeAsync()
     {
-        await IdentityDbContainer.DisposeAsync();
-        await CustomerDbContainer.DisposeAsync();
-        await ProductDbContainer.DisposeAsync();
-        await RabbitMqContainer.DisposeAsync();
+        // await IdentityDbContainer.DisposeAsync();
+        // await CustomerDbContainer.DisposeAsync();
+        // await ProductDbContainer.DisposeAsync();
+        // await RabbitMqContainer.DisposeAsync();
     }
 }
