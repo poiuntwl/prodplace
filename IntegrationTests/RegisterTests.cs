@@ -19,7 +19,7 @@ public class RegisterTests :
     IClassFixture<CustomerServiceFactory>,
     IAsyncLifetime
 {
-    private readonly IServiceScope _customerServiceScope;
+    private readonly IServiceProvider _customerServiceProvider;
     private readonly IIdentityServiceHttpClient _identityHttpClient;
     private readonly IServiceProvider _identityServiceScope;
     private readonly ITestHarness _testHarness;
@@ -27,9 +27,9 @@ public class RegisterTests :
     public RegisterTests(IdentityServiceFactory identityServiceFactory, CustomerServiceFactory customerServiceFactory)
     {
         _identityHttpClient = identityServiceFactory.HttpClient;
-        _customerServiceScope = customerServiceFactory.ServiceScope;
+        _customerServiceProvider = customerServiceFactory.ServiceProvider;
         _identityServiceScope = identityServiceFactory.ServiceProvider;
-        _testHarness = _customerServiceScope.ServiceProvider.GetTestHarness();
+        _testHarness = _customerServiceProvider.GetTestHarness();
     }
 
     public async Task InitializeAsync()
@@ -39,7 +39,6 @@ public class RegisterTests :
 
     public Task DisposeAsync()
     {
-        _customerServiceScope.Dispose();
         return Task.CompletedTask;
     }
 
@@ -63,7 +62,7 @@ public class RegisterTests :
         var anyMessages = await consumerTestHarness.Consumed.Any<OutboxMessagePostedEvent>();
         anyMessages.Should().BeTrue();
 
-        var customerDbContext = _customerServiceScope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var customerDbContext = _customerServiceProvider.GetRequiredService<AppDbContext>();
         var customers = customerDbContext.Customers.ToList();
         customers.Should().ContainSingle(x => x.Email == registerDto.Email);
     }

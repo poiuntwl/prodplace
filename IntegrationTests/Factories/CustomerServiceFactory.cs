@@ -1,4 +1,5 @@
-﻿using MassTransit;
+﻿using Castle.Core;
+using MassTransit;
 using MessagingTools;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
@@ -20,7 +21,8 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     private Respawner _respawner = default!;
     private NpgsqlConnection _sqlConnection = default!;
     public HttpClient HttpClient = default!;
-    public AsyncServiceScope ServiceScope;
+    private AsyncServiceScope _serviceScope;
+    public IServiceProvider ServiceProvider;
 
     public CustomerServiceFactory(ContainersFactory containersFactory)
     {
@@ -32,7 +34,8 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     {
         HttpClient = CreateClient();
         await InitRespawnerAsync();
-        ServiceScope = Services.CreateAsyncScope();
+        _serviceScope = Services.CreateAsyncScope();
+        ServiceProvider = _serviceScope.ServiceProvider;
     }
 
     async Task IAsyncLifetime.DisposeAsync()
@@ -40,7 +43,7 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         HttpClient.Dispose();
         await ResetDbAsync();
         await _sqlConnection.DisposeAsync();
-        await ServiceScope.DisposeAsync();
+        await _serviceScope.DisposeAsync();
         await DisposeAsync();
     }
 
