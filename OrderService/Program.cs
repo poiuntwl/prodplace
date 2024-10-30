@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using OrderService.Data;
+using OrderService.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -8,6 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 var s = builder.Services;
 s.AddDbContext<AppDbContext>(x =>
     x.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection")));
+s.AddTransient<IOrderService, OrderService.Services.OrderService>();
 
 s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();

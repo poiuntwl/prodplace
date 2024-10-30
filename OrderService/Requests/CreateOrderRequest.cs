@@ -1,5 +1,6 @@
 ﻿using MediatR;
+using OrderService.Dto;
 
 namespace OrderService.Requests;
 
-public record CreateOrderRequest : IRequest;
+public record CreateOrderRequest(CreateOrderDto CreateOrderDto) : IRequest;

@@ -1,41 +1,20 @@
 ﻿using MediatR;
-using OrderService.Data;
-using OrderService.Models;
 using OrderService.Requests;
+using OrderService.Services;
 
 namespace OrderService.Handlers;
 
 public class CreateOrderHandler : IRequestHandler<CreateOrderRequest>
 {
-    private readonly AppDbContext _dbContext;
+    private readonly IOrderService _orderService;
 
-    public CreateOrderHandler(AppDbContext dbContext)
+    public CreateOrderHandler(IOrderService orderService)
     {
-        _dbContext = dbContext;
+        _orderService = orderService;
     }
 
     public async Task Handle(CreateOrderRequest request, CancellationToken cancellationToken)
     {
-        await _dbContext.Orders.AddAsync(new OrderModel
-        {
-            CustomerId = 0,
-            OrderDate = default,
-            Status = OrderStatus.Pending,
-            ShippingAddress = "Some shipping address",
-            BillingAddress = "Some billing address",
-            OrderItems = new List<OrderItemModel>
-            {
-                new OrderItemModel
-                {
-                    ProductId = Guid.NewGuid().ToString(),
-                    Quantity = 1,
-                    UnitPrice = 100,
-                }
-            }
-        }, cancellationToken);
-        await _dbContext.SaveChangesAsync(cancellationToken);
-
-        // await _context.Entry(order).ReloadAsync();
-        // return order;
+        await _orderService.CreateOrderAsync(cancellationToken);
     }
 }
