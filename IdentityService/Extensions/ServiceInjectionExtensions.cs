@@ -25,6 +25,8 @@ public static class ServiceInjectionExtensions
             x.AddRequestPostProcessor<RegisterUserPostProcessor>();
         });
 
+        s.Configure<OutboxPublisherConfiguration>(configuration.GetSection("Outbox:Publisher"));
+
         s.AddSingleton<OutboxPublisherConfiguration>(x => new OutboxPublisherConfiguration
         {
             Delay = TimeSpan.FromMilliseconds(int.TryParse(configuration["Outbox:DelayInMilliseconds"], out var delay)
@@ -33,7 +35,7 @@ public static class ServiceInjectionExtensions
         });
         s.AddHostedService<OutboxPublisher>();
         s.AddTransient<ITokenService, TokenService>();
-        s.AddScoped<IValidationService, ValidationService>();
+        s.AddTransient<IValidationService, ValidationService>();
         s.AddSingleton<RabbitMqSettings>(x => new RabbitMqSettings
         {
             QueueName = configuration["RabbitMq:QueueName"],
@@ -42,7 +44,9 @@ public static class ServiceInjectionExtensions
             UserName = configuration["RabbitMq:UserName"],
             Password = configuration["RabbitMq:Password"],
         });
-        s.AddScoped<IOutboxService, OutboxService>();
+        s.AddTransient<IOutboxService, OutboxService>();
+        s.AddTransient<IUserService, UserService>();
+
         s.AddGrpc(x => { x.EnableDetailedErrors = true; });
         s.AddMassTransitInjections(Assembly.GetExecutingAssembly());
 

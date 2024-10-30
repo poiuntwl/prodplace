@@ -3,6 +3,7 @@ using IdentityService.Models;
 using MassTransit;
 using MessagingTools.Contracts;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Options;
 
 namespace IdentityService.BackgroundServices;
 
@@ -13,10 +14,10 @@ public class OutboxPublisher : BackgroundService
     private readonly OutboxPublisherConfiguration _configuration;
 
     public OutboxPublisher(IServiceScopeFactory serviceScopeFactory,
-        ILoggerFactory loggerFactory, OutboxPublisherConfiguration configuration)
+        ILoggerFactory loggerFactory, IOptions<OutboxPublisherConfiguration> configuration)
     {
         _serviceScopeFactory = serviceScopeFactory;
-        _configuration = configuration;
+        _configuration = configuration.Value;
         _logger = loggerFactory.CreateLogger(GetType());
     }
 
