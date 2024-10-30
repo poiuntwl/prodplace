@@ -1,4 +1,3 @@
-using CommonModels.OutboxModels;
 using FluentAssertions;
 using IdentityService.Dtos;
 using IntegrationTests.Factories;
@@ -9,7 +8,6 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using UserService.Consumers;
 using UserService.Data;
-using JsonSerializer = System.Text.Json.JsonSerializer;
 
 namespace IntegrationTests;
 
@@ -65,11 +63,6 @@ public class RegisterTests :
         var customerDbContext = _customerServiceProvider.GetRequiredService<AppDbContext>();
         var customers = customerDbContext.Customers.ToList();
         customers.Should().ContainSingle(x => x.Email == registerDto.Email);
-    }
-
-    private static UserCreatedEventData? DeserializeContent(IReceivedMessage<OutboxMessagePostedEvent> x)
-    {
-        return JsonSerializer.Deserialize<UserCreatedEventData>(x.Context.Message.OutboxMessage.Content);
     }
 
     private async Task WaitUntilAllMessagesProcessedAsync()

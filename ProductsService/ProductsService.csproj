@@ -45,7 +45,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="..\IdentityService\Protos\Identity.proto" GrpcServices="Client" />
+        <Protobuf Include="..\ProdPlace.Grpc\Protos\Identity.proto" GrpcServices="Client" Link="Protos\Identity.proto"/>
     </ItemGroup>
 
 </Project>
