@@ -3,16 +3,16 @@ using OrderService.Models;
 
 namespace OrderService.Services;
 
-public interface IOrderService
+public interface IOrderManager
 {
     Task<long> CreateOrderAsync(CancellationToken cancellationToken);
 }
 
-public class OrderService : IOrderService
+public class OrderManager : IOrderManager
 {
     private readonly AppDbContext _dbContext;
 
-    public OrderService(AppDbContext dbContext)
+    public OrderManager(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }

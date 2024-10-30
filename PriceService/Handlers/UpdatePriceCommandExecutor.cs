@@ -1,20 +1,21 @@
 ﻿using MediatR;
 using PriceService.Commands;
 using PriceService.Interfaces;
+using PriceService.Services;
 
 namespace PriceService.Handlers;
 
 public class UpdatePriceCommandExecutor : IRequestHandler<UpdatePriceCommand, bool>
 {
-    private readonly IPricesRepository _pricesRepository;
+    private readonly IPriceManager _priceManager;
 
-    public UpdatePriceCommandExecutor(IPricesRepository pricesRepository)
+    public UpdatePriceCommandExecutor(IPriceManager priceManager)
     {
-        _pricesRepository = pricesRepository;
+        _priceManager = priceManager;
     }
 
     public async Task<bool> Handle(UpdatePriceCommand request, CancellationToken cancellationToken)
     {
-        return await _pricesRepository.UpdatePriceOldAsync(request.ProductId, request.PriceAmount, cancellationToken);
+        return await _priceManager.SetPriceAsync(request.ProductId, request.PriceAmount, cancellationToken);
     }
 }

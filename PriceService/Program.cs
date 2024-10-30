@@ -1,6 +1,7 @@
 using PriceService.Db;
 using PriceService.Interfaces;
 using PriceService.Repositories;
+using PriceService.Services;
 using ProdPlaceMongoDatabaseTools;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -19,6 +20,7 @@ s.AddSingleton<MongoDbContext>(_ => new MongoDbContext(new MongoDbContextConfigu
 }));
 s.AddTransient<IPricesRepository, PricesRepository>();
 s.AddMediatR(x => x.RegisterServicesFromAssemblyContaining<Program>());
+s.AddTransient<IPriceManager, PriceManager>();
 
 var app = builder.Build();
 

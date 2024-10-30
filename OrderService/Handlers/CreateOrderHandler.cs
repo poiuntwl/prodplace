@@ -6,15 +6,15 @@ namespace OrderService.Handlers;
 
 public class CreateOrderHandler : IRequestHandler<CreateOrderRequest>
 {
-    private readonly IOrderService _orderService;
+    private readonly IOrderManager _orderManager;
 
-    public CreateOrderHandler(IOrderService orderService)
+    public CreateOrderHandler(IOrderManager orderManager)
     {
-        _orderService = orderService;
+        _orderManager = orderManager;
     }
 
     public async Task Handle(CreateOrderRequest request, CancellationToken cancellationToken)
     {
-        await _orderService.CreateOrderAsync(cancellationToken);
+        await _orderManager.CreateOrderAsync(cancellationToken);
     }
 }
