@@ -8,16 +8,16 @@ namespace ProductsService.Handlers;
 // ReSharper disable once UnusedType.Global
 public class GetProductHandler : IRequestHandler<GetProductRequest, ProductDto?>
 {
-    private readonly IProductService _productService;
+    private readonly IProductManager _productManager;
 
-    public GetProductHandler(IProductService productService)
+    public GetProductHandler(IProductManager productManager)
     {
-        _productService = productService;
+        _productManager = productManager;
     }
 
     public async Task<ProductDto?> Handle(GetProductRequest request, CancellationToken cancellationToken)
     {
-        return await _productService.GetProductAsync(request.Id, cancellationToken);
+        return await _productManager.GetProductAsync(request.Id, cancellationToken);
     }
 }
 

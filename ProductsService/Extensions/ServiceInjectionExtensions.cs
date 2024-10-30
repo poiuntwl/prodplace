@@ -23,7 +23,7 @@ public static class ServiceInjectionExtensions
 
     public static IServiceCollection AddProductServices(this IServiceCollection s)
     {
-        s.AddScoped<IProductService, ProductService>();
+        s.AddScoped<IProductManager, ProductManager>();
         s.AddScoped<IProductRepository, ProductRepository>();
         s.AddScoped<IAuthService, AuthService>();
         s.AddTransient<IBulkProductsUploader, MongoBulkProductsUploader>(); // potentially move to S3

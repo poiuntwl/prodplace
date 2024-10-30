@@ -9,7 +9,7 @@ var builder = WebApplication.CreateBuilder(args);
 var s = builder.Services;
 s.AddDbContext<AppDbContext>(x =>
     x.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection")));
-s.AddTransient<IOrderManager, OrderService.Services.OrderManager>();
+s.AddTransient<IOrderManager, OrderManager>();
 
 s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();

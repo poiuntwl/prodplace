@@ -7,16 +7,17 @@ namespace ProductsService.Handlers;
 // ReSharper disable once UnusedType.Global
 public class UpdateProductPriceHandler : IRequestHandler<UpdateProductPriceRequest>
 {
-    private readonly IProductRepository _productRepository;
+    private readonly IProductManager _productManager;
 
-    public UpdateProductPriceHandler(IProductRepository productRepository)
+    public UpdateProductPriceHandler(IProductManager productManager)
     {
-        _productRepository = productRepository;
+        _productManager = productManager;
     }
 
     public async Task Handle(UpdateProductPriceRequest priceRequest, CancellationToken cancellationToken)
     {
-        await _productRepository.UpdatePriceAsync(priceRequest.Id, priceRequest.Price, cancellationToken);
+        await _productManager.UpdatePriceAsync(priceRequest.Id, priceRequest.Price, cancellationToken);
+
     }
 }
 

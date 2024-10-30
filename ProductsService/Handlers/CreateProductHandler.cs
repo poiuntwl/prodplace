@@ -9,17 +9,16 @@ namespace ProductsService.Handlers;
 // ReSharper disable once UnusedType.Global
 public class CreateProductHandler : IRequestHandler<CreateProductRequest, ObjectId>
 {
-    private readonly IProductRepository _productRepository;
+    private readonly IProductManager _productManager;
 
-    public CreateProductHandler(IProductRepository productRepository)
+    public CreateProductHandler(IProductManager productManager)
     {
-        _productRepository = productRepository;
+        _productManager = productManager;
     }
 
     public async Task<ObjectId> Handle(CreateProductRequest request, CancellationToken cancellationToken)
     {
-        var productId = await _productRepository.CreateProductAsync(request.Product, cancellationToken);
-        return productId;
+        return await _productManager.CreateProductAsync(request.Product, cancellationToken);
     }
 }
 
