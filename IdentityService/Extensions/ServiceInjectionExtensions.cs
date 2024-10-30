@@ -26,13 +26,6 @@ public static class ServiceInjectionExtensions
         });
 
         s.Configure<OutboxPublisherConfiguration>(configuration.GetSection("Outbox:Publisher"));
-
-        s.AddSingleton<OutboxPublisherConfiguration>(x => new OutboxPublisherConfiguration
-        {
-            Delay = TimeSpan.FromMilliseconds(int.TryParse(configuration["Outbox:DelayInMilliseconds"], out var delay)
-                ? delay
-                : 2500)
-        });
         s.AddHostedService<OutboxPublisher>();
         s.AddTransient<ITokenService, TokenService>();
         s.AddTransient<IValidationService, ValidationService>();

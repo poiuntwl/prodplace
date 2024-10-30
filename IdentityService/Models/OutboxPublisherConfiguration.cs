@@ -2,5 +2,5 @@
 
 public class OutboxPublisherConfiguration
 {
-    public TimeSpan Delay { get; init; }
+    public TimeSpan Delay { get; set; }
 }

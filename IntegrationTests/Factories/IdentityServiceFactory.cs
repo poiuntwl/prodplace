@@ -54,11 +54,7 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     {
         builder.ConfigureServices((_, s) =>
         {
-            s.Remove(s.Single(x => x.ServiceType == typeof(OutboxPublisherConfiguration)));
-            s.AddSingleton<OutboxPublisherConfiguration>(x => new OutboxPublisherConfiguration
-            {
-                Delay = TimeSpan.FromMilliseconds(500)
-            });
+            s.PostConfigure<OutboxPublisherConfiguration>(x => x.Delay = TimeSpan.FromMilliseconds(100));
 
             s.AddHttpClient<IIdentityServiceHttpClient, IdentityServiceHttpClient>(y =>
                 new IdentityServiceHttpClient(CreateClient()));
