@@ -41,7 +41,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AuthConfiguration\AuthConfiguration.csproj" />
-      <ProjectReference Include="..\ProdPlaceMongoDatabaseTools\ProdPlaceMongoDatabaseTools.csproj" />
+      <ProjectReference Include="..\ProdPlace.MongoDbTools\ProdPlace.MongoDbTools.csproj" />
     </ItemGroup>
 
     <ItemGroup>

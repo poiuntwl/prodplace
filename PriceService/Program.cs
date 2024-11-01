@@ -2,7 +2,7 @@ using PriceService.Db;
 using PriceService.Interfaces;
 using PriceService.Repositories;
 using PriceService.Services;
-using ProdPlaceMongoDatabaseTools;
+using ProdPlace.MongoDbTools;
 
 var builder = WebApplication.CreateBuilder(args);
 

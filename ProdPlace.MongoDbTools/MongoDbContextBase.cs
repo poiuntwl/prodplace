@@ -1,6 +1,6 @@
 ﻿using MongoDB.Driver;
 
-namespace ProdPlaceMongoDatabaseTools;
+namespace ProdPlace.MongoDbTools;
 
 public abstract class MongoDbContextBase : IDisposable
 {
