@@ -21,17 +21,11 @@ public class RatesController : ControllerBase
             try
             {
                 var rate = await ratesGetter.GetCurrencyRateAsync(code, ct);
-                return Ok(new GetCurrencyRatesByCodesResponse(new Dictionary<string, decimal?>
-                {
-                    [code] = rate
-                }));
+                return Ok(GetCurrencyRatesByCodesResponse.FromRate(code, rate));
             }
             catch (CurrencyRateNotAvailableException)
             {
-                return NotFound(new
-                {
-                    Message = "Currency code not available",
-                });
+                return NotFound(new Exception("Currency code not available"));
             }
         }
 
@@ -40,4 +34,18 @@ public class RatesController : ControllerBase
     }
 }
 
-public record GetCurrencyRatesByCodesResponse(IDictionary<string, decimal?> Rates);
+public record GetCurrencyRatesByCodesResponse
+{
+    public IDictionary<string, decimal?> Rates { get; set; }
+
+    public GetCurrencyRatesByCodesResponse(IDictionary<string, decimal?> rates)
+    {
+        Rates = rates;
+    }
+
+    public static GetCurrencyRatesByCodesResponse FromRate(string code, decimal rate) =>
+        new(new Dictionary<string, decimal?>
+        {
+            [code] = rate
+        });
+}
