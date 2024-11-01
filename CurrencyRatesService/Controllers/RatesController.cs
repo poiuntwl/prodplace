@@ -21,9 +21,12 @@ public class RatesController : ControllerBase
             try
             {
                 var rate = await ratesGetter.GetCurrencyRateAsync(code, ct);
-                return Ok(new GetCurrencyRateByCodeResponse(rate));
+                return Ok(new GetCurrencyRatesByCodesResponse(new Dictionary<string, decimal?>
+                {
+                    [code] = rate
+                }));
             }
-            catch (CurrencyRateNotAvailableException e)
+            catch (CurrencyRateNotAvailableException)
             {
                 return NotFound(new
                 {
@@ -36,7 +39,5 @@ public class RatesController : ControllerBase
         return Ok(new GetCurrencyRatesByCodesResponse(rates));
     }
 }
-
-public record GetCurrencyRateByCodeResponse(decimal Rate);
 
 public record GetCurrencyRatesByCodesResponse(IDictionary<string, decimal?> Rates);
