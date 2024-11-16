@@ -1,4 +1,4 @@
-using AuthConfiguration;
+using AuthTools;
 using FluentValidation;
 using ProductsService.Handlers.PreProcessors;
 

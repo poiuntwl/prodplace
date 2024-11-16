@@ -32,7 +32,7 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\AuthConfiguration\AuthConfiguration.csproj" />
+      <ProjectReference Include="..\AuthTools\AuthTools.csproj" />
       <ProjectReference Include="..\CommonModels\CommonModels.csproj" />
       <ProjectReference Include="..\MessagingTools\MessagingTools.csproj" />
     </ItemGroup>

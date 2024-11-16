@@ -6,9 +6,9 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthConfiguration;
+namespace AuthTools;
 
-public static class JwtDependenyInjectionExtensions
+public static class JwtDependencyInjectionExtensions
 {
     public static IServiceCollection AddJwtAuthConfiguration(this IServiceCollection s, IConfiguration config)
     {

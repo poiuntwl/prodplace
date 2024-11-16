@@ -1,5 +1,5 @@
 ﻿using System.Reflection;
-using AuthConfiguration;
+using AuthTools;
 using IdentityService.BackgroundServices;
 using IdentityService.Data;
 using IdentityService.Handlers.PostProcessors;

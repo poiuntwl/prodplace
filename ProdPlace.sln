@@ -25,7 +25,7 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "services", "services", "{B1
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "IdentityService", "IdentityService\IdentityService.csproj", "{F0382D59-7801-485A-A682-5BFFF44D7101}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthConfiguration", "AuthConfiguration\AuthConfiguration.csproj", "{A5671C2E-537C-497E-BA09-7C3D25E563A7}"
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthTools", "AuthTools\AuthTools.csproj", "{A5671C2E-537C-497E-BA09-7C3D25E563A7}"
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "OrderService", "OrderService\OrderService.csproj", "{117F1890-E056-4950-A9CB-168D4CD4D23E}"
 EndProject
