@@ -1,4 +1,4 @@
-﻿using IdentityService.Constants;
+﻿using AuthTools.Constants;
 using IdentityService.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
@@ -23,13 +23,13 @@ public class AppDbContext : IdentityDbContext<AppUser>
         {
             new()
             {
-                Name = AppRoles.Admin,
-                NormalizedName = AppRoles.Admin.ToUpper()
+                Name = RoleNames.Admin,
+                NormalizedName = RoleNames.Admin.ToUpper()
             },
             new()
             {
-                Name = AppRoles.User,
-                NormalizedName = AppRoles.User.ToUpper()
+                Name = RoleNames.User,
+                NormalizedName = RoleNames.User.ToUpper()
             },
         };
         builder.Entity<IdentityRole>().HasData(roles);

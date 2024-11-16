@@ -1,6 +1,6 @@
 ﻿using System.Transactions;
+using AuthTools.Constants;
 using CommonModels.OutboxModels;
-using IdentityService.Constants;
 using IdentityService.Dtos;
 using IdentityService.Exceptions;
 using IdentityService.Models;
@@ -48,7 +48,7 @@ public class UserService : IUserService
                 throw new RegisterUserException(createResult.Errors.Select(x => x.Description).ToList());
             }
 
-            var addToRoleResult = await _userManager.AddToRoleAsync(appUser, AppRoles.User);
+            var addToRoleResult = await _userManager.AddToRoleAsync(appUser, RoleNames.User);
             if (addToRoleResult.Succeeded == false)
             {
                 throw new RegisterUserException(createResult.Errors.Select(x => x.Description).ToList());

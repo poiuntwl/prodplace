@@ -1,4 +1,5 @@
-﻿using Testcontainers.MongoDb;
+﻿using Testcontainers.Keycloak;
+using Testcontainers.MongoDb;
 using Testcontainers.MsSql;
 using Testcontainers.PostgreSql;
 using Testcontainers.RabbitMq;
@@ -11,6 +12,7 @@ public class ContainersFactory : IAsyncLifetime
     public readonly MsSqlContainer IdentityDbContainer;
     public readonly MongoDbContainer ProductDbContainer;
     public readonly RabbitMqContainer RabbitMqContainer;
+    public readonly KeycloakContainer KeyCloakContainer;
 
     public ContainersFactory()
     {
@@ -18,6 +20,7 @@ public class ContainersFactory : IAsyncLifetime
         const string postgresImageName = "postgres:17-alpine";
         const string rabbitmqImageName = "rabbitmq:3-management";
         const string mongoImageName = "mongo:7.0.14";
+        const string keyCloakImage = "quay.io/keycloak/keycloak:26.0";
 
         IdentityDbContainer = new MsSqlBuilder()
             .WithImage(sqlServerImageName)
@@ -40,7 +43,16 @@ public class ContainersFactory : IAsyncLifetime
             .WithPortBinding(5672, true)
             .WithCleanUp(true)
             .Build();
+
+        KeyCloakContainer = new KeycloakBuilder()
+            .WithImage(keyCloakImage)
+            .WithPortBinding(8080, true)
+            .WithEnvironment("KEYCLOAK_ADMIN", "admin")
+            .WithEnvironment("KEYCLOAK_ADMIN_PASSWORD", "admin")
+            // .WithCommand("start-dev")
+            .Build();
     }
+
 
     public async Task InitializeAsync()
     {
@@ -48,7 +60,8 @@ public class ContainersFactory : IAsyncLifetime
             IdentityDbContainer.StartAsync(),
             CustomerDbContainer.StartAsync(),
             ProductDbContainer.StartAsync(),
-            RabbitMqContainer.StartAsync());
+            RabbitMqContainer.StartAsync(),
+            KeyCloakContainer.StartAsync());
     }
 
     public async Task DisposeAsync()
@@ -57,5 +70,6 @@ public class ContainersFactory : IAsyncLifetime
         await CustomerDbContainer.DisposeAsync();
         await ProductDbContainer.DisposeAsync();
         await RabbitMqContainer.DisposeAsync();
+        await KeyCloakContainer.DisposeAsync();
     }
 }

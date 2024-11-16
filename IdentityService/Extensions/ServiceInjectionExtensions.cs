@@ -58,6 +58,7 @@ public static class ServiceInjectionExtensions
             })
             .AddEntityFrameworkStores<AppDbContext>();
         s.AddJwtAuthConfiguration(configuration);
+        s.AddJwtAuthServices();
 
         return s;
     }

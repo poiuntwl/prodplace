@@ -1,6 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
 using System.Text;
+using AuthTools;
 using IdentityService.Models;
 using Microsoft.IdentityModel.Tokens;
 
@@ -14,32 +15,39 @@ public interface ITokenService
 
 public class TokenService : ITokenService
 {
-    private readonly IConfiguration _configuration;
-    private readonly SymmetricSecurityKey _key;
+    private readonly IJwtClaimsPrincipalGetter _claimsPrincipalGetter;
+    private readonly ITokenValidationConfiguration _tokenValidationConfiguration;
 
-    public TokenService(IConfiguration configuration)
+    public TokenService(IJwtClaimsPrincipalGetter claimsPrincipalGetter,
+        ITokenValidationConfiguration tokenValidationConfiguration)
     {
-        _configuration = configuration;
-        _key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(configuration["Jwt:secret"]!));
+        _claimsPrincipalGetter = claimsPrincipalGetter;
+        _tokenValidationConfiguration = tokenValidationConfiguration;
     }
 
     public string CreateToken(AppUser user)
     {
+        ArgumentException.ThrowIfNullOrWhiteSpace(user.Email);
+        ArgumentException.ThrowIfNullOrWhiteSpace(user.UserName);
+
         var claims = new List<Claim>
         {
-            new Claim(JwtRegisteredClaimNames.Email, user.Email),
-            new Claim(JwtRegisteredClaimNames.GivenName, user.UserName),
-            new Claim(JwtRegisteredClaimNames.Sub, user.Id)
+            new(JwtRegisteredClaimNames.Email, user.Email),
+            new(JwtRegisteredClaimNames.GivenName, user.UserName),
+            new(JwtRegisteredClaimNames.Sub, user.Id)
         };
-        var creds = new SigningCredentials(_key, SecurityAlgorithms.HmacSha512Signature);
+
+        var tokenValidationParameters = _tokenValidationConfiguration.GetTokenValidationParameters();
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.Now.AddDays(7),
-            SigningCredentials = creds,
-            Issuer = _configuration["Jwt:issuer"],
-            Audience = _configuration["Jwt:audience"],
+            SigningCredentials = new SigningCredentials(tokenValidationParameters.IssuerSigningKey,
+                SecurityAlgorithms.HmacSha512Signature),
+            Issuer = tokenValidationParameters.ValidIssuer,
+            Audience = tokenValidationParameters.ValidAudience,
         };
+
         var tokenHandler = new JwtSecurityTokenHandler();
         var token = tokenHandler.CreateToken(tokenDescriptor);
         return tokenHandler.WriteToken(token);
@@ -47,22 +55,6 @@ public class TokenService : ITokenService
 
     public ClaimsPrincipal? ValidateToken(string token)
     {
-        var tokenHandler = new JwtSecurityTokenHandler();
-
-        var validationParameters = new TokenValidationParameters
-        {
-            ValidateIssuerSigningKey = true,
-            IssuerSigningKey = _key,
-            ValidateIssuer = true,
-            ValidateAudience = true,
-            ValidateLifetime = true,
-            ClockSkew = TimeSpan.Zero,
-            ValidIssuer = _configuration["Jwt:issuer"],
-            ValidAudience = _configuration["Jwt:audience"],
-        };
-
-        var principal = tokenHandler.ValidateToken(token, validationParameters, out _);
-
-        return principal;
+        return _claimsPrincipalGetter.Get(token);
     }
 }

@@ -11,6 +11,7 @@ s.AddSwaggerGen();
 s.AddDbServices(builder);
 s.AddHealthChecks();
 s.AddJwtAuthConfiguration(builder.Configuration);
+s.AddJwtAuthServices();
 s.AddGrpcClient<IdentityGrpc.Server.IdentityService.IdentityServiceClient>(x =>
 {
     x.Address = new Uri("https://localhost:44304");

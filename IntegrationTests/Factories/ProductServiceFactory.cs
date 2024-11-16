@@ -119,12 +119,6 @@ public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLi
             {
                 IsValid = true
             }), default, default, default, default));
-        grpcMock.ValidateTokenAsync(Arg.Any<ValidateTokenRequest>(), Arg.Any<Metadata>(), Arg.Any<DateTime>(),
-            Arg.Any<CancellationToken>()).ReturnsForAnyArgs(
-            new AsyncUnaryCall<ValidateResponse>(Task.FromResult(new ValidateResponse
-            {
-                IsValid = true
-            }), default, default, default, default));
         s.AddSingleton(grpcMock);
     }
 }

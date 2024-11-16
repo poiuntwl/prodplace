@@ -1,24 +1,24 @@
-﻿using IdentityGrpc.Server;
+﻿using AuthTools;
+using IdentityGrpc.Server;
 using ProductsService.Interfaces;
+using static IdentityGrpc.Server.IdentityService;
 
 namespace ProductsService.Services;
 
 public class AuthService : IAuthService
 {
-    private readonly IdentityGrpc.Server.IdentityService.IdentityServiceClient _identityServiceClient;
+    private readonly IdentityServiceClient _identityServiceClient;
+    private readonly IJwtValidator _validator;
 
-    public AuthService(IdentityGrpc.Server.IdentityService.IdentityServiceClient identityServiceClient)
+    public AuthService(IJwtValidator validator, IdentityServiceClient identityServiceClient)
     {
+        _validator = validator;
         _identityServiceClient = identityServiceClient;
     }
 
-    public async Task<bool> ValidateTokenAsync(string token, CancellationToken ct)
+    public Task<bool> ValidateTokenAsync(string token, CancellationToken ct)
     {
-        var validateResponse = await _identityServiceClient.ValidateTokenAsync(new ValidateTokenRequest
-        {
-            Token = token
-        }, cancellationToken: ct);
-        return validateResponse?.IsValid ?? false;
+        return Task.FromResult(_validator.Validate(token));
     }
 
     public async Task<bool> ValidateRolesAsync(string token, string[] requiredRoles, CancellationToken ct)

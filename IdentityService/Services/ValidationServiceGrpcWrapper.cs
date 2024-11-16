@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+﻿using AuthTools;
+using Grpc.Core;
 using IdentityGrpc.Server;
 
 namespace IdentityService.Services;
@@ -7,19 +8,9 @@ public class ValidationServiceGrpcWrapper : IdentityGrpc.Server.IdentityService.
 {
     private readonly IValidationService _validationService;
 
-    public ValidationServiceGrpcWrapper(IValidationService validationService)
+    public ValidationServiceGrpcWrapper(IValidationService validationService, IJwtValidator jwtValidator)
     {
         _validationService = validationService;
-    }
-
-    public override Task<ValidateResponse> ValidateToken(ValidateTokenRequest request, ServerCallContext context)
-    {
-        var isValid = _validationService.ValidateToken(request.Token);
-
-        return Task.FromResult(new ValidateResponse
-        {
-            IsValid = isValid
-        });
     }
 
     public override async Task<ValidateResponse> ValidateRoles(ValidateRolesRequest request, ServerCallContext context)
