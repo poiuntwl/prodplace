@@ -93,6 +93,7 @@ public static class JwtDependencyInjectionExtensions
         s.AddSingleton<ITokenValidationConfiguration, TokenValidationConfiguration>();
         s.AddSingleton<IJwtClaimsPrincipalGetter, JwtClaimsPrincipalGetter>();
         s.AddSingleton<IJwtValidator, JwtValidator>();
+        s.AddHttpClient<IKeycloakHttpClient, KeycloakHttpClient>();
     }
 
     public static WebApplication UseJwtAuthConfiguration(this WebApplication app)
