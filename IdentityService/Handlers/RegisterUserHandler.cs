@@ -2,6 +2,8 @@
 using IdentityService.Requests;
 using IdentityService.Services;
 using MediatR;
+using Microsoft.AspNetCore.Identity;
+using Microsoft.EntityFrameworkCore;
 
 namespace IdentityService.Handlers;
 

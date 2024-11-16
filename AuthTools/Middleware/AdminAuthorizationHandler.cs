@@ -1,7 +1,7 @@
 ﻿using AuthTools.Constants;
 using Microsoft.AspNetCore.Authorization;
 
-namespace AuthTools;
+namespace AuthTools.Middleware;
 
 public class AdminAuthorizationHandler : IAuthorizationHandler
 {

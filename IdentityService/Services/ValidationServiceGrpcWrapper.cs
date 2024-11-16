@@ -1,4 +1,4 @@
-﻿using AuthTools;
+﻿using AuthTools.Services;
 using Grpc.Core;
 using IdentityGrpc.Server;
 

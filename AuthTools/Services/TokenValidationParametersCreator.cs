@@ -2,7 +2,7 @@
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthTools;
+namespace AuthTools.Services;
 
 internal static class TokenValidationParametersCreator
 {

@@ -1,4 +1,5 @@
 ﻿using AuthTools;
+using AuthTools.Services;
 using IdentityGrpc.Server;
 using ProductsService.Interfaces;
 using static IdentityGrpc.Server.IdentityService;

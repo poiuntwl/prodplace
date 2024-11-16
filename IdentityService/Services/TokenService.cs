@@ -1,7 +1,7 @@
 ﻿using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
-using System.Text;
-using AuthTools;
+using AuthTools.Models;
+using AuthTools.Services;
 using IdentityService.Models;
 using Microsoft.IdentityModel.Tokens;
 

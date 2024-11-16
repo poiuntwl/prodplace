@@ -17,6 +17,23 @@
       timeout: 10s
       retries: 10
 
+  keycloak:
+    image: keycloak/keycloak:26.0.2
+    ports:
+      - "8080:8080"
+    volumes:
+      - keycloak-data:/var/lib/keycloak
+    environment:
+      - RABBITMQ_DEFAULT_USER=admin
+      - RABBITMQ_DEFAULT_PASS=password
+    networks:
+      - prodplace
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "check_port_connectivity" ]
+      interval: 5s
+      timeout: 10s
+      retries: 10
+
 volumes:
   mongodb-data:
     driver: local
@@ -33,6 +50,8 @@ volumes:
   orders-data:
     driver: local
   customers-data:
+    driver: local
+  keycloak-data:
     driver: local
 
 networks:

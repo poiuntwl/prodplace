@@ -2,6 +2,9 @@
 using System.Security.Claims;
 using System.Text.Json;
 using AuthTools.Constants;
+using AuthTools.Middleware;
+using AuthTools.Models;
+using AuthTools.Services;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
@@ -15,6 +18,8 @@ public static class JwtDependencyInjectionExtensions
     public static IServiceCollection AddJwtAuthConfiguration(this IServiceCollection s, IConfiguration config)
     {
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
+
+        s.Configure<JwtSettings>(config.GetSection("Jwt"));
 
         s.AddAuthorizationBuilder()
             .AddPolicy(PolicyNames.RequireAdminRole, builder => builder.RequireRole(RoleNames.Admin))
@@ -75,8 +80,8 @@ public static class JwtDependencyInjectionExtensions
                 };
 
                 x.RequireHttpsMetadata = false;
-                x.Audience = "account";
-                x.MetadataAddress = "http://localhost:8080/realms/auth-example/.well-known/openid-configuration";
+                x.Audience = config["Jwt:audience"];
+                x.MetadataAddress = config["Jwt:metadataAddress"];
                 x.TokenValidationParameters = TokenValidationParametersCreator.Create(config);
             });
 

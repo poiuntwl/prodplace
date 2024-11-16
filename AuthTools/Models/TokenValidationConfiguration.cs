@@ -1,8 +1,8 @@
-﻿using System.Text;
+﻿using AuthTools.Services;
 using Microsoft.Extensions.Configuration;
 using Microsoft.IdentityModel.Tokens;
 
-namespace AuthTools;
+namespace AuthTools.Models;
 
 public interface ITokenValidationConfiguration
 {

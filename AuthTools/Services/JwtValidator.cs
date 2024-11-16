@@ -1,8 +1,4 @@
-﻿using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using Microsoft.IdentityModel.Tokens;
-
-namespace AuthTools;
+﻿namespace AuthTools.Services;
 
 public interface IJwtValidator
 {
