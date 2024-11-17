@@ -15,10 +15,16 @@ namespace AuthTools;
 
 public static class JwtDependencyInjectionExtensions
 {
-    public static IServiceCollection AddJwtAuthConfiguration(this IServiceCollection s, IConfiguration config)
+    public static void AddJwtAuthConfiguration(this IServiceCollection s, WebApplicationBuilder builder)
     {
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
 
+        var configFileDirectory = Path.GetDirectoryName(typeof(JwtSettings).Assembly.Location);
+        var configFilePath = Path.Combine(configFileDirectory, "shared.settings.Development.json");
+        builder.Configuration.AddJsonFile(configFilePath);
+
+        var config = builder.Configuration;
+        JwtSettingsProvider.Initialize(config);
         s.Configure<JwtSettings>(config.GetSection("Jwt"));
 
         s.AddAuthorizationBuilder()
@@ -79,13 +85,12 @@ public static class JwtDependencyInjectionExtensions
                     }
                 };
 
+                var jwtSettings = JwtSettingsProvider.GetConfiguration();
                 x.RequireHttpsMetadata = false;
-                x.Audience = config["Jwt:audience"];
-                x.MetadataAddress = config["Jwt:metadataAddress"];
+                x.Audience = jwtSettings.Audience;
+                x.MetadataAddress = jwtSettings.MetadataAddress;
                 x.TokenValidationParameters = TokenValidationParametersCreator.Create(config);
             });
-
-        return s;
     }
 
     public static void AddJwtAuthServices(this IServiceCollection s)

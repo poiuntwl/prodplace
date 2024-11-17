@@ -10,7 +10,7 @@ s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();
 s.AddDbServices(builder);
 s.AddHealthChecks();
-s.AddJwtAuthConfiguration(builder.Configuration);
+s.AddJwtAuthConfiguration(builder);
 s.AddJwtAuthServices();
 s.AddGrpcClient<IdentityGrpc.Server.IdentityService.IdentityServiceClient>(x =>
 {

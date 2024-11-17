@@ -6,7 +6,7 @@ using Microsoft.EntityFrameworkCore;
 var builder = WebApplication.CreateBuilder(args);
 
 var s = builder.Services;
-s.AddAllServices(builder.Configuration);
+s.AddAllServices(builder);
 s.AddControllers();
 s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();

@@ -6,7 +6,7 @@ using ProxyService;
 var builder = WebApplication.CreateBuilder(args);
 
 var s = builder.Services;
-s.AddJwtAuthConfiguration(builder.Configuration);
+s.AddJwtAuthConfiguration(builder);
 s.AddJwtAuthServices();
 s.AddSingleton<IGatewayService, GatewayService>();
 

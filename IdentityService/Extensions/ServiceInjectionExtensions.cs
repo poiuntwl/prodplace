@@ -14,9 +14,10 @@ namespace IdentityService.Extensions;
 
 public static class ServiceInjectionExtensions
 {
-    public static IServiceCollection AddAllServices(this IServiceCollection s, IConfiguration configuration)
+    public static void AddAllServices(this IServiceCollection s, WebApplicationBuilder builder)
     {
-        s.AddIdentityServices(configuration);
+        var configuration = builder.Configuration;
+        s.AddIdentityServices(builder);
 
         s.AddMediatR(x =>
         {
@@ -42,12 +43,11 @@ public static class ServiceInjectionExtensions
 
         s.AddGrpc(x => { x.EnableDetailedErrors = true; });
         s.AddMassTransitInjections(Assembly.GetExecutingAssembly());
-
-        return s;
     }
 
-    public static IServiceCollection AddIdentityServices(this IServiceCollection s, IConfiguration configuration)
+    public static IServiceCollection AddIdentityServices(this IServiceCollection s, WebApplicationBuilder builder)
     {
+        var configuration = builder.Configuration;
         s.AddDbContext<AppDbContext>(x =>
             x.UseSqlServer(configuration.GetConnectionString("IdentityConnection")));
         s.AddIdentity<AppUser, IdentityRole>(x =>
@@ -57,7 +57,7 @@ public static class ServiceInjectionExtensions
                 x.User.RequireUniqueEmail = true;
             })
             .AddEntityFrameworkStores<AppDbContext>();
-        s.AddJwtAuthConfiguration(configuration);
+        s.AddJwtAuthConfiguration(builder);
         s.AddJwtAuthServices();
 
         return s;
