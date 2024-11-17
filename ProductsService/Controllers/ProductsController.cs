@@ -1,6 +1,7 @@
 ﻿using System.Text.Json;
 using FluentValidation;
 using MediatR;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using MongoDB.Bson;
 using ProductsService.Dtos.Product;
@@ -20,6 +21,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
+    [Authorize]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
         var products = await _mediator.Send(new GetProductsRequest(), ct);

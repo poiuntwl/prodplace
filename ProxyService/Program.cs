@@ -1,15 +1,14 @@
-using System.Security.Claims;
 using System.Text.Json.Serialization;
 using AuthTools;
 using AuthTools.Services;
-using Microsoft.AspNetCore.Authentication.BearerToken;
-using Microsoft.AspNetCore.Mvc;
+using ProxyService;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var s = builder.Services;
 s.AddJwtAuthConfiguration(builder.Configuration);
 s.AddJwtAuthServices();
+s.AddSingleton<IGatewayService, GatewayService>();
 
 s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();
@@ -23,6 +22,7 @@ s.AddCors(x =>
 });
 
 var app = builder.Build();
+app.UseJwtAuthConfiguration();
 app.UseCors("VueCorsPolicy");
 
 app.MapPost("/login",
@@ -36,12 +36,23 @@ app.MapPost("/login",
 app.MapPost("/refresh",
     async (RefreshRequest request, IKeycloakHttpClient keycloakHttpClient, CancellationToken ct) =>
     {
-        var accessToken = await keycloakHttpClient.RefreshAsync(request.RefreshToken, ct);
+        var accessToken = await keycloakHttpClient.RefreshTokenAsync(request.RefreshToken, ct);
 
         return Results.Ok(accessToken);
     });
 
-app.MapReverseProxy();
+app.MapGet("/hello", () => "Hello World!").RequireAuthorization();
+app.MapGet("/hello-insecure", () => "Hello World!");
+
+app.MapReverseProxy(x =>
+{
+    var gatewayService = x.ApplicationServices.GetRequiredService<IGatewayService>();
+    x.Use(async (ctx, next) =>
+    {
+        await gatewayService.AddTokenAsync(ctx, ctx.RequestAborted);
+        await next().ConfigureAwait(false);
+    });
+});
 
 if (app.Environment.IsDevelopment())
 {
@@ -51,8 +62,6 @@ if (app.Environment.IsDevelopment())
 
 
 app.UseHttpsRedirection();
-
-app.MapGet("/hello", () => "Hello World!");
 
 app.Run();
 

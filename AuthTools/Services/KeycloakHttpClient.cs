@@ -6,7 +6,7 @@ namespace AuthTools.Services;
 public interface IKeycloakHttpClient
 {
     Task<TokenDataModel?> GetAccessTokenAsync(string username, string password, CancellationToken ct);
-    Task<TokenDataModel?> RefreshAsync(string refreshToken, CancellationToken ct);
+    Task<TokenDataModel?> RefreshTokenAsync(string refreshToken, CancellationToken ct);
 }
 
 public class KeycloakHttpClient : IKeycloakHttpClient
@@ -23,11 +23,12 @@ public class KeycloakHttpClient : IKeycloakHttpClient
     public async Task<TokenDataModel?> GetAccessTokenAsync(string username, string password, CancellationToken ct)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, "protocol/openid-connect/token");
+        // todo: move to configuration later
         request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
         {
             { "client_id", "jwt" },
             { "grant_type", "password" },
-            { "client_secret", ClientSecret }, // todo: move to configuration later
+            { "client_secret", ClientSecret },
             { "username", username },
             { "password", password },
         });
@@ -38,7 +39,7 @@ public class KeycloakHttpClient : IKeycloakHttpClient
         return result?.ToTokenDataModel();
     }
 
-    public async Task<TokenDataModel?> RefreshAsync(string refreshToken, CancellationToken ct)
+    public async Task<TokenDataModel?> RefreshTokenAsync(string refreshToken, CancellationToken ct)
     {
         using var request = new HttpRequestMessage(HttpMethod.Post, "protocol/openid-connect/token");
         request.Content = new FormUrlEncodedContent(new Dictionary<string, string>
@@ -69,10 +70,10 @@ public class GetAccessTokenResponse
 
 public class TokenDataModel
 {
-    public string AccessToken { get; set; }
-    public DateTimeOffset? TokenDue { get; set; }
-    public string RefreshToken { get; set; }
-    public DateTimeOffset? RefreshDue { get; set; }
+    [JsonPropertyName("access_token")] public string AccessToken { get; set; }
+    [JsonPropertyName("token_due")] public DateTimeOffset? TokenDue { get; set; }
+    [JsonPropertyName("refresh_token")] public string RefreshToken { get; set; }
+    [JsonPropertyName("refresh_due")] public DateTimeOffset? RefreshDue { get; set; }
 }
 
 public static class TokenDataModelMapExtensions
