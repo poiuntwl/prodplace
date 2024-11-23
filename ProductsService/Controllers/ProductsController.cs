@@ -1,4 +1,5 @@
 ﻿using System.Text.Json;
+using AuthTools.Constants;
 using FluentValidation;
 using MediatR;
 using Microsoft.AspNetCore.Authorization;
@@ -11,6 +12,7 @@ using ProductsService.Mappers;
 namespace ProductsService.Controllers;
 
 [ApiController, Route("/api")]
+[Authorize]
 public class ProductsController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -21,7 +23,6 @@ public class ProductsController : ControllerBase
     }
 
     [HttpGet]
-    [Authorize]
     public async Task<IActionResult> GetAll(CancellationToken ct)
     {
         var products = await _mediator.Send(new GetProductsRequest(), ct);
@@ -41,6 +42,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
+    [Authorize(Roles = RoleNames.Manager)]
     public async Task<IActionResult> Create([FromBody] CreateProductRequestDto createDto, CancellationToken ct)
     {
         try
@@ -55,6 +57,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut("price")]
+    [Authorize(Roles = RoleNames.Manager)]
     public async Task<IActionResult> UpdatePrice([FromBody] UpdateProductPriceRequestDto dto, CancellationToken ct)
     {
         await _mediator.Send(new UpdateProductPriceRequest(ObjectId.Parse(dto.Id), dto.Price), ct);
@@ -62,6 +65,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost("upload"), Consumes("application/json")]
+    [Authorize(Roles = RoleNames.Manager)]
     public async Task<IActionResult> UploadBulk(CancellationToken ct)
     {
         try
