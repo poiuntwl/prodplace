@@ -1,5 +1,4 @@
 ﻿using IdentityService.Dtos;
-using IdentityService.Requests;
 using MassTransit;
 using MediatR.Pipeline;
 using MessagingTools.Contracts;

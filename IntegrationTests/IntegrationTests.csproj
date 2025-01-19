@@ -19,6 +19,7 @@
             <PrivateAssets>all</PrivateAssets>
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
+        <PackageReference Include="Keycloak.Net.Core" Version="1.0.32" />
         <PackageReference Include="Meziantou.Xunit.ParallelTestFramework" Version="2.3.0"/>
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="8.0.10"/>
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.8.0"/>
@@ -49,6 +50,10 @@
 
     <ItemGroup>
         <Protobuf Include="..\ProdPlace.Grpc\Protos\Identity.proto" GrpcServices="Client" Link="Protos\Identity.proto"/>
+    </ItemGroup>
+
+    <ItemGroup>
+      <Folder Include="Models\" />
     </ItemGroup>
 
 </Project>

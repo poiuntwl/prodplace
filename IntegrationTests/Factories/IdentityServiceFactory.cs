@@ -2,6 +2,8 @@
 using IdentityService.Data;
 using IdentityService.Models;
 using IntegrationTests.HttpClients;
+using Keycloak.Net;
+using Keycloak.Net.Models.Roles;
 using MassTransit;
 using MessagingTools;
 using Microsoft.AspNetCore.Hosting;
@@ -9,9 +11,12 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Options;
 using Respawn;
+using Testcontainers.Keycloak;
 using Testcontainers.MsSql;
 using Testcontainers.RabbitMq;
+using KeycloakConfiguration = IdentityService.Models.KeycloakConfiguration;
 
 namespace IntegrationTests.Factories;
 
@@ -19,17 +24,20 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
 {
     private readonly MsSqlContainer _dbContainer;
     private readonly RabbitMqContainer _rabbitMqContainer;
+    private readonly KeycloakContainer _keycloakContainer;
     private Respawner _respawner = default!;
 
     private AsyncServiceScope _serviceScope;
     private SqlConnection _sqlConnection = default!;
     public IIdentityServiceHttpClient HttpClient = default!;
     public IServiceProvider ServiceProvider = default!;
+    public KeycloakClient KeycloakClient;
 
     public IdentityServiceFactory(ContainersFactory containersFactory)
     {
         _dbContainer = containersFactory.IdentityDbContainer;
         _rabbitMqContainer = containersFactory.RabbitMqContainer;
+        _keycloakContainer = containersFactory.KeyCloakContainer;
     }
 
     public async Task InitializeAsync()
@@ -38,6 +46,22 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         _serviceScope = Services.CreateAsyncScope();
         ServiceProvider = _serviceScope.ServiceProvider;
         HttpClient = ServiceProvider.GetRequiredService<IIdentityServiceHttpClient>();
+        var keycloakUrl = $"http://localhost:{_keycloakContainer.GetMappedPublicPort(8080)}";
+        KeycloakClient = new KeycloakClient(keycloakUrl, "admin", "admin");
+
+        await SetUpRolesAsync();
+    }
+
+    private async Task SetUpRolesAsync()
+    {
+        await KeycloakClient.CreateRoleAsync("master", new Role
+        {
+            Name = "user"
+        });
+        await KeycloakClient.CreateRoleAsync("master", new Role
+        {
+            Name = "manager"
+        });
     }
 
     async Task IAsyncLifetime.DisposeAsync()
@@ -88,6 +112,15 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
                     cfg.ConfigureEndpoints(ctx);
                 });
             });
+
+            var keycloakUrl = $"http://{_keycloakContainer.Hostname}:{_keycloakContainer.GetMappedPublicPort(8080)}";
+            s.AddSingleton<IOptions<KeycloakConfiguration>>(x => Options.Create(new KeycloakConfiguration
+            {
+                ServerUrl = keycloakUrl,
+                Realm = "master",
+                AdminUsername = "admin",
+                AdminPassword = "admin"
+            }));
         });
 
         base.ConfigureWebHost(builder);

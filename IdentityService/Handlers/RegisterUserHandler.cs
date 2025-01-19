@@ -1,9 +1,6 @@
 ﻿using IdentityService.Dtos;
-using IdentityService.Requests;
 using IdentityService.Services;
 using MediatR;
-using Microsoft.AspNetCore.Identity;
-using Microsoft.EntityFrameworkCore;
 
 namespace IdentityService.Handlers;
 
@@ -21,3 +18,5 @@ public class RegisterUserHandler : IRequestHandler<RegisterUserRequest, UserData
         return await _userService.RegisterUserAsync(request.RegisterDto, cancellationToken);
     }
 }
+
+public record RegisterUserRequest(RegisterDto RegisterDto) : IRequest<UserDataResult>;

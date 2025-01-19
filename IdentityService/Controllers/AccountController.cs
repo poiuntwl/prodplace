@@ -1,6 +1,6 @@
 ﻿using IdentityService.Dtos;
 using IdentityService.Exceptions;
-using IdentityService.Requests;
+using IdentityService.Handlers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
 

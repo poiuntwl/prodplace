@@ -1,7 +1,11 @@
+using AuthTools.Constants;
 using FluentAssertions;
 using IdentityService.Dtos;
+using IdentityService.Extensions;
+using IdentityService.Services;
 using IntegrationTests.Factories;
 using IntegrationTests.HttpClients;
+using Keycloak.Net;
 using MassTransit.Testing;
 using MessagingTools.Contracts;
 using Microsoft.EntityFrameworkCore;
@@ -21,12 +25,14 @@ public class RegisterTests :
     private readonly IIdentityServiceHttpClient _identityHttpClient;
     private readonly IServiceProvider _identityServiceScope;
     private readonly ITestHarness _testHarness;
+    private readonly KeycloakClient _keycloakClient;
 
     public RegisterTests(IdentityServiceFactory identityServiceFactory, CustomerServiceFactory customerServiceFactory)
     {
         _identityHttpClient = identityServiceFactory.HttpClient;
         _customerServiceProvider = customerServiceFactory.ServiceProvider;
         _identityServiceScope = identityServiceFactory.ServiceProvider;
+        _keycloakClient = identityServiceFactory.KeycloakClient;
         _testHarness = _customerServiceProvider.GetTestHarness();
     }
 
@@ -43,16 +49,7 @@ public class RegisterTests :
     [Fact]
     public async Task Register_ShouldCreateCustomer()
     {
-        var registerDto = new RegisterDto
-        {
-            Username = Guid.NewGuid().ToString()[..10],
-            Email = $"{Guid.NewGuid().ToString()[..5]}@gmail.com",
-            Password = $"Some{Guid.NewGuid().ToString()[..5]}password1!"
-        };
-
-        var response = await _identityHttpClient.Register(registerDto);
-        response.Should().NotBeNull();
-        response!.Email.Should().Be(registerDto.Email);
+        var registerDto = await RegisterUserAsync();
 
         await WaitUntilAllMessagesProcessedAsync();
 
@@ -63,6 +60,40 @@ public class RegisterTests :
         var customerDbContext = _customerServiceProvider.GetRequiredService<AppDbContext>();
         var customers = customerDbContext.Customers.ToList();
         customers.Should().ContainSingle(x => x.Email == registerDto.Email);
+    }
+
+    [Fact]
+    public async Task AssignRole_MustHaveRole()
+    {
+        var user = await RegisterUserAsync();
+
+        await WaitUntilAllMessagesProcessedAsync();
+        var keycloakService = _identityServiceScope.GetRequiredService<IKeycloakService>();
+
+        var users = await _keycloakClient.GetUsersAsync("master");
+        var userId = users.SingleOrDefault(x => x.Email == user.Email)?.Id;
+        userId.Should().NotBeNull();
+
+        await keycloakService.AssignRoleAsync(userId, UserRole.Manager, CancellationToken.None);
+
+        var roles = await _keycloakClient.GetRoleMappingsForUserAsync("master", userId, CancellationToken.None);
+        var mappedRoleNames = roles.RealmMappings.Select(x => x.Name);
+        mappedRoleNames.Should().Contain(UserRole.Manager.GetDescription());
+    }
+
+    private async Task<UserDataResult> RegisterUserAsync()
+    {
+        var registerDto = new RegisterDto
+        {
+            Username = Guid.NewGuid().ToString()[..10],
+            Email = $"{Guid.NewGuid().ToString()[..5]}@gmail.com",
+            Password = $"Some{Guid.NewGuid().ToString()[..5]}password1!"
+        };
+
+        var response = await _identityHttpClient.Register(registerDto);
+        response.Should().NotBeNull();
+        response!.Email.Should().Be(registerDto.Email);
+        return response;
     }
 
     private async Task WaitUntilAllMessagesProcessedAsync()

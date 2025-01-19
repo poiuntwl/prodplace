@@ -20,14 +20,16 @@ public class UserService : IUserService
     private readonly ITokenService _tokenService;
     private readonly IOutboxService _outboxService;
     private readonly SignInManager<AppUser> _signInManager;
+    private readonly IKeycloakService _keycloakService;
 
     public UserService(UserManager<AppUser> userManager, ITokenService tokenService, IOutboxService outboxService,
-        SignInManager<AppUser> signInManager)
+        SignInManager<AppUser> signInManager, IKeycloakService keycloakService)
     {
         _userManager = userManager;
         _tokenService = tokenService;
         _outboxService = outboxService;
         _signInManager = signInManager;
+        _keycloakService = keycloakService;
     }
 
     public async Task<UserDataResult> RegisterUserAsync(RegisterDto registerDto, CancellationToken ct)
@@ -69,6 +71,9 @@ public class UserService : IUserService
                 LastName = null
             };
             await _outboxService.CreateOutboxMessageAsync("identity.registerUser", eventData, ct);
+
+            // temporarily doing it here until I create an outbox messages handler
+            await _keycloakService.RegisterAsync(registerDto, ct);
 
             scope.Complete();
 

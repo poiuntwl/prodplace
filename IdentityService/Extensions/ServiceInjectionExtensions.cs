@@ -43,6 +43,9 @@ public static class ServiceInjectionExtensions
 
         s.AddGrpc(x => { x.EnableDetailedErrors = true; });
         s.AddMassTransitInjections(Assembly.GetExecutingAssembly());
+
+        s.Configure<KeycloakConfiguration>(configuration.GetSection("Keycloak"));
+        s.AddScoped<IKeycloakService, KeycloakService>();
     }
 
     public static IServiceCollection AddIdentityServices(this IServiceCollection s, WebApplicationBuilder builder)
