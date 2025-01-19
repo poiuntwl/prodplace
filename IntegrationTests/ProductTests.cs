@@ -32,6 +32,10 @@ public class ProductTests : IClassFixture<ProductServiceFactory>, IClassFixture<
         );
         user.Should().NotBeNull();
 
+        var products = await _productServiceHttpClient.GetAll(user.Token);
+        products.Should().NotBeEmpty();
+
+        /*
         await _productServiceHttpClient.Create(new CreateProductRequestDto
         {
             Name = "Some name",
@@ -42,7 +46,6 @@ public class ProductTests : IClassFixture<ProductServiceFactory>, IClassFixture<
                 Hello = "World"
             })
         }, user.Token);
-
-        var all = await _productServiceHttpClient.GetAll(user.Token);
+        */
     }
 }

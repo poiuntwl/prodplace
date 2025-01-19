@@ -1,4 +1,5 @@
 ﻿extern alias ProductsServiceSUT;
+using System.Text.Json;
 using Grpc.Core;
 using IntegrationTests.HttpClients;
 using Microsoft.AspNetCore.Hosting;
@@ -7,6 +8,7 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using MongoDB.Bson;
 using MongoDB.Driver;
 using NSubstitute;
 using ProductsServiceSUT::IdentityGrpc.Server;
@@ -41,9 +43,42 @@ public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLi
         ServiceProvider = _serviceScope.ServiceProvider;
         HttpClient = ServiceProvider.GetRequiredService<IProductServiceHttpClient>();
 
-        var db = new MongoClient(_dbContainer.GetConnectionString()).GetDatabase("default");
+        var mongoClient = new MongoClient(_dbContainer.GetConnectionString());
+        var db = mongoClient.GetDatabase("prodPlace");
         await db.CreateCollectionAsync("prices");
-        await db.CreateCollectionAsync("product");
+        await db.CreateCollectionAsync("products");
+
+        await SeedProductsAsync(db);
+    }
+
+    private static async Task SeedProductsAsync(IMongoDatabase db)
+    {
+        var prodCollection = db.GetCollection<BsonDocument>("products");
+        var products = new[]
+        {
+            new BsonDocument
+            {
+                { "name", "Laptop" },
+                { "description", "High-performance laptop with 16GB RAM and 512GB SSD" },
+                { "price", 1299.99 },
+                { "customFields", JsonSerializer.Serialize(new { color = "Silver", weight = "1.8kg" }) }
+            },
+            new BsonDocument
+            {
+                { "name", "Smartphone" },
+                { "description", "Latest model with 5G capability and triple camera setup" },
+                { "price", 799.99 },
+                { "customFields", JsonSerializer.Serialize(new { color = "Black", storage = "256GB" }) }
+            },
+            new BsonDocument
+            {
+                { "name", "Headphones" },
+                { "description", "Noise-cancelling wireless headphones with 30-hour battery life" },
+                { "price", 249.99 },
+                { "customFields", JsonSerializer.Serialize(new { color = "White", type = "Over-ear" }) }
+            }
+        };
+        await prodCollection.InsertManyAsync(products);
     }
 
     async Task IAsyncLifetime.DisposeAsync()

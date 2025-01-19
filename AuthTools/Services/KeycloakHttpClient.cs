@@ -11,7 +11,7 @@ public interface IKeycloakHttpClient
 
 public class KeycloakHttpClient : IKeycloakHttpClient
 {
-    private const string ClientSecret = "hWsjheX4uUAEKrvQxDT5KQvCjlVnk1fZ";
+    private const string ClientSecret = "hWsjheX4uUAEKrvQxDT5KQvCjlVnk1fZhWsjheX4uUAEKrvQxDT5KQvCjlVnk1fZ";
     private readonly HttpClient _httpClient;
 
     public KeycloakHttpClient(HttpClient httpClient)

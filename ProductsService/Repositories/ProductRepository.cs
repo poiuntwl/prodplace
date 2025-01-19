@@ -25,7 +25,7 @@ public class ProductRepository : IProductRepository
 
     public async Task<IEnumerable<ProductModel>> GetProductsAsync(CancellationToken ct)
     {
-        var products = await _dbContext.Products.AsQueryable().ToListAsync(ct);
+        var products = await _dbContext.Products.Find(_ => true).ToListAsync(cancellationToken: ct);
         return products;
     }
 
