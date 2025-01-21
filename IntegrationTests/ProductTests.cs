@@ -25,7 +25,6 @@ public class ProductTests : IClassFixture<ProductServiceFactory>, IClassFixture<
     {
         var user = await _identityServiceHttpClient.Register(new RegisterDto
             {
-                Username = Guid.NewGuid().ToString()[..10],
                 Email = $"{Guid.NewGuid().ToString()[..5]}@gmail.com",
                 Password = $"Some{Guid.NewGuid().ToString()[..5]}password1!"
             }

@@ -85,7 +85,6 @@ public class RegisterTests :
     {
         var registerDto = new RegisterDto
         {
-            Username = Guid.NewGuid().ToString()[..10],
             Email = $"{Guid.NewGuid().ToString()[..5]}@gmail.com",
             Password = $"Some{Guid.NewGuid().ToString()[..5]}password1!"
         };

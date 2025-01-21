@@ -2,6 +2,7 @@
 using System.Security.Claims;
 using AuthTools.Models;
 using AuthTools.Services;
+using IdentityService.Dtos;
 using IdentityService.Models;
 using Microsoft.IdentityModel.Tokens;
 
@@ -11,6 +12,7 @@ public interface ITokenService
 {
     string CreateToken(AppUser user);
     ClaimsPrincipal? ValidateToken(string token);
+    string CreateToken(RegisterDto registerDto);
 }
 
 public class TokenService : ITokenService
@@ -43,7 +45,7 @@ public class TokenService : ITokenService
             Subject = new ClaimsIdentity(claims),
             Expires = DateTime.Now.AddDays(7),
             SigningCredentials = new SigningCredentials(tokenValidationParameters.IssuerSigningKey,
-                SecurityAlgorithms.HmacSha512Signature),
+                SecurityAlgorithms.Aes256Gcm),
             Issuer = tokenValidationParameters.ValidIssuer,
             Audience = tokenValidationParameters.ValidAudience,
         };
@@ -56,5 +58,10 @@ public class TokenService : ITokenService
     public ClaimsPrincipal? ValidateToken(string token)
     {
         return _claimsPrincipalGetter.Get(token);
+    }
+
+    public string CreateToken(RegisterDto registerDto)
+    {
+        throw new NotImplementedException();
     }
 }

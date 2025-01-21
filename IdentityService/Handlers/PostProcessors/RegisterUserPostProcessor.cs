@@ -19,7 +19,6 @@ public class RegisterUserPostProcessor : IRequestPostProcessor<RegisterUserReque
         await _publishEndpoint.Publish(new UserRegisteredEvent
         {
             Email = response.Email,
-            Username = response.Username,
             CreatedOnUtc = DateTime.UtcNow
         }, cancellationToken);
     }

@@ -5,6 +5,7 @@ using IdentityService.Data;
 using IdentityService.Handlers.PostProcessors;
 using IdentityService.Models;
 using IdentityService.Services;
+using Keycloak.AuthServices.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MessagingTools;
@@ -43,6 +44,9 @@ public static class ServiceInjectionExtensions
 
         s.AddGrpc(x => { x.EnableDetailedErrors = true; });
         s.AddMassTransitInjections(Assembly.GetExecutingAssembly());
+
+        s.Configure<KeycloakConfiguration>(configuration.GetSection("Keycloak"));
+        s.AddKeycloakAuthorization(configuration);
 
         s.Configure<KeycloakConfiguration>(configuration.GetSection("Keycloak"));
         s.AddScoped<IKeycloakService, KeycloakService>();

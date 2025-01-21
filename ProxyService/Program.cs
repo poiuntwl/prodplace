@@ -28,7 +28,7 @@ app.UseCors("VueCorsPolicy");
 app.MapPost("/login",
     async (LoginRequest creds, IKeycloakHttpClient keycloakHttpClient, CancellationToken ct) =>
     {
-        var accessToken = await keycloakHttpClient.GetAccessTokenAsync(creds.Username, creds.Password, ct);
+        var accessToken = await keycloakHttpClient.GetAccessTokenAsync(creds.Email, creds.Password, ct);
 
         return Results.Ok(accessToken);
     });
@@ -65,7 +65,7 @@ app.UseHttpsRedirection();
 
 app.Run();
 
-internal record LoginRequest(string Username, string Password);
+internal record LoginRequest(string Email, string Password);
 
 internal record RefreshRequest
 {

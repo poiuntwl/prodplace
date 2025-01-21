@@ -37,7 +37,7 @@ public class OutboxMessagePostedConsumer : IConsumer<OutboxMessagePostedEvent>
 
         var newCustomer = new CustomerModel
         {
-            FirstName = content.Username,
+            FirstName = content.Email.Split("@")[0],
             LastName = string.Empty,
             Email = content.Email,
             PhoneNumber = "",
