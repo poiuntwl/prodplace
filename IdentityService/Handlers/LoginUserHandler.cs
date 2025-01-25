@@ -1,10 +1,11 @@
 ﻿using IdentityService.Dtos;
 using IdentityService.Services;
+using Keycloak.Net.Core.Models.Root;
 using MediatR;
 
 namespace IdentityService.Handlers;
 
-public class LoginUserHandler : IRequestHandler<LoginUserRequest, UserDataResult>
+public class LoginUserHandler : IRequestHandler<LoginUserRequest, Token>
 {
     private readonly IUserService _userService;
 
@@ -13,10 +14,10 @@ public class LoginUserHandler : IRequestHandler<LoginUserRequest, UserDataResult
         _userService = userService;
     }
 
-    public async Task<UserDataResult> Handle(LoginUserRequest request, CancellationToken cancellationToken)
+    public async Task<Token> Handle(LoginUserRequest request, CancellationToken cancellationToken)
     {
         return await _userService.LoginUserAsync(request.LoginDto, cancellationToken);
     }
 }
 
-public record LoginUserRequest(LoginDto LoginDto) : IRequest<UserDataResult>;
+public record LoginUserRequest(LoginDto LoginDto) : IRequest<Token>;
