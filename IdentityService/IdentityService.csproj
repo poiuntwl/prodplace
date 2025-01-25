@@ -7,25 +7,25 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Grpc.AspNetCore" Version="2.66.0" />
-        <PackageReference Include="Keycloak.AuthServices.Authentication" Version="2.5.3" />
-        <PackageReference Include="Keycloak.AuthServices.Authorization" Version="2.5.3" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.67.0" />
+        <PackageReference Include="Keycloak.AuthServices.Authentication" Version="2.6.0" />
+        <PackageReference Include="Keycloak.AuthServices.Authorization" Version="2.6.0" />
         <PackageReference Include="Keycloak.Net.Core" Version="1.0.32" />
-        <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.0" />
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.3.4" />
         <PackageReference Include="MediatR" Version="12.4.1" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="8.0.8" />
-        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="8.0.8" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="8.0.8"/>
-        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="8.0.8" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="8.0.8">
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.Identity.EntityFrameworkCore" Version="9.0.1" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.1" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.1">
           <PrivateAssets>all</PrivateAssets>
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.8" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.1" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
-        <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="8.0.8" />
-        <PackageReference Include="RabbitMQ.Client" Version="6.8.1" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="6.4.0"/>
+        <PackageReference Include="Microsoft.Extensions.Identity.Core" Version="9.0.1" />
+        <PackageReference Include="RabbitMQ.Client" Version="7.0.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -47,7 +47,7 @@
     </ItemGroup>
 
     <ItemGroup>
-        <Protobuf Include="..\ProdPlace.Grpc\Protos\Identity.proto" GrpcServices="Server" Link="Protos\Identity.proto"/>
+        <Protobuf Include="..\ProdPlace.Grpc\Protos\Identity.proto" GrpcServices="Server" Link="Protos\Identity.proto" />
     </ItemGroup>
 
 </Project>
