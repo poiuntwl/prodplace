@@ -1,11 +1,11 @@
 ﻿using System.Reflection;
 using AuthTools;
-using IdentityService.BackgroundServices;
 using IdentityService.Data;
 using IdentityService.Handlers.PostProcessors;
 using IdentityService.Models;
 using IdentityService.Services;
 using Keycloak.AuthServices.Authorization;
+using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using MessagingTools;
@@ -27,8 +27,6 @@ public static class ServiceInjectionExtensions
             x.AddRequestPostProcessor<RegisterUserPostProcessor>();
         });
 
-        s.Configure<OutboxPublisherConfiguration>(configuration.GetSection("Outbox:Publisher"));
-        s.AddHostedService<OutboxPublisher>();
         s.AddTransient<ITokenService, TokenService>();
         s.AddTransient<IValidationService, ValidationService>();
         s.AddSingleton<RabbitMqSettings>(x => new RabbitMqSettings
@@ -43,7 +41,7 @@ public static class ServiceInjectionExtensions
         s.AddTransient<IUserService, UserService>();
 
         s.AddGrpc(x => { x.EnableDetailedErrors = true; });
-        s.AddMassTransitInjections(Assembly.GetExecutingAssembly());
+        s.AddMassTransitInjections<AppDbContext>(Assembly.GetExecutingAssembly(), x => x.UseSqlServer());
 
         s.Configure<KeycloakConfiguration>(configuration.GetSection("Keycloak"));
         s.AddKeycloakAuthorization(configuration);
@@ -52,7 +50,7 @@ public static class ServiceInjectionExtensions
         s.AddScoped<IKeycloakService, KeycloakService>();
     }
 
-    public static IServiceCollection AddIdentityServices(this IServiceCollection s, WebApplicationBuilder builder)
+    private static IServiceCollection AddIdentityServices(this IServiceCollection s, WebApplicationBuilder builder)
     {
         var configuration = builder.Configuration;
         s.AddDbContext<AppDbContext>(x =>

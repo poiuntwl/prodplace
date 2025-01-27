@@ -1,6 +1,8 @@
 using System.Reflection;
+using MassTransit;
 using Microsoft.EntityFrameworkCore;
 using MessagingTools;
+using Microsoft.EntityFrameworkCore.Diagnostics;
 using Microsoft.Extensions.DependencyInjection.MessagingTools;
 using UserService.Data;
 
@@ -15,7 +17,7 @@ s.AddDbContext<AppDbContext>(x =>
     x.UseNpgsql(builder.Configuration.GetConnectionString("DbConnection")));
 
 s.AddSingleton<RabbitMqSettings>();
-s.AddMassTransitInjections(Assembly.GetExecutingAssembly());
+s.AddMassTransitInjections<AppDbContext>(Assembly.GetExecutingAssembly(), x => x.UsePostgres());
 
 var app = builder.Build();
 
@@ -38,4 +40,8 @@ void ApplyMigrations()
     using var serviceScope = app.Services.CreateScope();
     var dbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
     dbContext.Database.Migrate();
+}
+
+public class Interceptor : IInterceptor
+{
 }

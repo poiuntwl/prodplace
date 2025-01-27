@@ -1,5 +1,6 @@
 ﻿using AuthTools.Constants;
 using IdentityService.Models;
+using MassTransit;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Identity.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore;
@@ -36,5 +37,9 @@ public class AppDbContext : IdentityDbContext<AppUser>
         };
         builder.Entity<IdentityRole>().HasData(roles);
         builder.Entity<AppUser>().Property(x => x.LastLoginDate).HasDefaultValueSql("GETUTCDATE()");
+
+        builder.AddInboxStateEntity();
+        builder.AddOutboxMessageEntity();
+        builder.AddOutboxStateEntity();
     }
 }
