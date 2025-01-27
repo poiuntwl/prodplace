@@ -78,8 +78,6 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     {
         builder.ConfigureServices((_, s) =>
         {
-            s.PostConfigure<OutboxPublisherConfiguration>(x => x.Delay = TimeSpan.FromMilliseconds(100));
-
             s.AddHttpClient<IIdentityServiceHttpClient, IdentityServiceHttpClient>(y =>
                 new IdentityServiceHttpClient(CreateClient()));
 
