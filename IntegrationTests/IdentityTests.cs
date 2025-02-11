@@ -29,7 +29,6 @@ public class IdentityTests
         var newRole =
             await _integrationTestFixture.AdminServiceFactory.HttpClient.CreateRole(roleName);
         newRole.Should().NotBeNull();
-        newRole.Name.Should().Be(roleName);
 
         var roleAssigned =
             await _integrationTestFixture.AdminServiceFactory.HttpClient.AssignRole(

@@ -14,7 +14,7 @@ public class RolesController : ControllerBase
         {
             Name = roleName
         }, cancellationToken: ct);
-        return Ok(new CreateRoleDto(newRole.Id, newRole.Name));
+        return Ok(new CreateRoleDto(newRole.Success));
     }
 
     [HttpPost("/roles/assign")]
@@ -32,6 +32,6 @@ public class RolesController : ControllerBase
 
 public record AssignRoleRequestDto(string UserId, string RoleName);
 
-public record CreateRoleDto(string Id, string Name);
+public record CreateRoleDto(bool Success);
 
 public record AssignRoleDto(bool Success);

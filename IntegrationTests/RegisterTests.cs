@@ -74,7 +74,7 @@ public class RegisterTests :
         var userId = users.SingleOrDefault(x => x.Email == user.Email)?.Id;
         userId.Should().NotBeNull();
 
-        await keycloakService.AssignRoleAsync(userId, UserRole.Manager, CancellationToken.None);
+        await keycloakService.AssignRoleAsync(userId, UserRole.Manager.GetDescription(), CancellationToken.None);
 
         var roles = await _keycloakClient.GetRoleMappingsForUserAsync("master", userId, CancellationToken.None);
         var mappedRoleNames = roles.RealmMappings.Select(x => x.Name);

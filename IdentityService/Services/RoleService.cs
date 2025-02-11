@@ -1,39 +1,39 @@
-﻿using AuthTools.Services;
-
-namespace IdentityService.Services;
+﻿namespace IdentityService.Services;
 
 public interface IRoleService
 {
-    Task<object> CreateRoleAsync(string name, string description);
-    Task DeleteRoleAsync(string roleId);
-    Task AssignRoleAsync(string userId, string roleId);
-    Task UnassignRoleAsync(string userId, string roleId);
+    Task<bool> CreateRoleAsync(string name, string description, CancellationToken ct);
+    Task<bool> DeleteRoleAsync(string roleName, CancellationToken ct);
+    Task<bool> AssignRoleAsync(string userId, string roleName, CancellationToken ct);
+    Task<bool> UnassignRoleAsync(string userId, string roleName, CancellationToken ct);
 }
 
 public class RoleService : IRoleService
 {
-    public RoleService()
-    {
+    private readonly IKeycloakService _keycloakService;
 
+    public RoleService(IKeycloakService keycloakService)
+    {
+        _keycloakService = keycloakService;
     }
 
-    public async Task<object> CreateRoleAsync(string name, string description)
+    public async Task<bool> CreateRoleAsync(string name, string description, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        return await _keycloakService.CreateRoleAsync(name, description, ct);
     }
 
-    public async Task DeleteRoleAsync(string roleId)
+    public async Task<bool> DeleteRoleAsync(string roleName, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        return await _keycloakService.DeleteRoleAsync(roleName, ct);
     }
 
-    public async Task AssignRoleAsync(string userId, string roleId)
+    public async Task<bool> AssignRoleAsync(string userId, string roleName, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        return await _keycloakService.AssignRoleAsync(userId, roleName, ct);
     }
 
-    public async Task UnassignRoleAsync(string userId, string roleId)
+    public async Task<bool> UnassignRoleAsync(string userId, string roleName, CancellationToken ct)
     {
-        throw new NotImplementedException();
+        return await _keycloakService.UnassignRoleAsync(userId, roleName, ct);
     }
 }

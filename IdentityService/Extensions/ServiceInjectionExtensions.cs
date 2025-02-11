@@ -6,9 +6,9 @@ using IdentityService.Models;
 using IdentityService.Services;
 using Keycloak.AuthServices.Authorization;
 using MassTransit;
+using MessagingTools;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
-using MessagingTools;
 using Microsoft.Extensions.DependencyInjection.MessagingTools;
 
 namespace IdentityService.Extensions;
@@ -48,6 +48,7 @@ public static class ServiceInjectionExtensions
 
         s.Configure<KeycloakConfiguration>(configuration.GetSection("Keycloak"));
         s.AddScoped<IKeycloakService, KeycloakService>();
+        s.AddScoped<IRoleService, RoleService>();
     }
 
     private static IServiceCollection AddIdentityServices(this IServiceCollection s, WebApplicationBuilder builder)
