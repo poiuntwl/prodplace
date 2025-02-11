@@ -1,14 +1,11 @@
 ﻿using IdentityService;
 using IdentityService.Data;
-using IdentityService.Models;
 using IntegrationTests.HttpClients;
 using Keycloak.Net;
 using Keycloak.Net.Models.Roles;
 using MassTransit;
 using MessagingTools;
 using Microsoft.AspNetCore.Hosting;
-using Microsoft.AspNetCore.Hosting.Server;
-using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -33,7 +30,8 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     private SqlConnection _sqlConnection = default!;
     public IIdentityServiceHttpClient HttpClient = default!;
     public IServiceProvider ServiceProvider = default!;
-    public KeycloakClient KeycloakClient;
+    public KeycloakClient KeycloakClient = default!;
+    public HttpMessageHandler GrpcHandler { get; set; } = default!;
 
     public IdentityServiceFactory(ContainersFactory containersFactory)
     {
@@ -42,7 +40,6 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         _keycloakContainer = containersFactory.KeyCloakContainer;
     }
 
-    public HttpMessageHandler GrpcHandler { get; set; }
 
     public async Task InitializeAsync()
     {
@@ -60,14 +57,30 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
 
     private async Task SetUpRolesAsync()
     {
-        await KeycloakClient.CreateRoleAsync("master", new Role
+        const string realm = "master";
+        var requiredRoles = new[] { "user", "manager" };
+
+        var existingRoles = new HashSet<string>(
+            (await KeycloakClient.GetRolesAsync(realm)).Select(r => r.Name),
+            StringComparer.OrdinalIgnoreCase);
+
+        foreach (var roleName in requiredRoles)
         {
-            Name = "user"
-        });
-        await KeycloakClient.CreateRoleAsync("master", new Role
-        {
-            Name = "manager"
-        });
+            if (!existingRoles.Contains(roleName))
+            {
+                try
+                {
+                    await KeycloakClient.CreateRoleAsync(realm, new Role
+                    {
+                        Name = roleName,
+                    });
+                }
+                catch (Exception)
+                {
+                    // ignore
+                }
+            }
+        }
     }
 
     async Task IAsyncLifetime.DisposeAsync()
@@ -85,7 +98,7 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
 
         builder.ConfigureServices((_, s) =>
         {
-            s.AddHttpClient<IIdentityServiceHttpClient, IdentityServiceHttpClient>(y =>
+            s.AddHttpClient<IIdentityServiceHttpClient, IdentityServiceHttpClient>(_ =>
                 new IdentityServiceHttpClient(CreateClient()));
 
             s.Remove(s.Single(x => x.ServiceType == typeof(DbContextOptions<AppDbContext>)));
@@ -119,7 +132,7 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
             });
 
             var keycloakUrl = $"http://{_keycloakContainer.Hostname}:{_keycloakContainer.GetMappedPublicPort(8080)}";
-            s.AddSingleton<IOptions<KeycloakConfiguration>>(x => Options.Create(new KeycloakConfiguration
+            s.AddSingleton<IOptions<KeycloakConfiguration>>(_ => Options.Create(new KeycloakConfiguration
             {
                 ServerUrl = keycloakUrl,
                 Realm = "master",
