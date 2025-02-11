@@ -1,6 +1,7 @@
 using IdentityService.Data;
 using IdentityService.Extensions;
 using IdentityService.Services;
+using IdentityService.Services.grpc;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -25,7 +26,8 @@ app.UseAuthorization();
 ApplyMigrations();
 
 app.MapControllers();
-app.MapGrpcService<ValidationServiceGrpcWrapper>();
+app.MapGrpcService<ValidationServiceGrpcServer>();
+app.MapGrpcService<RoleAdminGrpcServer>();
 app.Run();
 return;
 

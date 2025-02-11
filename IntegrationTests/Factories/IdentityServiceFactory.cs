@@ -7,6 +7,8 @@ using Keycloak.Net.Models.Roles;
 using MassTransit;
 using MessagingTools;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Hosting.Server;
+using Microsoft.AspNetCore.Hosting.Server.Features;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
@@ -40,6 +42,8 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         _keycloakContainer = containersFactory.KeyCloakContainer;
     }
 
+    public HttpMessageHandler GrpcHandler { get; set; }
+
     public async Task InitializeAsync()
     {
         await InitRespawner();
@@ -50,6 +54,8 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         KeycloakClient = new KeycloakClient(keycloakUrl, "admin", "admin");
 
         await SetUpRolesAsync();
+
+        GrpcHandler = Server.CreateHandler();
     }
 
     private async Task SetUpRolesAsync()
@@ -73,9 +79,10 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         await DisposeAsync();
     }
 
-
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
+        builder.UseUrls("http://localhost:0");
+
         builder.ConfigureServices((_, s) =>
         {
             s.AddHttpClient<IIdentityServiceHttpClient, IdentityServiceHttpClient>(y =>
@@ -119,6 +126,8 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
                 AdminUsername = "admin",
                 AdminPassword = "admin"
             }));
+
+            s.AddGrpc();
         });
 
         base.ConfigureWebHost(builder);

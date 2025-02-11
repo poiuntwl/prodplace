@@ -62,6 +62,28 @@ public class TokenService : ITokenService
 
     public string CreateToken(RegisterDto registerDto)
     {
-        throw new NotImplementedException();
+        ArgumentException.ThrowIfNullOrWhiteSpace(registerDto.Email);
+
+        var claims = new List<Claim>
+        {
+            new(JwtRegisteredClaimNames.Email, registerDto.Email),
+            new(JwtRegisteredClaimNames.GivenName, registerDto.Email),
+            new(JwtRegisteredClaimNames.Sub, registerDto.Email)
+        };
+
+        var tokenValidationParameters = _tokenValidationConfiguration.GetTokenValidationParameters();
+        var tokenDescriptor = new SecurityTokenDescriptor
+        {
+            Subject = new ClaimsIdentity(claims),
+            Expires = DateTime.Now.AddDays(7),
+            SigningCredentials = new SigningCredentials(tokenValidationParameters.IssuerSigningKey,
+                SecurityAlgorithms.HmacSha256),
+            Issuer = tokenValidationParameters.ValidIssuer,
+            Audience = tokenValidationParameters.ValidAudience,
+        };
+
+        var tokenHandler = new JwtSecurityTokenHandler();
+        var token = tokenHandler.CreateToken(tokenDescriptor);
+        return tokenHandler.WriteToken(token);
     }
 }

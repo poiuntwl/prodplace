@@ -1,0 +1,45 @@
+﻿syntax = "proto3";
+
+option csharp_namespace = "RoleAdmin";
+
+service RoleAdminService {
+  rpc CreateRole (CreateRoleRequest) returns (RoleResponse);
+  rpc DeleteRole (DeleteRoleRequest) returns (DeleteRoleResponse);
+  rpc AssignRole (AssignRoleRequest) returns (AssignRoleResponse);
+  rpc UnassignRole (UnassignRoleRequest) returns (UnassignRoleResponse);
+}
+
+message CreateRoleRequest {
+  string name = 1;
+}
+
+message RoleResponse {
+  string id = 1;
+  string name = 2;
+}
+
+message DeleteRoleRequest {
+  string name = 1;
+}
+
+message DeleteRoleResponse {
+  bool success = 1;
+}
+
+message AssignRoleRequest {
+  string user_id = 1;
+  string role_name = 2;
+}
+
+message AssignRoleResponse {
+  bool success = 1;
+}
+
+message UnassignRoleRequest {
+  string user_id = 1;
+  string role_name = 2;
+}
+
+message UnassignRoleResponse {
+  bool success = 1;
+}

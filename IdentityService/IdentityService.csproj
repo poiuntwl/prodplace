@@ -49,6 +49,7 @@
 
     <ItemGroup>
         <Protobuf Include="..\ProdPlace.Grpc\Protos\Identity.proto" GrpcServices="Server" Link="Protos\Identity.proto" />
+        <Protobuf Include="..\ProdPlace.Grpc\Protos\role_admin.proto" GrpcServices="Server" Link="Protos\role_admin.proto" />
     </ItemGroup>
 
 </Project>

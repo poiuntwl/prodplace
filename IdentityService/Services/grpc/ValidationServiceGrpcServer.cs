@@ -1,14 +1,13 @@
-﻿using AuthTools.Services;
-using Grpc.Core;
+﻿using Grpc.Core;
 using IdentityGrpc.Server;
 
-namespace IdentityService.Services;
+namespace IdentityService.Services.grpc;
 
-public class ValidationServiceGrpcWrapper : IdentityGrpc.Server.IdentityService.IdentityServiceBase
+public class ValidationServiceGrpcServer : IdentityGrpc.Server.IdentityService.IdentityServiceBase
 {
     private readonly IValidationService _validationService;
 
-    public ValidationServiceGrpcWrapper(IValidationService validationService, IJwtValidator jwtValidator)
+    public ValidationServiceGrpcServer(IValidationService validationService)
     {
         _validationService = validationService;
     }

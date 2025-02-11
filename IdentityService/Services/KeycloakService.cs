@@ -36,6 +36,8 @@ public class KeycloakService : IKeycloakService
         var user = new User
         {
             Email = registerDto.Email,
+            UserName = registerDto.Email,
+            FirstName = registerDto.Email,
             Enabled = true,
             Credentials =
             [
@@ -43,7 +45,7 @@ public class KeycloakService : IKeycloakService
                 {
                     Type = "password",
                     Value = registerDto.Password,
-                    Temporary = false
+                    Temporary = false,
                 }
             ]
         };

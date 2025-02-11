@@ -12,7 +12,7 @@ public static class HttpClientExtensions
         PropertyNameCaseInsensitive = true
     };
 
-    public static async Task<T?> SendRequestAsync<T>(this HttpClient httpClient, string url,
+    public static async Task<string> SendRequestAsync(this HttpClient httpClient, string url,
         HttpMethod? httpMethod = null, object? body = null, string? jwt = null)
     {
         using var httpRequestMessage = new HttpRequestMessage(httpMethod ?? HttpMethod.Get, url);
@@ -25,9 +25,13 @@ public static class HttpClientExtensions
                 new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, MediaTypeNames.Application.Json);
 
         using var response = await httpClient.SendAsync(httpRequestMessage);
-        var responseJson = await response.Content.ReadAsStringAsync();
-        var responseBody = JsonSerializer.Deserialize<T>(responseJson, JsonSerializerOptions);
+        return await response.Content.ReadAsStringAsync();
+    }
 
-        return responseBody;
+    public static async Task<T?> SendRequestAsync<T>(this HttpClient httpClient, string url,
+        HttpMethod? httpMethod = null, object? body = null, string? jwt = null)
+    {
+        var responseJson = await SendRequestAsync(httpClient, url, httpMethod, body, jwt);
+        return JsonSerializer.Deserialize<T>(responseJson, JsonSerializerOptions);
     }
 }

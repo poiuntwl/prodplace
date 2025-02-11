@@ -50,13 +50,12 @@
     <ItemGroup>
         <ProjectReference Include="..\CustomerService\CustomerService.csproj" />
         <ProjectReference Include="..\IdentityService\IdentityService.csproj" />
+        <ProjectReference Include="..\Prodplace.Admin\Prodplace.Admin.csproj">
+            <Aliases>AdminSUT</Aliases>
+        </ProjectReference>
         <ProjectReference Include="..\ProductsService\ProductsService.csproj">
             <Aliases>ProductsServiceSUT</Aliases>
         </ProjectReference>
-    </ItemGroup>
-
-    <ItemGroup>
-        <Protobuf Include="..\ProdPlace.Grpc\Protos\Identity.proto" GrpcServices="Client" Link="Protos\Identity.proto" />
     </ItemGroup>
 
     <ItemGroup>

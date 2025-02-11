@@ -6,6 +6,7 @@ public interface IIdentityServiceHttpClient : IDisposable
 {
     Task<UserDataResult?> Register(RegisterDto dto);
     Task<UserDataResult?> Login(LoginDto dto, string jwt);
+    Uri? BaseAddress { get; }
 }
 
 public class IdentityServiceHttpClient : IIdentityServiceHttpClient
@@ -32,4 +33,6 @@ public class IdentityServiceHttpClient : IIdentityServiceHttpClient
     {
         return await _httpClient.SendRequestAsync<UserDataResult?>("api/account/login", HttpMethod.Post, jwt: jwt);
     }
+
+    public Uri? BaseAddress => _httpClient.BaseAddress;
 }
