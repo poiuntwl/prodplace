@@ -3,14 +3,34 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
+#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
+
 namespace IdentityService.Migrations
 {
     /// <inheritdoc />
-    public partial class PendingChanges : Migration
+    public partial class Initial : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.EnsureSchema(
+                name: "identity");
+
+            migrationBuilder.CreateTable(
+                name: "IdentityRole",
+                schema: "identity",
+                columns: table => new
+                {
+                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
+                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    NormalizedName = table.Column<string>(type: "nvarchar(max)", nullable: true),
+                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_IdentityRole", x => x.Id);
+                });
+
             migrationBuilder.CreateTable(
                 name: "InboxState",
                 schema: "identity",
@@ -33,6 +53,22 @@ namespace IdentityService.Migrations
                 {
                     table.PrimaryKey("PK_InboxState", x => x.Id);
                     table.UniqueConstraint("AK_InboxState_MessageId_ConsumerId", x => new { x.MessageId, x.ConsumerId });
+                });
+
+            migrationBuilder.CreateTable(
+                name: "OutboxMessages",
+                schema: "identity",
+                columns: table => new
+                {
+                    Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    Type = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    Content = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    ProcessedAt = table.Column<DateTime>(type: "datetime2", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_OutboxMessages", x => x.Id);
                 });
 
             migrationBuilder.CreateTable(
@@ -97,6 +133,16 @@ namespace IdentityService.Migrations
                         principalColumn: "OutboxId");
                 });
 
+            migrationBuilder.InsertData(
+                schema: "identity",
+                table: "IdentityRole",
+                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
+                values: new object[,]
+                {
+                    { "18ac2c02-a136-4bd2-adfc-ff97d6472f25", null, "admin", "ADMIN" },
+                    { "782ff602-7c26-4b17-9f06-3aec93c9ea84", null, "user", "USER" }
+                });
+
             migrationBuilder.CreateIndex(
                 name: "IX_InboxState_Delivered",
                 schema: "identity",
@@ -142,7 +188,15 @@ namespace IdentityService.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
+                name: "IdentityRole",
+                schema: "identity");
+
+            migrationBuilder.DropTable(
                 name: "OutboxMessage",
+                schema: "identity");
+
+            migrationBuilder.DropTable(
+                name: "OutboxMessages",
                 schema: "identity");
 
             migrationBuilder.DropTable(
