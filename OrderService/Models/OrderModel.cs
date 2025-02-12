@@ -20,4 +20,5 @@ public sealed class OrderModel
     [Required] public string BillingAddress { get; set; }
 
     public ICollection<OrderItemModel> OrderItems { get; set; }
+    public bool IsDeleted { get; set; } = false;
 }

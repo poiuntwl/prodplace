@@ -1,5 +1,5 @@
 ﻿using MediatR;
-using OrderService.Requests;
+using OrderService.Dto;
 using OrderService.Services;
 
 namespace OrderService.Handlers;
@@ -15,6 +15,9 @@ public class CreateOrderHandler : IRequestHandler<CreateOrderRequest>
 
     public async Task Handle(CreateOrderRequest request, CancellationToken cancellationToken)
     {
-        await _orderManager.CreateOrderAsync(cancellationToken);
+        await _orderManager.CreateOrderAsync(request.CreateOrderDto.CustomerId, request.CreateOrderDto.ShippingAddress,
+            request.CreateOrderDto.BillingAddress, request.CreateOrderDto.OrderItems, cancellationToken);
     }
 }
+
+public record CreateOrderRequest(CreateOrderDto CreateOrderDto) : IRequest;
