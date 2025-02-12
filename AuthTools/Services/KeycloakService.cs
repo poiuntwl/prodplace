@@ -1,5 +1,4 @@
 ﻿using AuthTools.Models;
-using IdentityService.Dtos;
 using Keycloak.Net;
 using Keycloak.Net.Core.Models.Root;
 using Keycloak.Net.Models.Roles;
@@ -7,12 +6,12 @@ using Keycloak.Net.Models.Users;
 using Microsoft.Extensions.Options;
 using KeycloakOptions = AuthTools.Models.KeycloakOptions;
 
-namespace IdentityService.Services;
+namespace AuthTools.Services;
 
 public interface IKeycloakService
 {
-    Task<string?> RegisterAsync(RegisterDto registerDto, CancellationToken ct);
-    Task<Token> AuthenticateAsync(string email, string password, CancellationToken ct);
+    Task<string?> SignUpAsync(SignUpDto signUpDto, CancellationToken ct);
+    Task<Token> SignInAsync(string email, string password, CancellationToken ct);
     Task<bool> AssignRoleAsync(string userId, string roleName, CancellationToken ct);
     Task<bool> UnassignRoleAsync(string userId, string roleName, CancellationToken ct);
     Task<bool> CreateRoleAsync(string name, string description, CancellationToken ct);
@@ -35,20 +34,20 @@ public class KeycloakService : IKeycloakService
         _secret = options.Value.Secret;
     }
 
-    public async Task<string?> RegisterAsync(RegisterDto registerDto, CancellationToken ct)
+    public async Task<string?> SignUpAsync(SignUpDto signUpDto, CancellationToken ct)
     {
         var user = new User
         {
-            Email = registerDto.Email,
-            UserName = registerDto.FirstName,
-            FirstName = registerDto.LastName,
+            Email = signUpDto.Email,
+            UserName = signUpDto.FirstName,
+            FirstName = signUpDto.LastName,
             Enabled = true,
             Credentials =
             [
                 new Credentials
                 {
                     Type = "password",
-                    Value = registerDto.Password,
+                    Value = signUpDto.Password,
                     Temporary = false,
                 }
             ]
@@ -57,7 +56,7 @@ public class KeycloakService : IKeycloakService
         return userId;
     }
 
-    public async Task<Token> AuthenticateAsync(string email, string password, CancellationToken ct)
+    public async Task<Token> SignInAsync(string email, string password, CancellationToken ct)
     {
         var token = await _client.GetTokenWithResourceOwnerPasswordCredentialsAsync(_realmName, _clientId, email,
             password, _secret,

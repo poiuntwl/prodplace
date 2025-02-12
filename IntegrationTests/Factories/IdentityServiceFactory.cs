@@ -15,7 +15,7 @@ using Respawn;
 using Testcontainers.Keycloak;
 using Testcontainers.MsSql;
 using Testcontainers.RabbitMq;
-using KeycloakConfiguration = IdentityService.Models.KeycloakConfiguration;
+using KeycloakOptions = AuthTools.Models.KeycloakOptions;
 
 namespace IntegrationTests.Factories;
 
@@ -24,14 +24,14 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     private readonly MsSqlContainer _dbContainer;
     private readonly RabbitMqContainer _rabbitMqContainer;
     private readonly KeycloakContainer _keycloakContainer;
-    private Respawner _respawner = default!;
+    private Respawner _respawner = null!;
 
     private AsyncServiceScope _serviceScope;
-    private SqlConnection _sqlConnection = default!;
-    public IIdentityServiceHttpClient HttpClient = default!;
-    public IServiceProvider ServiceProvider = default!;
-    public KeycloakClient KeycloakClient = default!;
-    public HttpMessageHandler GrpcHandler { get; set; } = default!;
+    private SqlConnection _sqlConnection = null!;
+    public IIdentityServiceHttpClient HttpClient = null!;
+    public IServiceProvider ServiceProvider = null!;
+    public KeycloakClient KeycloakClient = null!;
+    public HttpMessageHandler GrpcHandler { get; private set; } = null!;
 
     public IdentityServiceFactory(ContainersFactory containersFactory)
     {
@@ -132,7 +132,7 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
             });
 
             var keycloakUrl = $"http://{_keycloakContainer.Hostname}:{_keycloakContainer.GetMappedPublicPort(8080)}";
-            s.AddSingleton<IOptions<KeycloakConfiguration>>(_ => Options.Create(new KeycloakConfiguration
+            s.AddSingleton<IOptions<KeycloakOptions>>(_ => Options.Create(new KeycloakOptions
             {
                 ServerUrl = keycloakUrl,
                 Realm = "master",

@@ -1,8 +1,8 @@
 ﻿using System.Reflection;
 using AuthTools;
+using AuthTools.Models;
 using IdentityService.Data;
 using IdentityService.Handlers.PostProcessors;
-using IdentityService.Models;
 using IdentityService.Services;
 using Keycloak.AuthServices.Authorization;
 using MassTransit;
@@ -42,10 +42,10 @@ public static class ServiceInjectionExtensions
         s.AddGrpc(x => { x.EnableDetailedErrors = true; });
         s.AddMassTransitInjections<AppDbContext>(Assembly.GetExecutingAssembly(), x => x.UseSqlServer());
 
-        s.Configure<KeycloakConfiguration>(configuration.GetSection("Keycloak"));
+        s.Configure<KeycloakOptions>(configuration.GetSection("Keycloak"));
         s.AddKeycloakAuthorization(configuration);
 
-        s.Configure<KeycloakConfiguration>(configuration.GetSection("Keycloak"));
+        s.Configure<KeycloakOptions>(configuration.GetSection("Keycloak"));
         s.AddScoped<IKeycloakService, KeycloakService>();
         s.AddScoped<IRoleService, RoleService>();
     }

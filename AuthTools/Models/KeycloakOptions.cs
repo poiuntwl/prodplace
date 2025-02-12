@@ -1,6 +1,6 @@
-﻿namespace IdentityService.Models;
+﻿namespace AuthTools.Models;
 
-public class KeycloakConfiguration
+public class KeycloakOptions
 {
     public string ServerUrl { get; set; }
     public string Realm { get; set; }
