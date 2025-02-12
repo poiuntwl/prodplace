@@ -3,7 +3,6 @@ using AuthTools.Constants;
 using CommonModels.OutboxModels;
 using IdentityService.Dtos;
 using IdentityService.Exceptions;
-using IdentityService.Extensions;
 using Keycloak.Net.Core.Models.Root;
 using MassTransit;
 using MessagingTools.Contracts;
@@ -44,7 +43,7 @@ public class UserService : IUserService
                 throw new RegisterUserException();
             }
 
-            await _keycloakService.AssignRoleAsync(userId, UserRole.User.GetDescription(), ct);
+            await _keycloakService.AssignRoleAsync(userId, RoleNames.User, ct);
 
             var userDataResult = new UserDataResult
             {

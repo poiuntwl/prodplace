@@ -1,7 +1,6 @@
 using AuthTools.Constants;
 using FluentAssertions;
 using IdentityService.Dtos;
-using IdentityService.Extensions;
 using IdentityService.Services;
 using IntegrationTests.Factories;
 using IntegrationTests.HttpClients;
@@ -74,11 +73,11 @@ public class RegisterTests :
         var userId = users.SingleOrDefault(x => x.Email == user.Email)?.Id;
         userId.Should().NotBeNull();
 
-        await keycloakService.AssignRoleAsync(userId, UserRole.Manager.GetDescription(), CancellationToken.None);
+        await keycloakService.AssignRoleAsync(userId, RoleNames.Manager, CancellationToken.None);
 
         var roles = await _keycloakClient.GetRoleMappingsForUserAsync("master", userId, CancellationToken.None);
         var mappedRoleNames = roles.RealmMappings.Select(x => x.Name);
-        mappedRoleNames.Should().Contain(UserRole.Manager.GetDescription());
+        mappedRoleNames.Should().Contain(RoleNames.Manager);
     }
 
     private async Task<UserDataResult> RegisterUserAsync()
