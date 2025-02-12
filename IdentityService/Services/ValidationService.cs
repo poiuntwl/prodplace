@@ -1,27 +1,25 @@
 ﻿using AuthTools.Services;
-using IdentityService.Models;
-using Microsoft.AspNetCore.Identity;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace IdentityService.Services;
 
 public interface IValidationService
 {
-    Task<bool> ValidateRolesAsync(string token, string[]? roles);
+    Task<bool> ValidateRolesAsync(string token, string[]? roles, CancellationToken ct);
 }
 
 public class ValidationService : IValidationService
 {
     private readonly IJwtClaimsPrincipalGetter _claimsPrincipalGetter;
-    private readonly UserManager<AppUser> _userManager;
+    private readonly IKeycloakService _keycloakService;
 
-    public ValidationService(UserManager<AppUser> userManager, IJwtClaimsPrincipalGetter claimsPrincipalGetter)
+    public ValidationService(IJwtClaimsPrincipalGetter claimsPrincipalGetter, IKeycloakService keycloakService)
     {
-        _userManager = userManager;
         _claimsPrincipalGetter = claimsPrincipalGetter;
+        _keycloakService = keycloakService;
     }
 
-    public async Task<bool> ValidateRolesAsync(string token, string[]? roles)
+    public async Task<bool> ValidateRolesAsync(string token, string[]? roles, CancellationToken ct)
     {
         if (string.IsNullOrWhiteSpace(token) || roles == null)
         {
@@ -38,14 +36,8 @@ public class ValidationService : IValidationService
                 return false;
             }
 
-            var user = _userManager.Users.FirstOrDefault(x => x.Id == userId);
-            if (user == null)
-            {
-                return false;
-            }
-
-            var userRoles = await _userManager.GetRolesAsync(user);
-            var rolesValid = roles.All(x => userRoles.Contains(x));
+            var userRoles = await _keycloakService.GetRolesForUserAsync(userId, ct);
+            var rolesValid = roles.All(x => userRoles.Any(y => y.Name.Equals(x, StringComparison.OrdinalIgnoreCase)));
 
             return rolesValid;
         }

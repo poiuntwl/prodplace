@@ -14,7 +14,7 @@ public class ValidationServiceGrpcServer : IdentityGrpc.Server.IdentityService.I
 
     public override async Task<ValidateResponse> ValidateRoles(ValidateRolesRequest request, ServerCallContext context)
     {
-        var isValid = await _validationService.ValidateRolesAsync(request.Token, request.Roles.ToArray());
+        var isValid = await _validationService.ValidateRolesAsync(request.Token, request.Roles.ToArray(), context.CancellationToken);
 
         return new ValidateResponse
         {

@@ -7,7 +7,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace IdentityService.Data;
 
-public class AppDbContext : IdentityDbContext<AppUser>
+public class AppDbContext : IdentityDbContext
 {
     public AppDbContext(DbContextOptions<AppDbContext> options) : base(options)
     {
@@ -36,7 +36,6 @@ public class AppDbContext : IdentityDbContext<AppUser>
             },
         };
         builder.Entity<IdentityRole>().HasData(roles);
-        builder.Entity<AppUser>().Property(x => x.LastLoginDate).HasDefaultValueSql("GETUTCDATE()");
 
         builder.AddInboxStateEntity();
         builder.AddOutboxMessageEntity();

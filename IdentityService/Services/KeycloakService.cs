@@ -16,6 +16,7 @@ public interface IKeycloakService
     Task<bool> UnassignRoleAsync(string userId, string roleName, CancellationToken ct);
     Task<bool> CreateRoleAsync(string name, string description, CancellationToken ct);
     Task<bool> DeleteRoleAsync(string roleName, CancellationToken ct);
+    Task<IEnumerable<Role>> GetRolesForUserAsync(string userId, CancellationToken ct);
 }
 
 public class KeycloakService : IKeycloakService
@@ -90,5 +91,10 @@ public class KeycloakService : IKeycloakService
     public async Task<bool> DeleteRoleAsync(string roleName, CancellationToken ct)
     {
         return await _client.DeleteRoleByNameAsync(_realmName, roleName, ct);
+    }
+
+    public async Task<IEnumerable<Role>> GetRolesForUserAsync(string userId, CancellationToken ct)
+    {
+        return await _client.GetEffectiveClientRoleMappingsForUserAsync(_realmName, userId, _clientId, ct);
     }
 }

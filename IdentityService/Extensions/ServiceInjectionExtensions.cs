@@ -7,7 +7,6 @@ using IdentityService.Services;
 using Keycloak.AuthServices.Authorization;
 using MassTransit;
 using MessagingTools;
-using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection.MessagingTools;
 
@@ -56,13 +55,6 @@ public static class ServiceInjectionExtensions
         var configuration = builder.Configuration;
         s.AddDbContext<AppDbContext>(x =>
             x.UseSqlServer(configuration.GetConnectionString("IdentityConnection")));
-        s.AddIdentity<AppUser, IdentityRole>(x =>
-            {
-                x.Password.RequireDigit = true;
-                x.Password.RequiredLength = 8;
-                x.User.RequireUniqueEmail = true;
-            })
-            .AddEntityFrameworkStores<AppDbContext>();
         s.AddJwtAuthConfiguration(builder);
         s.AddJwtAuthServices();
 
