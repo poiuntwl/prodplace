@@ -47,7 +47,9 @@ public class IdentityTests
         var registerDto = new RegisterDto
         {
             Email = TestDataGenerator.GenerateEmail(),
-            Password = TestDataGenerator.GeneratePassword(16)
+            Password = TestDataGenerator.GeneratePassword(16),
+            FirstName = TestDataGenerator.GenerateFirstName(),
+            LastName = TestDataGenerator.GenerateLastName()
         };
 
         var response = await _integrationTestFixture.IdentityServiceFactory.KeycloakClient.CreateAndRetrieveUserIdAsync(

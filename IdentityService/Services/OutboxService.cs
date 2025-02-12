@@ -2,7 +2,6 @@
 using System.Transactions;
 using IdentityService.Data;
 using IdentityService.Models;
-using MediatR;
 
 namespace IdentityService.Services;
 
@@ -15,7 +14,7 @@ public class OutboxService : IOutboxService
 {
     private readonly AppDbContext _dbContext;
 
-    public OutboxService(AppDbContext dbContext, IPublisher publisher)
+    public OutboxService(AppDbContext dbContext)
     {
         _dbContext = dbContext;
     }

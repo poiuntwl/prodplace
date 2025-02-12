@@ -39,8 +39,8 @@ public class KeycloakService : IKeycloakService
         var user = new User
         {
             Email = registerDto.Email,
-            UserName = registerDto.Email,
-            FirstName = registerDto.Email,
+            UserName = registerDto.FirstName,
+            FirstName = registerDto.LastName,
             Enabled = true,
             Credentials =
             [

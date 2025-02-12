@@ -85,7 +85,9 @@ public class RegisterTests :
         var registerDto = new RegisterDto
         {
             Email = $"{Guid.NewGuid().ToString()[..5]}@gmail.com",
-            Password = $"Some{Guid.NewGuid().ToString()[..5]}password1!"
+            Password = $"Some{Guid.NewGuid().ToString()[..5]}password1!",
+            FirstName = TestDataGenerator.GenerateFirstName(),
+            LastName = TestDataGenerator.GenerateLastName(),
         };
 
         var response = await _identityHttpClient.Register(registerDto);
