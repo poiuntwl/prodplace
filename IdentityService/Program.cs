@@ -1,6 +1,5 @@
 using IdentityService.Data;
 using IdentityService.Extensions;
-using IdentityService.Services;
 using IdentityService.Services.grpc;
 using Microsoft.EntityFrameworkCore;
 

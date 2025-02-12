@@ -4,9 +4,9 @@ using CommonModels.OutboxModels;
 using IdentityService.Dtos;
 using IdentityService.Exceptions;
 using IdentityService.Extensions;
-using IdentityService.Models;
 using Keycloak.Net.Core.Models.Root;
-using Microsoft.AspNetCore.Identity;
+using MassTransit;
+using MessagingTools.Contracts;
 
 namespace IdentityService.Services;
 
@@ -20,16 +20,16 @@ public class UserService : IUserService
 {
     private readonly ITokenService _tokenService;
     private readonly IOutboxService _outboxService;
-    private readonly SignInManager<AppUser> _signInManager;
     private readonly IKeycloakService _keycloakService;
+    private readonly IPublishEndpoint _publishEndpoint;
 
-    public UserService(ITokenService tokenService, IOutboxService outboxService,
-        SignInManager<AppUser> signInManager, IKeycloakService keycloakService)
+    public UserService(ITokenService tokenService, IOutboxService outboxService, IKeycloakService keycloakService,
+        IPublishEndpoint publishEndpoint)
     {
         _tokenService = tokenService;
         _outboxService = outboxService;
-        _signInManager = signInManager;
         _keycloakService = keycloakService;
+        _publishEndpoint = publishEndpoint;
     }
 
     public async Task<UserDataResult> RegisterUserAsync(RegisterDto registerDto, CancellationToken ct)
@@ -57,7 +57,11 @@ public class UserService : IUserService
                 Email = userDataResult.Email,
                 LastName = null
             };
-            await _outboxService.CreateOutboxMessageAsync("identity.registerUser", eventData, ct);
+            var message = await _outboxService.CreateOutboxMessageAsync("identity.registerUser", eventData, ct);
+            await _publishEndpoint.Publish(new OutboxMessagePostedEvent
+            {
+                OutboxMessage = message
+            }, ct);
 
             scope.Complete();
 

@@ -2,24 +2,25 @@
 using System.Transactions;
 using IdentityService.Data;
 using IdentityService.Models;
+using MediatR;
 
 namespace IdentityService.Services;
 
 public interface IOutboxService
 {
-    Task CreateOutboxMessageAsync(string messageType, object content, CancellationToken ct);
+    Task<OutboxMessage> CreateOutboxMessageAsync(string messageType, object content, CancellationToken ct);
 }
 
 public class OutboxService : IOutboxService
 {
     private readonly AppDbContext _dbContext;
 
-    public OutboxService(AppDbContext dbContext)
+    public OutboxService(AppDbContext dbContext, IPublisher publisher)
     {
         _dbContext = dbContext;
     }
 
-    public async Task CreateOutboxMessageAsync(string messageType, object content, CancellationToken ct)
+    public async Task<OutboxMessage> CreateOutboxMessageAsync(string messageType, object content, CancellationToken ct)
     {
         using var txs = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -34,5 +35,7 @@ public class OutboxService : IOutboxService
         await _dbContext.OutboxMessages.AddAsync(msg, ct);
         await _dbContext.SaveChangesAsync(ct);
         txs.Complete();
+
+        return msg;
     }
 }
