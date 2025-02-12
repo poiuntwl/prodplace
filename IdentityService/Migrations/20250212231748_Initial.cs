@@ -3,8 +3,6 @@ using Microsoft.EntityFrameworkCore.Migrations;
 
 #nullable disable
 
-#pragma warning disable CA1814 // Prefer jagged arrays over multidimensional
-
 namespace IdentityService.Migrations
 {
     /// <inheritdoc />
@@ -13,27 +11,8 @@ namespace IdentityService.Migrations
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
         {
-            migrationBuilder.EnsureSchema(
-                name: "identity");
-
-            migrationBuilder.CreateTable(
-                name: "IdentityRole",
-                schema: "identity",
-                columns: table => new
-                {
-                    Id = table.Column<string>(type: "nvarchar(450)", nullable: false),
-                    Name = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    NormalizedName = table.Column<string>(type: "nvarchar(max)", nullable: true),
-                    ConcurrencyStamp = table.Column<string>(type: "nvarchar(max)", nullable: true)
-                },
-                constraints: table =>
-                {
-                    table.PrimaryKey("PK_IdentityRole", x => x.Id);
-                });
-
             migrationBuilder.CreateTable(
                 name: "InboxState",
-                schema: "identity",
                 columns: table => new
                 {
                     Id = table.Column<long>(type: "bigint", nullable: false)
@@ -57,7 +36,6 @@ namespace IdentityService.Migrations
 
             migrationBuilder.CreateTable(
                 name: "OutboxMessages",
-                schema: "identity",
                 columns: table => new
                 {
                     Id = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -73,7 +51,6 @@ namespace IdentityService.Migrations
 
             migrationBuilder.CreateTable(
                 name: "OutboxState",
-                schema: "identity",
                 columns: table => new
                 {
                     OutboxId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
@@ -90,7 +67,6 @@ namespace IdentityService.Migrations
 
             migrationBuilder.CreateTable(
                 name: "OutboxMessage",
-                schema: "identity",
                 columns: table => new
                 {
                     SequenceNumber = table.Column<long>(type: "bigint", nullable: false)
@@ -122,48 +98,32 @@ namespace IdentityService.Migrations
                     table.ForeignKey(
                         name: "FK_OutboxMessage_InboxState_InboxMessageId_InboxConsumerId",
                         columns: x => new { x.InboxMessageId, x.InboxConsumerId },
-                        principalSchema: "identity",
                         principalTable: "InboxState",
                         principalColumns: new[] { "MessageId", "ConsumerId" });
                     table.ForeignKey(
                         name: "FK_OutboxMessage_OutboxState_OutboxId",
                         column: x => x.OutboxId,
-                        principalSchema: "identity",
                         principalTable: "OutboxState",
                         principalColumn: "OutboxId");
                 });
 
-            migrationBuilder.InsertData(
-                schema: "identity",
-                table: "IdentityRole",
-                columns: new[] { "Id", "ConcurrencyStamp", "Name", "NormalizedName" },
-                values: new object[,]
-                {
-                    { "18ac2c02-a136-4bd2-adfc-ff97d6472f25", null, "admin", "ADMIN" },
-                    { "782ff602-7c26-4b17-9f06-3aec93c9ea84", null, "user", "USER" }
-                });
-
             migrationBuilder.CreateIndex(
                 name: "IX_InboxState_Delivered",
-                schema: "identity",
                 table: "InboxState",
                 column: "Delivered");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OutboxMessage_EnqueueTime",
-                schema: "identity",
                 table: "OutboxMessage",
                 column: "EnqueueTime");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OutboxMessage_ExpirationTime",
-                schema: "identity",
                 table: "OutboxMessage",
                 column: "ExpirationTime");
 
             migrationBuilder.CreateIndex(
                 name: "IX_OutboxMessage_InboxMessageId_InboxConsumerId_SequenceNumber",
-                schema: "identity",
                 table: "OutboxMessage",
                 columns: new[] { "InboxMessageId", "InboxConsumerId", "SequenceNumber" },
                 unique: true,
@@ -171,7 +131,6 @@ namespace IdentityService.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_OutboxMessage_OutboxId_SequenceNumber",
-                schema: "identity",
                 table: "OutboxMessage",
                 columns: new[] { "OutboxId", "SequenceNumber" },
                 unique: true,
@@ -179,7 +138,6 @@ namespace IdentityService.Migrations
 
             migrationBuilder.CreateIndex(
                 name: "IX_OutboxState_Created",
-                schema: "identity",
                 table: "OutboxState",
                 column: "Created");
         }
@@ -188,24 +146,16 @@ namespace IdentityService.Migrations
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "IdentityRole",
-                schema: "identity");
+                name: "OutboxMessage");
 
             migrationBuilder.DropTable(
-                name: "OutboxMessage",
-                schema: "identity");
+                name: "OutboxMessages");
 
             migrationBuilder.DropTable(
-                name: "OutboxMessages",
-                schema: "identity");
+                name: "InboxState");
 
             migrationBuilder.DropTable(
-                name: "InboxState",
-                schema: "identity");
-
-            migrationBuilder.DropTable(
-                name: "OutboxState",
-                schema: "identity");
+                name: "OutboxState");
         }
     }
 }

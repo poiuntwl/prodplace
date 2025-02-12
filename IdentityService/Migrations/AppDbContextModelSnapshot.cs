@@ -17,7 +17,6 @@ namespace IdentityService.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasDefaultSchema("identity")
                 .HasAnnotation("ProductVersion", "9.0.1")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
@@ -45,7 +44,7 @@ namespace IdentityService.Migrations
 
                     b.HasKey("Id");
 
-                    b.ToTable("OutboxMessages", "identity");
+                    b.ToTable("OutboxMessages");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.InboxState", b =>
@@ -92,7 +91,7 @@ namespace IdentityService.Migrations
 
                     b.HasIndex("Delivered");
 
-                    b.ToTable("InboxState", "identity");
+                    b.ToTable("InboxState");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
@@ -185,7 +184,7 @@ namespace IdentityService.Migrations
                         .IsUnique()
                         .HasFilter("[InboxMessageId] IS NOT NULL AND [InboxConsumerId] IS NOT NULL");
 
-                    b.ToTable("OutboxMessage", "identity");
+                    b.ToTable("OutboxMessage");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxState", b =>
@@ -215,40 +214,7 @@ namespace IdentityService.Migrations
 
                     b.HasIndex("Created");
 
-                    b.ToTable("OutboxState", "identity");
-                });
-
-            modelBuilder.Entity("Microsoft.AspNetCore.Identity.IdentityRole", b =>
-                {
-                    b.Property<string>("Id")
-                        .HasColumnType("nvarchar(450)");
-
-                    b.Property<string>("ConcurrencyStamp")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("NormalizedName")
-                        .HasColumnType("nvarchar(max)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("IdentityRole", "identity");
-
-                    b.HasData(
-                        new
-                        {
-                            Id = "18ac2c02-a136-4bd2-adfc-ff97d6472f25",
-                            Name = "admin",
-                            NormalizedName = "ADMIN"
-                        },
-                        new
-                        {
-                            Id = "782ff602-7c26-4b17-9f06-3aec93c9ea84",
-                            Name = "user",
-                            NormalizedName = "USER"
-                        });
+                    b.ToTable("OutboxState");
                 });
 
             modelBuilder.Entity("MassTransit.EntityFrameworkCoreIntegration.OutboxMessage", b =>
