@@ -49,7 +49,12 @@ public class UserService : IUserService
             var userDataResult = new UserDataResult
             {
                 Email = registerDto.Email,
-                Token = _tokenService.CreateToken(registerDto)
+                Token = _tokenService.CreateToken(new CreateTokenDto
+                {
+                    Email = registerDto.Email,
+                    Password = registerDto.Password,
+                    UserId = userId
+                })
             };
 
             var eventData = new UserCreatedEventData
