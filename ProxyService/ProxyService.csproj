@@ -8,7 +8,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="7.2.0" />
+        <PackageReference Include="Keycloak.AuthServices.Authentication" Version="2.6.0" />
+        <PackageReference Include="Keycloak.AuthServices.Authorization" Version="2.6.0" />
+        <PackageReference Include="Keycloak.Net.Core" Version="1.0.33" />
         <PackageReference Include="Yarp.ReverseProxy" Version="2.2.0" />
     </ItemGroup>
 

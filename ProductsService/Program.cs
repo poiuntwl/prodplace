@@ -40,7 +40,8 @@ app.UseHttpsRedirection();
 
 app.MapControllers();
 app.MapHealthChecks("/api/health");
-app.UseJwtAuthConfiguration();
+app.UseAuthentication();
+app.UseAuthorization();
 app.UseValidationMiddleware();
 
 app.Run();

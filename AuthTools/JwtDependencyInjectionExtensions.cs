@@ -100,17 +100,8 @@ public static class JwtDependencyInjectionExtensions
         s.AddSingleton<IJwtValidator, JwtValidator>();
     }
 
-    public static WebApplication UseJwtAuthConfiguration(this WebApplication app)
-    {
-        app.UseAuthentication();
-        app.UseAuthorization();
-        return app;
-    }
-
-    public static IServiceCollection AddAdminAuthorizationOverride(this IServiceCollection services)
+    public static void AddAdminAuthorizationOverride(this IServiceCollection services)
     {
         services.AddSingleton<IAuthorizationHandler, AdminAuthorizationHandler>();
-
-        return services;
     }
 }
