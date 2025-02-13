@@ -40,8 +40,9 @@ public class KeycloakService : IKeycloakService
         var user = new User
         {
             Email = registerDto.Email,
-            UserName = registerDto.FirstName,
-            FirstName = registerDto.LastName,
+            UserName = registerDto.Email.Split("@")[0],
+            FirstName = registerDto.FirstName,
+            LastName = registerDto.LastName,
             Enabled = true,
             Credentials =
             [

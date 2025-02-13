@@ -37,7 +37,7 @@ public class ValidationService : IValidationService
             }
 
             var userRoles = await _keycloakService.GetRolesForUserAsync(userId, ct);
-            var rolesValid = roles.All(x => userRoles.Any(y => y.Name.Equals(x, StringComparison.OrdinalIgnoreCase)));
+            var rolesValid = roles.All(x => userRoles.Any(y => y.Name.Equals(x, StringComparison.Ordinal)));
 
             return rolesValid;
         }

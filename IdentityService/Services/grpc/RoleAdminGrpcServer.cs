@@ -14,7 +14,8 @@ public class RoleAdminGrpcServer : RoleAdminService.RoleAdminServiceBase
 
     public override async Task<RoleResponse> CreateRole(CreateRoleRequest request, ServerCallContext context)
     {
-        var roleCreated = await _roleService.CreateRoleAsync(request.Name, "", context.CancellationToken);
+        var roleCreated =
+            await _roleService.CreateRoleAsync(request.Name, request.Description, context.CancellationToken);
         return new RoleResponse
         {
             Success = roleCreated

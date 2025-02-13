@@ -7,12 +7,13 @@ namespace Prodplace.Admin;
 public class RolesController : ControllerBase
 {
     [HttpPost("/roles")]
-    public async Task<ActionResult<RoleResponse>> CreateRole([FromBody] string roleName,
+    public async Task<ActionResult<RoleResponse>> CreateRole([FromBody] CreateRoleRequestDto role,
         [FromServices] RoleAdminService.RoleAdminServiceClient roleAdminServiceClient, CancellationToken ct)
     {
         var newRole = await roleAdminServiceClient.CreateRoleAsync(new CreateRoleRequest
         {
-            Name = roleName
+            Name = role.Name,
+            Description = role.Description
         }, cancellationToken: ct);
         return Ok(new CreateRoleDto(newRole.Success));
     }
@@ -31,6 +32,8 @@ public class RolesController : ControllerBase
 }
 
 public record AssignRoleRequestDto(string UserId, string RoleName);
+
+public record CreateRoleRequestDto(string Name, string Description);
 
 public record CreateRoleDto(bool Success);
 

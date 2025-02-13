@@ -11,6 +11,7 @@ service RoleAdminService {
 
 message CreateRoleRequest {
   string name = 1;
+  string description = 2;
 }
 
 message RoleResponse {

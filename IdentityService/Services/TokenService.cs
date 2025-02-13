@@ -35,7 +35,7 @@ public class TokenService : ITokenService
         var tokenDescriptor = new SecurityTokenDescriptor
         {
             Subject = new ClaimsIdentity(claims),
-            Expires = DateTime.Now.AddDays(7),
+            Expires = DateTime.UtcNow.AddSeconds(_tokenValidationConfiguration.ExpirationInSeconds),
             SigningCredentials = new SigningCredentials(tokenValidationParameters.IssuerSigningKey,
                 SecurityAlgorithms.HmacSha256),
             Issuer = tokenValidationParameters.ValidIssuer,

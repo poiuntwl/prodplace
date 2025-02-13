@@ -83,25 +83,5 @@ public class UserService : IUserService
     public async Task<Token> LoginUserAsync(LoginDto loginDto, CancellationToken ct)
     {
         return await _keycloakService.AuthenticateAsync(loginDto.Email, loginDto.Password, ct);
-        /*
-        var user = await _keycloakService.AuthenticateAsync(loginDto.Email, loginDto.Password, ct);
-        if (user == null)
-        {
-            throw new UserNotFoundException();
-        }
-
-        var result = await _signInManager.CheckPasswordSignInAsync(user, loginDto.Password, false);
-        if (result.Succeeded == false)
-        {
-            throw new UnauthorizedAccessException();
-        }
-
-        return new UserDataResult
-        {
-            Email = user.Email,
-            Username = user.UserName,
-            Token = _tokenService.CreateToken(user)
-        };
-    */
     }
 }

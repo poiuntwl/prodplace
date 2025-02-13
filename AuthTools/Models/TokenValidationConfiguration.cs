@@ -7,6 +7,7 @@ namespace AuthTools.Models;
 public interface ITokenValidationConfiguration
 {
     TokenValidationParameters GetTokenValidationParameters();
+    public int ExpirationInSeconds { get; set; }
 }
 
 public class TokenValidationConfiguration : ITokenValidationConfiguration
@@ -16,10 +17,13 @@ public class TokenValidationConfiguration : ITokenValidationConfiguration
     public TokenValidationConfiguration(IConfiguration configuration)
     {
         _configuration = configuration;
+        ExpirationInSeconds = _configuration.GetValue<int>("ExpirationInSeconds");
     }
 
     public TokenValidationParameters GetTokenValidationParameters()
     {
         return TokenValidationParametersCreator.Create(_configuration);
     }
+
+    public int ExpirationInSeconds { get; set; }
 }
