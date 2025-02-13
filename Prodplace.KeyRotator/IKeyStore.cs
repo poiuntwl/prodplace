@@ -8,28 +8,48 @@ public interface IKeyStore
 {
     DatedSecurityKey? CurrentSigningKey { get; }
     IReadOnlyList<DatedSecurityKey?> ValidationKeys { get; }
-    void RotateKey();
+    DatedSecurityKey RotateKey();
 }
 
 public class FileKeyStore : IKeyStore, IDisposable
 {
-    private const string KeyFolder = "jwt-keys";
+    private readonly string _keyFolder;
     private static readonly TimeSpan KeyLifetime = TimeSpan.FromDays(90);
     private readonly List<DatedSecurityKey?> _keys = new();
 
-    public DatedSecurityKey? CurrentSigningKey { get; private set; }
-    public IReadOnlyList<DatedSecurityKey?> ValidationKeys => _keys.AsReadOnly();
+    private bool _disposed;
+    private DatedSecurityKey? _currentSigningKey;
 
-    public FileKeyStore()
+    public DatedSecurityKey? CurrentSigningKey
     {
-        Directory.CreateDirectory(KeyFolder);
+        get
+        {
+            ThrowIfDisposed();
+            return _currentSigningKey;
+        }
+        private set => _currentSigningKey = value;
+    }
+
+    public IReadOnlyList<DatedSecurityKey?> ValidationKeys
+    {
+        get
+        {
+            ThrowIfDisposed();
+            return _keys.AsReadOnly();
+        }
+    }
+
+    public FileKeyStore(string keyFolder = "jwt-keys")
+    {
+        _keyFolder = keyFolder;
+        Directory.CreateDirectory(_keyFolder);
         LoadExistingKeys();
         CurrentSigningKey ??= GenerateNewKey();
     }
 
     private void LoadExistingKeys()
     {
-        foreach (var keyFile in Directory.GetFiles(KeyFolder, "*.key"))
+        foreach (var keyFile in Directory.GetFiles(_keyFolder, "*.key"))
         {
             var encrypted = File.ReadAllBytes(keyFile);
             var decrypted = ProtectedData.Unprotect(encrypted, null, DataProtectionScope.CurrentUser);
@@ -44,11 +64,12 @@ public class FileKeyStore : IKeyStore, IDisposable
             var rsa = RSA.Create();
             rsa.FromXmlString(keyXml);
 
+            var dateTimeOffset = new DateTimeOffset(createdTicks, TimeSpan.Zero);
             var key = new DatedSecurityKey
             {
-                Key = new RsaSecurityKey(rsa.ExportParameters(true)),
-                Created = new DateTimeOffset(createdTicks, TimeSpan.Zero),
-                Expires = DateTimeOffset.UtcNow.Add(KeyLifetime)
+                Key = new RsaSecurityKey(rsa),
+                Created = dateTimeOffset,
+                Expires = dateTimeOffset.Add(KeyLifetime)
             };
 
             _keys.Add(key);
@@ -59,10 +80,13 @@ public class FileKeyStore : IKeyStore, IDisposable
 
     public DatedSecurityKey GenerateNewKey()
     {
-        var rsa = RSA.Create(2048);
-        var key = new DatedSecurityKey()
+        var rsa = RSA.Create();
+        var key = new DatedSecurityKey
         {
-            Key = new RsaSecurityKey(rsa.ExportParameters(true)),
+            Key = new RsaSecurityKey(rsa)
+            {
+                KeyId = Guid.NewGuid().ToString() // Unique identifier
+            },
             Created = DateTimeOffset.UtcNow,
             Expires = DateTimeOffset.UtcNow.Add(KeyLifetime)
         };
@@ -81,7 +105,7 @@ public class FileKeyStore : IKeyStore, IDisposable
         );
 
         File.WriteAllBytes(
-            Path.Combine(KeyFolder, $"{key.Key.KeyId}.key"),
+            Path.Combine(_keyFolder, $"{key.Key.KeyId}.key"),
             encrypted
         );
 
@@ -89,16 +113,36 @@ public class FileKeyStore : IKeyStore, IDisposable
         return key;
     }
 
-    public void RotateKey() => CurrentSigningKey = GenerateNewKey();
+    public DatedSecurityKey RotateKey() => CurrentSigningKey = GenerateNewKey();
+
+    private void ThrowIfDisposed()
+    {
+        if (_disposed)
+        {
+            throw new ObjectDisposedException(nameof(FileKeyStore));
+        }
+    }
 
     public void Dispose()
     {
-        GC.SuppressFinalize(this);
-        foreach (var key in _keys.Where(x => x?.Key != null)
-                     .Select(x => x!.Key)
-                     .OfType<RsaSecurityKey>())
+        if (_disposed) return;
+
+        foreach (var key in _keys.Where(x => x?.Key != null))
         {
-            key.Rsa?.Dispose();
+            if (key!.Key is RsaSecurityKey rsaKey)
+            {
+                rsaKey.Rsa?.Dispose();
+            }
         }
+
+        _disposed = true;
+        GC.SuppressFinalize(this);
     }
+}
+
+public class DatedSecurityKey
+{
+    public required SecurityKey Key { get; init; }
+    public required DateTimeOffset Created { get; init; }
+    public DateTimeOffset Expires { get; init; }
 }
