@@ -1,15 +1,32 @@
 using IdentityService.Data;
 using IdentityService.Extensions;
+using IdentityService.Services;
 using IdentityService.Services.grpc;
+using Keycloak.AuthServices.Authentication;
+using Keycloak.AuthServices.Authorization;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var s = builder.Services;
+
+s.AddKeycloakWebApiAuthentication(builder.Configuration, x =>
+{
+    x.TokenValidationParameters.ValidateAudience = true;
+    x.TokenValidationParameters.ValidateIssuer = true;
+});
+s.AddKeycloakAuthorization();
+
 s.AddAllServices(builder);
 s.AddControllers();
 s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();
+
+builder.Services.AddHttpClient("keycloak-health",
+    client => { client.BaseAddress = new Uri(builder.Configuration["Keycloak:ServerUrl"]); });
+
+s.AddHealthChecks()
+    .AddCheck<KeycloakHealthCheck>("keycloak");
 
 var app = builder.Build();
 
@@ -20,9 +37,10 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+app.UseAuthentication();
 app.UseAuthorization();
 
-ApplyMigrations();
+await ApplyMigrationsAsync();
 
 app.MapControllers();
 app.MapGrpcService<ValidationServiceGrpcServer>();
@@ -30,9 +48,9 @@ app.MapGrpcService<RoleAdminGrpcServer>();
 app.Run();
 return;
 
-void ApplyMigrations()
+async Task ApplyMigrationsAsync()
 {
-    using var serviceScope = app.Services.CreateScope();
+    await using var serviceScope = app.Services.CreateAsyncScope();
     var dbContext = serviceScope.ServiceProvider.GetRequiredService<AppDbContext>();
-    dbContext.Database.Migrate();
+    await dbContext.Database.MigrateAsync();
 }
