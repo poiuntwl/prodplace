@@ -1,4 +1,5 @@
-﻿using Grpc.Core;
+﻿using AuthTools.Constants;
+using Grpc.Core;
 using RoleAdmin;
 
 namespace IdentityService.Services.grpc;
@@ -14,6 +15,12 @@ public class RoleAdminGrpcServer : RoleAdminService.RoleAdminServiceBase
 
     public override async Task<RoleResponse> CreateRole(CreateRoleRequest request, ServerCallContext context)
     {
+        var reqUser = context.GetHttpContext().User;
+        if (reqUser.IsInRole(RoleNames.Admin))
+        {
+            throw new RpcException(new Status(StatusCode.PermissionDenied, "Insufficient permissions"));
+        }
+
         if (string.IsNullOrWhiteSpace(request.Name))
         {
             throw new RpcException(new Status(StatusCode.InvalidArgument, "Role cannot be empty"));

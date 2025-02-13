@@ -1,14 +1,23 @@
+using System.Threading.RateLimiting;
 using IdentityService.Data;
 using IdentityService.Extensions;
 using IdentityService.Services;
 using IdentityService.Services.grpc;
 using Keycloak.AuthServices.Authentication;
 using Keycloak.AuthServices.Authorization;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
 var s = builder.Services;
+s.AddRateLimiter(o => o.AddFixedWindowLimiter(policyName: "fixed", x =>
+{
+    x.PermitLimit = 4;
+    x.Window = TimeSpan.FromSeconds(12);
+    x.QueueProcessingOrder = QueueProcessingOrder.OldestFirst;
+    x.QueueLimit = 2;
+}));
 
 s.AddKeycloakWebApiAuthentication(builder.Configuration, x =>
 {

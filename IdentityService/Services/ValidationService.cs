@@ -1,4 +1,5 @@
 ﻿using AuthTools.Services;
+using IdentityService.Extensions;
 using JwtRegisteredClaimNames = Microsoft.IdentityModel.JsonWebTokens.JwtRegisteredClaimNames;
 
 namespace IdentityService.Services;
@@ -12,11 +13,14 @@ public class ValidationService : IValidationService
 {
     private readonly IJwtClaimsPrincipalGetter _claimsPrincipalGetter;
     private readonly IKeycloakService _keycloakService;
+    private readonly ILogger<ValidationService> _logger;
 
-    public ValidationService(IJwtClaimsPrincipalGetter claimsPrincipalGetter, IKeycloakService keycloakService)
+    public ValidationService(IJwtClaimsPrincipalGetter claimsPrincipalGetter, IKeycloakService keycloakService,
+        ILogger<ValidationService> logger)
     {
         _claimsPrincipalGetter = claimsPrincipalGetter;
         _keycloakService = keycloakService;
+        _logger = logger;
     }
 
     public async Task<bool> ValidateRolesAsync(string token, string[]? roles, CancellationToken ct)
@@ -41,8 +45,13 @@ public class ValidationService : IValidationService
 
             return rolesValid;
         }
-        catch (Exception)
+        catch (Exception ex)
         {
+            _logger.LogSecurityEvent(SecurityEventIds.RoleValidationFailure, ex, ex.Message, token,
+                new Dictionary<string, string[]>
+                {
+                    ["roles"] = roles
+                });
             return false;
         }
     }

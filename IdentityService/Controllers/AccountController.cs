@@ -3,6 +3,7 @@ using IdentityService.Exceptions;
 using IdentityService.Handlers;
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace IdentityService.Controllers;
 
@@ -18,6 +19,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("register")]
+    [EnableRateLimiting("fixed")]
     public async Task<IActionResult> RegisterAsync([FromBody] RegisterDto registerDto,
         CancellationToken ct)
     {
@@ -49,6 +51,7 @@ public class AccountController : ControllerBase
     }
 
     [HttpPost("login")]
+    [EnableRateLimiting("fixed")]
     public async Task<IActionResult> LoginAsync(
         [FromBody] LoginDto loginDto,
         CancellationToken ct)
