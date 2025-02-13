@@ -14,6 +14,17 @@ public class RoleAdminGrpcServer : RoleAdminService.RoleAdminServiceBase
 
     public override async Task<RoleResponse> CreateRole(CreateRoleRequest request, ServerCallContext context)
     {
+        if (string.IsNullOrWhiteSpace(request.Name))
+        {
+            throw new RpcException(new Status(StatusCode.InvalidArgument, "Role cannot be empty"));
+        }
+
+        if (request.Name.Length > 64)
+        {
+            throw new RpcException(new Status(StatusCode.InvalidArgument,
+                "Role name exceeds maximum length of 64 characters"));
+        }
+
         var roleCreated =
             await _roleService.CreateRoleAsync(request.Name, request.Description, context.CancellationToken);
         return new RoleResponse

@@ -18,7 +18,7 @@ public class KeycloakHealthCheck : IHealthCheck
         try
         {
             using var client = _httpClientFactory.CreateClient("keycloak-health");
-            var response = await client.GetAsync("health", cancellationToken);
+            var response = await client.GetAsync("health/live", cancellationToken);
 
             return response.IsSuccessStatusCode
                 ? HealthCheckResult.Healthy("Keycloak is responding")

@@ -11,7 +11,7 @@ namespace IdentityService.Services;
 
 public interface IUserService
 {
-    Task<UserDataResult> RegisterUserAsync(RegisterDto registerDto, CancellationToken ct);
+    Task<UserDataResult> SignInAsync(RegisterDto registerDto, CancellationToken ct);
     Task<Token> LoginUserAsync(LoginDto loginDto, CancellationToken ct);
 }
 
@@ -31,7 +31,7 @@ public class UserService : IUserService
         _publishEndpoint = publishEndpoint;
     }
 
-    public async Task<UserDataResult> RegisterUserAsync(RegisterDto registerDto, CancellationToken ct)
+    public async Task<UserDataResult> SignInAsync(RegisterDto registerDto, CancellationToken ct)
     {
         using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
 
@@ -43,10 +43,17 @@ public class UserService : IUserService
                 throw new RegisterUserException();
             }
 
+            var existingRole = await _keycloakService.GetRoleByNameAsync(registerDto.Email, ct);
+            if (existingRole == null)
+            {
+                throw new RegisterUserException(["No user role exists."]);
+            }
+
             await _keycloakService.AssignRoleAsync(userId, RoleNames.User, ct);
 
             var userDataResult = new UserDataResult
             {
+                UserId = userId,
                 Email = registerDto.Email,
                 Token = _tokenService.CreateToken(new CreateTokenDto
                 {

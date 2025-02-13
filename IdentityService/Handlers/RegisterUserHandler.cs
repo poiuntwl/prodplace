@@ -15,7 +15,7 @@ public class RegisterUserHandler : IRequestHandler<RegisterUserRequest, UserData
 
     public async Task<UserDataResult> Handle(RegisterUserRequest request, CancellationToken cancellationToken)
     {
-        return await _userService.RegisterUserAsync(request.RegisterDto, cancellationToken);
+        return await _userService.SignInAsync(request.RegisterDto, cancellationToken);
     }
 }
 
