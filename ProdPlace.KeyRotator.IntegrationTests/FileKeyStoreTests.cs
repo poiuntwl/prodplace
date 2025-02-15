@@ -76,7 +76,7 @@ public class FileKeyStoreTests : IDisposable
         act.Should().Throw<ObjectDisposedException>();
 
         var act2 = () => _store.CurrentSigningKey;
-        act.Should().Throw<ObjectDisposedException>();
+        act2.Should().Throw<ObjectDisposedException>();
     }
 
     [Fact]
