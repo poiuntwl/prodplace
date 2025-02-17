@@ -4,7 +4,6 @@ using Keycloak.Net.Core.Models.Root;
 using Keycloak.Net.Models.Roles;
 using Keycloak.Net.Models.Users;
 using Microsoft.Extensions.Options;
-using KeycloakOptions = AuthTools.Models.KeycloakOptions;
 
 namespace AuthTools.Services;
 
@@ -26,7 +25,7 @@ public class KeycloakService : IKeycloakService
     private readonly string _clientId;
     private readonly string _secret;
 
-    public KeycloakService(IOptions<KeycloakOptions> options)
+    public KeycloakService(IOptions<KeycloakConfigurationOptions> options)
     {
         _client = new KeycloakClient(options.Value.ServerUrl, options.Value.AdminUsername, options.Value.AdminPassword);
         _realmName = options.Value.Realm;

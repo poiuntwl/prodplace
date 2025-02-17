@@ -42,10 +42,9 @@ public static class ServiceInjectionExtensions
         s.AddGrpc(x => { x.EnableDetailedErrors = true; });
         s.AddMassTransitInjections<AppDbContext>(Assembly.GetExecutingAssembly(), x => x.UseSqlServer());
 
-        s.Configure<KeycloakOptions>(configuration.GetSection("Keycloak"));
+        s.Configure<KeycloakConfigurationOptions>(configuration.GetSection("Keycloak"));
         s.AddKeycloakAuthorization(configuration);
 
-        s.Configure<KeycloakOptions>(configuration.GetSection("Keycloak"));
         s.AddScoped<IKeycloakService, KeycloakService>();
         s.AddScoped<IRoleService, RoleService>();
     }
@@ -55,7 +54,6 @@ public static class ServiceInjectionExtensions
         var configuration = builder.Configuration;
         s.AddDbContext<AppDbContext>(x =>
             x.UseSqlServer(configuration.GetConnectionString("IdentityConnection")));
-        s.AddJwtAuthConfiguration(builder);
         s.AddJwtAuthServices();
 
         return s;

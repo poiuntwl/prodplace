@@ -1,4 +1,5 @@
-﻿using IdentityService;
+﻿using AuthTools.Models;
+using IdentityService;
 using IdentityService.Data;
 using IntegrationTests.HttpClients;
 using Keycloak.Net;
@@ -15,7 +16,6 @@ using Respawn;
 using Testcontainers.Keycloak;
 using Testcontainers.MsSql;
 using Testcontainers.RabbitMq;
-using KeycloakOptions = AuthTools.Models.KeycloakOptions;
 
 namespace IntegrationTests.Factories;
 
@@ -132,12 +132,14 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
             });
 
             var keycloakUrl = $"http://{_keycloakContainer.Hostname}:{_keycloakContainer.GetMappedPublicPort(8080)}";
-            s.AddSingleton<IOptions<KeycloakOptions>>(_ => Options.Create(new KeycloakOptions
+            s.AddSingleton<IOptions<KeycloakConfigurationOptions>>(_ => Options.Create(new KeycloakConfigurationOptions
             {
                 ServerUrl = keycloakUrl,
                 Realm = "master",
                 AdminUsername = "admin",
-                AdminPassword = "admin"
+                AdminPassword = "admin",
+                ClientId = "",
+                Secret = ""
             }));
 
             s.AddGrpc();

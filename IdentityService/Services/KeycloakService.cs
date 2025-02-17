@@ -5,7 +5,6 @@ using Keycloak.Net.Core.Models.Root;
 using Keycloak.Net.Models.Roles;
 using Keycloak.Net.Models.Users;
 using Microsoft.Extensions.Options;
-using KeycloakOptions = AuthTools.Models.KeycloakOptions;
 
 namespace IdentityService.Services;
 
@@ -28,7 +27,7 @@ public class KeycloakService : IKeycloakService
     private readonly string _clientId;
     private readonly string _secret;
 
-    public KeycloakService(IOptions<KeycloakOptions> options)
+    public KeycloakService(IOptions<KeycloakConfigurationOptions> options)
     {
         _client = new KeycloakClient(options.Value.ServerUrl, options.Value.AdminUsername, options.Value.AdminPassword);
         _realmName = options.Value.Realm;
@@ -69,13 +68,13 @@ public class KeycloakService : IKeycloakService
 
     public async Task<bool> AssignRoleAsync(string userId, string roleName, CancellationToken ct)
     {
-        var roleFound = await GetRoleByNameAsync(_realmName, ct);
+        var roleFound = await GetRoleByNameAsync(roleName, ct);
         return await _client.AddRealmRoleMappingsToUserAsync(_realmName, userId, [roleFound], ct);
     }
 
     public async Task<bool> UnassignRoleAsync(string userId, string roleName, CancellationToken ct)
     {
-        var roleFound = await GetRoleByNameAsync(_realmName, ct);
+        var roleFound = await GetRoleByNameAsync(roleName, ct);
         return await _client.DeleteRealmRoleMappingsFromUserAsync(_realmName, userId, [roleFound], ct);
     }
 
