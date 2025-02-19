@@ -55,7 +55,8 @@ public static class ServiceInjectionExtensions
         s.AddDbContext<AppDbContext>(x =>
             x.UseSqlServer(configuration.GetConnectionString("IdentityConnection")));
         s.AddJwtAuthServices();
-
+        s.AddMemoryCache();
+        
         return s;
     }
 }

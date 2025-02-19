@@ -1,10 +1,9 @@
-using FluentAssertions;
-using Microsoft.Extensions.Logging;
-using Microsoft.IdentityModel.Tokens;
-using NSubstitute;
 using System.Security.Cryptography;
+using FluentAssertions;
+using Microsoft.IdentityModel.Tokens;
+using Prodplace.KeyRotator;
 
-namespace Prodplace.KeyRotator.Tests;
+namespace ProdPlace.KeyRotator.IntegrationTests;
 
 public class FileKeyStoreTests : IDisposable
 {
@@ -20,7 +19,6 @@ public class FileKeyStoreTests : IDisposable
     [Fact]
     public void Constructor_ShouldCreateInitialKey()
     {
-        // Assert
         _store.CurrentSigningKey.Should().NotBeNull();
         _store.CurrentSigningKey!.Key.Should().BeOfType<RsaSecurityKey>();
         _store.ValidationKeys.Should().ContainSingle();
@@ -30,14 +28,13 @@ public class FileKeyStoreTests : IDisposable
     [Fact]
     public void RotateKey_ShouldCreateNewKeyAndKeepOldOne()
     {
-        // Arrange
         var initialKey = _store.CurrentSigningKey;
         var initialKeyCreateDate = initialKey!.Created;
 
-        // Act
+
         var newKey = _store.RotateKey();
 
-        // Assert
+
         newKey.Should().NotBeNull();
         newKey.Created.Should().BeAfter(initialKeyCreateDate);
         _store.CurrentSigningKey.Should().Be(newKey);
@@ -49,10 +46,9 @@ public class FileKeyStoreTests : IDisposable
     [Fact]
     public void GenerateNewKey_ShouldCreateValidRsaKey()
     {
-        // Act
         var key = _store.GenerateNewKey();
 
-        // Assert
+
         key.Should().NotBeNull();
         key.Key.Should().BeOfType<RsaSecurityKey>();
         var rsaKey = (RsaSecurityKey)key.Key;
@@ -65,13 +61,12 @@ public class FileKeyStoreTests : IDisposable
     [Fact]
     public void Dispose_ShouldPreventFurtherAccess()
     {
-        // Arrange
-        _store.RotateKey(); // Create additional key
+        _store.RotateKey();
 
-        // Act
+
         _store.Dispose();
 
-        // Assert
+
         var act = () => _store.ValidationKeys;
         act.Should().Throw<ObjectDisposedException>();
 
@@ -82,15 +77,14 @@ public class FileKeyStoreTests : IDisposable
     [Fact]
     public void LoadExistingKeys_ShouldLoadAndDecryptKeys()
     {
-        // Arrange
         var initialStore = new FileKeyStore(_testKeyFolder);
-        initialStore.RotateKey(); // Create a second key
+        initialStore.RotateKey();
         var expectedKeyCount = initialStore.ValidationKeys.Count;
 
-        // Act
-        var newStore = new FileKeyStore(_testKeyFolder); // This will load existing keys
 
-        // Assert
+        var newStore = new FileKeyStore(_testKeyFolder);
+
+
         newStore.ValidationKeys.Should().HaveCount(expectedKeyCount);
         newStore.CurrentSigningKey.Should().NotBeNull();
         newStore.CurrentSigningKey!.Key.Should().BeOfType<RsaSecurityKey>();
@@ -99,14 +93,13 @@ public class FileKeyStoreTests : IDisposable
     [Fact]
     public void RemoveKey_ShouldRemoveExpiredKey()
     {
-        // Arrange
         var initialKey = _store.CurrentSigningKey;
         var newKey = _store.RotateKey();
 
-        // Act
+
         var result = _store.RemoveKey(initialKey!);
 
-        // Assert
+
         result.Should().BeTrue();
         _store.ValidationKeys.Should().HaveCount(1);
         _store.ValidationKeys.Should().NotContain(initialKey);
@@ -116,13 +109,12 @@ public class FileKeyStoreTests : IDisposable
     [Fact]
     public void RemoveKey_ShouldNotRemoveCurrentSigningKey()
     {
-        // Arrange
         var currentKey = _store.CurrentSigningKey;
 
-        // Act
+
         var result = _store.RemoveKey(currentKey!);
 
-        // Assert
+
         result.Should().BeFalse();
         _store.ValidationKeys.Should().ContainSingle();
         _store.CurrentSigningKey.Should().Be(currentKey);
@@ -131,7 +123,6 @@ public class FileKeyStoreTests : IDisposable
     [Fact]
     public void RemoveKey_ShouldHandleNonExistentKey()
     {
-        // Arrange
         var rsa = RSA.Create();
         var nonExistentKey = new DatedSecurityKey
         {
@@ -143,10 +134,10 @@ public class FileKeyStoreTests : IDisposable
             Expires = DateTimeOffset.UtcNow.AddDays(90)
         };
 
-        // Act
+
         var result = _store.RemoveKey(nonExistentKey);
 
-        // Assert
+
         result.Should().BeFalse();
         _store.ValidationKeys.Should().ContainSingle();
         rsa.Dispose();
@@ -160,84 +151,6 @@ public class FileKeyStoreTests : IDisposable
             Directory.Delete(_testKeyFolder, true);
         }
 
-        GC.SuppressFinalize(this);
-    }
-}
-
-public class KeyRotationServiceTests : IDisposable
-{
-    private readonly IKeyStore _keyStore;
-    private readonly ILogger<KeyRotationService> _logger;
-    private readonly KeyRotationService _service;
-    private readonly CancellationTokenSource _cts;
-
-    public KeyRotationServiceTests()
-    {
-        _keyStore = Substitute.For<IKeyStore>();
-        _logger = Substitute.For<ILogger<KeyRotationService>>();
-        _service = new KeyRotationService(_keyStore, _logger, Substitute.For<Microsoft.Extensions.Configuration.IConfiguration>());
-        _cts = new CancellationTokenSource();
-    }
-
-    [Fact]
-    public async Task ExecuteAsync_ShouldRotateKeyWhenIntervalExceeded()
-    {
-        // Arrange
-        var oldKey = new DatedSecurityKey
-        {
-            Key = new RsaSecurityKey(RSA.Create()),
-            Created = DateTimeOffset.UtcNow.AddHours(-2), // Older than rotation interval
-            Expires = DateTimeOffset.UtcNow.AddDays(90)
-        };
-
-        _keyStore.CurrentSigningKey.Returns(oldKey);
-
-        var newKey = new DatedSecurityKey
-        {
-            Key = new RsaSecurityKey(RSA.Create()),
-            Created = DateTimeOffset.UtcNow,
-            Expires = DateTimeOffset.UtcNow.AddDays(90)
-        };
-        _keyStore.RotateKey().Returns(newKey);
-
-        // Act
-        var executeTask = _service.StartAsync(_cts.Token);
-        await Task.Delay(TimeSpan.FromSeconds(1)); // Short delay to allow background task to run.
-        _cts.Cancel();
-        await executeTask; // Ensure the task finishes.
-
-        // Assert
-        _keyStore.Received(1).RotateKey();
-        _logger.Received(1).Log(Arg.Any<LogLevel>(), Arg.Any<EventId>(), Arg.Any<Arg.AnyType>(),
-            Arg.Any<Exception?>(), Arg.Any<Func<Arg.AnyType, Exception?, string>>());
-    }
-
-    [Fact]
-    public async Task ExecuteAsync_ShouldNotRotateKeyWhenIntervalNotExceeded()
-    {
-        // Arrange
-        var newKey = new DatedSecurityKey
-        {
-            Key = new RsaSecurityKey(RSA.Create()),
-            Created = DateTimeOffset.UtcNow.AddMinutes(-30), // Newer than rotation interval
-            Expires = DateTimeOffset.UtcNow.AddDays(90)
-        };
-
-        _keyStore.CurrentSigningKey.Returns(newKey);
-
-        // Act
-        var executeTask = _service.StartAsync(_cts.Token);
-        await Task.Delay(TimeSpan.FromSeconds(1)); // Short delay to allow background task to run.
-        await _cts.CancelAsync();
-        await executeTask; // Ensure the task finishes and exceptions are caught.
-
-        // Assert
-        _keyStore.DidNotReceive().RotateKey();
-    }
-
-    public void Dispose()
-    {
-        _cts.Dispose();
         GC.SuppressFinalize(this);
     }
 }
