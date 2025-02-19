@@ -138,8 +138,8 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
                 Realm = "master",
                 AdminUsername = "admin",
                 AdminPassword = "admin",
-                ClientId = "",
-                Secret = ""
+                ClientId = "account",
+                Secret = "hWsjheX4uUAEKrvQxDT5KQvCjlVnk1fZ"
             }));
 
             s.AddGrpc();

@@ -3,6 +3,7 @@
     "secret": "hWsjheX4uUAEKrvQxDT5KQvCjlVnk1fZ",
     "audience": "account",
     "issuer": "http://127.0.0.1:8080/realms/prodplace",
-    "metadataAddress": "http://127.0.0.1:8080/realms/prodplace/.well-known/openid-configuration"
+    "metadataAddress": "http://127.0.0.1:8080/realms/prodplace/.well-known/openid-configuration",
+    "clientId": "account"
   }
 }

@@ -20,14 +20,15 @@ public class IdentityTests
     }
 
     [Fact]
-    public async Task Test()
+    public async Task Should_Successfully_Create_And_Assign_Role_To_Registered_User()
     {
         var newUserId = await RegisterUserAsync();
         newUserId.Should().NotBeNull();
 
         var roleName = TestDataGenerator.GenerateString();
+        var roleDescription = TestDataGenerator.GenerateString();
         var newRole =
-            await _integrationTestFixture.AdminServiceFactory.HttpClient.CreateRole(roleName);
+            await _integrationTestFixture.AdminServiceFactory.HttpClient.CreateRole(new CreateRoleRequestDto(roleName, roleDescription));
         newRole.Should().NotBeNull();
 
         var roleAssigned =
@@ -36,9 +37,10 @@ public class IdentityTests
         roleAssigned.Should().NotBeNull();
         roleAssigned.Success.Should().BeTrue();
 
+        var client = (await _integrationTestFixture.IdentityServiceFactory.KeycloakClient.GetClientsAsync("master", q: "account")).First();
         var userRoles =
-            await _integrationTestFixture.IdentityServiceFactory.KeycloakClient.GetRealmRoleMappingsForUserAsync(
-                "master", newUserId);
+            await _integrationTestFixture.IdentityServiceFactory.KeycloakClient.GetClientRoleMappingsForUserAsync(
+                "master", newUserId, client.Id);
         userRoles.Select(x => x.Name).Should().Contain(roleName);
     }
 

@@ -12,17 +12,14 @@ public interface ITokenValidationConfiguration
 
 public class TokenValidationConfiguration : ITokenValidationConfiguration
 {
-    private readonly IConfiguration _configuration;
-
     public TokenValidationConfiguration(IConfiguration configuration)
     {
-        _configuration = configuration;
-        ExpirationInSeconds = _configuration.GetValue<int>("ExpirationInSeconds");
+        ExpirationInSeconds = configuration.GetValue<int>("ExpirationInSeconds");
     }
 
     public TokenValidationParameters GetTokenValidationParameters()
     {
-        return TokenValidationParametersCreator.Create(_configuration);
+        return TokenValidationParametersCreator.Create();
     }
 
     public int ExpirationInSeconds { get; set; }

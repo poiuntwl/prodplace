@@ -22,11 +22,22 @@ public class RolesController : ControllerBase
     public async Task<ActionResult<AssignRoleResponse>> AssignRole([FromBody] AssignRoleRequestDto dto,
         [FromServices] RoleAdminService.RoleAdminServiceClient roleAdminServiceClient, CancellationToken ct)
     {
+        if (string.IsNullOrWhiteSpace(dto.UserId))
+        {
+            return BadRequest("UserId cannot be null or empty");
+        }
+
+        if (string.IsNullOrWhiteSpace(dto.RoleName))
+        {
+            return BadRequest("RoleName cannot be null or empty");
+        }
+
         var assignResult = await roleAdminServiceClient.AssignRoleAsync(new AssignRoleRequest
         {
-            RoleName = dto.RoleName,
             UserId = dto.UserId,
+            RoleName = dto.RoleName
         }, cancellationToken: ct);
+
         return Ok(new AssignRoleDto(assignResult.Success));
     }
 }

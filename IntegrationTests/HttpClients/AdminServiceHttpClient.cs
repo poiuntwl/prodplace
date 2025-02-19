@@ -1,4 +1,7 @@
-﻿using System.Net.Http.Json;
+﻿extern alias AdminSUT;
+using System.Net.Http.Json;
+using System.Text.Json;
+using AdminSUT::Prodplace.Admin;
 
 namespace IntegrationTests.HttpClients;
 
@@ -6,8 +9,8 @@ extern alias AdminSUT;
 
 public interface IAdminServiceHttpClient : IDisposable
 {
-    Task<AdminSUT::Prodplace.Admin.CreateRoleDto?> CreateRole(string roleName);
-    Task<AdminSUT::Prodplace.Admin.AssignRoleDto?> AssignRole(AdminSUT::Prodplace.Admin.AssignRoleRequestDto dto);
+    Task<CreateRoleDto?> CreateRole(CreateRoleRequestDto role);
+    Task<AssignRoleDto?> AssignRole(AssignRoleRequestDto dto);
 }
 
 public class AdminServiceHttpClient : IAdminServiceHttpClient
@@ -25,16 +28,19 @@ public class AdminServiceHttpClient : IAdminServiceHttpClient
         GC.SuppressFinalize(this);
     }
 
-    public async Task<AdminSUT::Prodplace.Admin.CreateRoleDto?> CreateRole(string roleName)
+    public async Task<CreateRoleDto?> CreateRole(CreateRoleRequestDto role)
     {
-        var response = await _httpClient.PostAsJsonAsync("/roles", roleName);
-        return await response.Content.ReadFromJsonAsync<AdminSUT::Prodplace.Admin.CreateRoleDto>();
+        var response = await _httpClient.PostAsJsonAsync("/roles", role);
+        return await response.Content.ReadFromJsonAsync<CreateRoleDto>();
     }
 
-    public async Task<AdminSUT::Prodplace.Admin.AssignRoleDto?> AssignRole(
-        AdminSUT::Prodplace.Admin.AssignRoleRequestDto dto)
+    public async Task<AssignRoleDto?> AssignRole(AssignRoleRequestDto dto)
     {
-        var response = await _httpClient.PostAsJsonAsync("/roles/assign", dto);
-        return await response.Content.ReadFromJsonAsync<AdminSUT::Prodplace.Admin.AssignRoleDto>();
+        var response = await _httpClient.SendRequestAsync("/roles/assign", HttpMethod.Post, dto);
+        return JsonSerializer.Deserialize<AssignRoleDto>(response, new JsonSerializerOptions
+               {
+                   PropertyNameCaseInsensitive = true
+               })
+               ?? throw new InvalidOperationException("Failed to deserialize response");
     }
 }
