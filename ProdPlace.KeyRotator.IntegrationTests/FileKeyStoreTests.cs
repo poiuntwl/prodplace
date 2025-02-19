@@ -96,6 +96,62 @@ public class FileKeyStoreTests : IDisposable
         newStore.CurrentSigningKey!.Key.Should().BeOfType<RsaSecurityKey>();
     }
 
+    [Fact]
+    public void RemoveKey_ShouldRemoveExpiredKey()
+    {
+        // Arrange
+        var initialKey = _store.CurrentSigningKey;
+        var newKey = _store.RotateKey();
+
+        // Act
+        var result = _store.RemoveKey(initialKey!);
+
+        // Assert
+        result.Should().BeTrue();
+        _store.ValidationKeys.Should().HaveCount(1);
+        _store.ValidationKeys.Should().NotContain(initialKey);
+        _store.CurrentSigningKey.Should().Be(newKey);
+    }
+
+    [Fact]
+    public void RemoveKey_ShouldNotRemoveCurrentSigningKey()
+    {
+        // Arrange
+        var currentKey = _store.CurrentSigningKey;
+
+        // Act
+        var result = _store.RemoveKey(currentKey!);
+
+        // Assert
+        result.Should().BeFalse();
+        _store.ValidationKeys.Should().ContainSingle();
+        _store.CurrentSigningKey.Should().Be(currentKey);
+    }
+
+    [Fact]
+    public void RemoveKey_ShouldHandleNonExistentKey()
+    {
+        // Arrange
+        var rsa = RSA.Create();
+        var nonExistentKey = new DatedSecurityKey
+        {
+            Key = new RsaSecurityKey(rsa)
+            {
+                KeyId = Guid.NewGuid().ToString()
+            },
+            Created = DateTimeOffset.UtcNow,
+            Expires = DateTimeOffset.UtcNow.AddDays(90)
+        };
+
+        // Act
+        var result = _store.RemoveKey(nonExistentKey);
+
+        // Assert
+        result.Should().BeFalse();
+        _store.ValidationKeys.Should().ContainSingle();
+        rsa.Dispose();
+    }
+
     public void Dispose()
     {
         _store.Dispose();
@@ -119,7 +175,7 @@ public class KeyRotationServiceTests : IDisposable
     {
         _keyStore = Substitute.For<IKeyStore>();
         _logger = Substitute.For<ILogger<KeyRotationService>>();
-        _service = new KeyRotationService(_keyStore, _logger);
+        _service = new KeyRotationService(_keyStore, _logger, Substitute.For<Microsoft.Extensions.Configuration.IConfiguration>());
         _cts = new CancellationTokenSource();
     }
 
