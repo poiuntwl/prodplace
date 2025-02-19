@@ -13,9 +13,14 @@ public class KeyRotationServiceTests : IDisposable
     private readonly ILogger<KeyRotationService> _logger;
     private readonly KeyRotationService _service;
     private readonly CancellationTokenSource _cts;
+    private readonly RsaSecurityKey _testKey1;
+    private readonly RsaSecurityKey _testKey2;
 
     public KeyRotationServiceTests()
     {
+        _testKey1 = new RsaSecurityKey(RSA.Create());
+        _testKey2 = new RsaSecurityKey(RSA.Create());
+
         _keyStore = Substitute.For<IKeyStore>();
         _logger = Substitute.For<ILogger<KeyRotationService>>();
 
@@ -41,7 +46,7 @@ public class KeyRotationServiceTests : IDisposable
     {
         var oldKey = new DatedSecurityKey
         {
-            Key = new RsaSecurityKey(RSA.Create()),
+            Key = _testKey1,
             Created = DateTimeOffset.UtcNow.AddHours(-2),
             Expires = DateTimeOffset.UtcNow.AddDays(90)
         };
@@ -50,22 +55,21 @@ public class KeyRotationServiceTests : IDisposable
 
         var newKey = new DatedSecurityKey
         {
-            Key = new RsaSecurityKey(RSA.Create()),
+            Key = _testKey2,
             Created = DateTimeOffset.UtcNow,
             Expires = DateTimeOffset.UtcNow.AddDays(90)
         };
         _keyStore.RotateKey().Returns(newKey);
 
-
         var executeTask = _service.StartAsync(_cts.Token);
-        await Task.Delay(TimeSpan.FromSeconds(1));
+        await Task.Delay(100);
         _cts.Cancel();
         await executeTask;
 
-        // Verify key rotation
+
         _keyStore.Received(1).RotateKey();
 
-        // Verify specific log message for key rotation
+
         _logger.Received(1).Log(
             LogLevel.Information,
             Arg.Any<EventId>(),
@@ -79,19 +83,17 @@ public class KeyRotationServiceTests : IDisposable
     {
         var newKey = new DatedSecurityKey
         {
-            Key = new RsaSecurityKey(RSA.Create()),
+            Key = _testKey1,
             Created = DateTimeOffset.UtcNow.AddMinutes(-30),
             Expires = DateTimeOffset.UtcNow.AddDays(90)
         };
 
         _keyStore.CurrentSigningKey.Returns(newKey);
 
-
         var executeTask = _service.StartAsync(_cts.Token);
-        await Task.Delay(TimeSpan.FromSeconds(1));
+        await Task.Delay(100);
         await _cts.CancelAsync();
         await executeTask;
-
 
         _keyStore.DidNotReceive().RotateKey();
     }
@@ -99,6 +101,8 @@ public class KeyRotationServiceTests : IDisposable
     public void Dispose()
     {
         _cts.Dispose();
+        (_testKey1.Rsa as IDisposable)?.Dispose();
+        (_testKey2.Rsa as IDisposable)?.Dispose();
         GC.SuppressFinalize(this);
     }
 }
