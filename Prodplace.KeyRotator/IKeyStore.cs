@@ -9,6 +9,7 @@ public interface IKeyStore
     DatedSecurityKey? CurrentSigningKey { get; }
     IReadOnlyList<DatedSecurityKey?> ValidationKeys { get; }
     DatedSecurityKey RotateKey();
+    bool RemoveKey(DatedSecurityKey key);
 }
 
 public class FileKeyStore : IKeyStore, IDisposable
@@ -114,6 +115,35 @@ public class FileKeyStore : IKeyStore, IDisposable
     }
 
     public DatedSecurityKey RotateKey() => CurrentSigningKey = GenerateNewKey();
+
+    public bool RemoveKey(DatedSecurityKey key)
+    {
+        ThrowIfDisposed();
+        
+        if (key == null || key.Key == null || key == CurrentSigningKey)
+            return false;
+
+        var keyPath = Path.Combine(_keyFolder, $"{key.Key.KeyId}.key");
+        if (!File.Exists(keyPath))
+            return false;
+
+        try
+        {
+            File.Delete(keyPath);
+            _keys.Remove(key);
+            
+            if (key.Key is RsaSecurityKey rsaKey)
+            {
+                rsaKey.Rsa?.Dispose();
+            }
+            
+            return true;
+        }
+        catch
+        {
+            return false;
+        }
+    }
 
     private void ThrowIfDisposed()
     {
