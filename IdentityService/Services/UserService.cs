@@ -43,13 +43,13 @@ public class UserService : IUserService
                 throw new RegisterUserException();
             }
 
-            var existingRole = await _keycloakService.GetRoleByNameAsync(registerDto.Email, ct);
+            var existingRole = await _keycloakService.GetRoleByNameAsync(RoleNames.User, ct, forClient: false);
             if (existingRole == null)
             {
                 throw new RegisterUserException(["No user role exists."]);
             }
 
-            await _keycloakService.AssignRoleAsync(userId, RoleNames.User, ct);
+            await _keycloakService.AssignRoleAsync(userId, RoleNames.User, ct, forClient: false);
 
             var userDataResult = new UserDataResult
             {

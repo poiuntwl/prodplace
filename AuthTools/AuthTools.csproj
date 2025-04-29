@@ -21,7 +21,6 @@
         <None Update="shared.settings.Development.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <EmbeddedResource Include="shared.settings.Development.json" />
     </ItemGroup>
 
 </Project>

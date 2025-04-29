@@ -18,17 +18,13 @@ public static class JwtDependencyInjectionExtensions
     public static void AddJwtAuthConfiguration(this IServiceCollection s, WebApplicationBuilder builder)
     {
         JwtSecurityTokenHandler.DefaultInboundClaimTypeMap.Clear();
-    
-        var config = builder.Configuration;
-        JwtSettingsProvider.Initialize(config);
-        s.Configure<JwtSettings>(config.GetSection("Jwt"));
-    
+
         s.AddAuthorizationBuilder()
-            .AddPolicy(PolicyNames.RequireAdminRole, builder => builder.RequireRole(RoleNames.Admin))
-            .AddPolicy(PolicyNames.RequireUserRole, builder => builder.RequireRole(RoleNames.User));
-    
+            .AddPolicy(PolicyNames.RequireAdminRole, x => x.RequireRole(RoleNames.Admin))
+            .AddPolicy(PolicyNames.RequireUserRole, x => x.RequireRole(RoleNames.User));
+
         s.AddAdminAuthorizationOverride();
-    
+
         s.AddAuthentication(x =>
             {
                 x.DefaultAuthenticateScheme =
@@ -48,44 +44,45 @@ public static class JwtDependencyInjectionExtensions
                         {
                             return Task.CompletedTask;
                         }
-    
+
                         var realmRoles = ctx.Principal.Claims
                             .Where(c => c.Type == "realm_access")
                             .Select(c => c.Value)
                             .FirstOrDefault();
-    
+
                         if (string.IsNullOrEmpty(realmRoles))
                         {
                             return Task.CompletedTask;
                         }
-    
+
                         var roles = JsonSerializer.Deserialize<Dictionary<string, string[]>>(realmRoles);
                         if (roles == null)
                         {
                             return Task.CompletedTask;
                         }
-    
+
                         var claimsIdentity = ctx.Principal.Identity as ClaimsIdentity;
-    
+
                         if (roles.TryGetValue("roles", out var value) == false)
                         {
                             return Task.CompletedTask;
                         }
-    
+
                         foreach (var role in value)
                         {
                             claimsIdentity?.AddClaim(new Claim(ClaimTypes.Role, role));
                         }
-    
+
                         return Task.CompletedTask;
                     }
                 };
-    
-                var jwtSettings = JwtSettingsProvider.GetConfiguration();
+
+                var jwtSettings = new JwtSettings();
+                builder.Configuration.GetSection("Jwt").Bind(jwtSettings);
                 x.RequireHttpsMetadata = false;
                 x.Audience = jwtSettings.Audience;
                 x.MetadataAddress = jwtSettings.MetadataAddress;
-                x.TokenValidationParameters = TokenValidationParametersCreator.Create();
+                x.TokenValidationParameters = TokenValidationParametersCreator.Create(builder.Configuration);
             });
     }
 

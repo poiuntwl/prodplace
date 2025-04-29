@@ -94,7 +94,8 @@ public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLi
         {
             configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
             {
-                ["ConnectionStrings:MongoDefaultConnection"] = _dbContainer.GetConnectionString()
+                ["ConnectionStrings:MongoDefaultConnection"] = _dbContainer.GetConnectionString(),
+                ["ExpirationInSeconds"] = 120.ToString()
             });
         });
         return base.CreateHost(builder);

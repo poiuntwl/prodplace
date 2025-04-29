@@ -1,4 +1,6 @@
-﻿using AuthTools.Models;
+﻿using System.Security.Cryptography;
+using System.Text;
+using AuthTools.Models;
 using IdentityService;
 using IdentityService.Data;
 using IntegrationTests.HttpClients;
@@ -10,6 +12,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Data.SqlClient;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using Respawn;
@@ -32,14 +35,16 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     public IServiceProvider ServiceProvider = null!;
     public KeycloakClient KeycloakClient = null!;
     public HttpMessageHandler GrpcHandler { get; private set; } = null!;
+    private readonly string _jwtSecret;
+    private string _keycloakBaseUrl;
 
     public IdentityServiceFactory(ContainersFactory containersFactory)
     {
         _dbContainer = containersFactory.IdentityDbContainer;
         _rabbitMqContainer = containersFactory.RabbitMqContainer;
         _keycloakContainer = containersFactory.KeyCloakContainer;
+        _jwtSecret = SecretGenerator.GenerateSecret(32);
     }
-
 
     public async Task InitializeAsync()
     {
@@ -47,8 +52,8 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         _serviceScope = Services.CreateAsyncScope();
         ServiceProvider = _serviceScope.ServiceProvider;
         HttpClient = ServiceProvider.GetRequiredService<IIdentityServiceHttpClient>();
-        var keycloakUrl = $"http://localhost:{_keycloakContainer.GetMappedPublicPort(8080)}";
-        KeycloakClient = new KeycloakClient(keycloakUrl, "admin", "admin");
+        _keycloakBaseUrl = $"http://{_keycloakContainer.Hostname}:{_keycloakContainer.GetMappedPublicPort(8080)}";
+        KeycloakClient = new KeycloakClient(_keycloakBaseUrl, "admin", "admin");
 
         await SetUpRolesAsync();
 
@@ -66,19 +71,21 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
 
         foreach (var roleName in requiredRoles)
         {
-            if (!existingRoles.Contains(roleName))
+            if (existingRoles.Contains(roleName))
             {
-                try
+                continue;
+            }
+
+            try
+            {
+                await KeycloakClient.CreateRoleAsync(realm, new Role
                 {
-                    await KeycloakClient.CreateRoleAsync(realm, new Role
-                    {
-                        Name = roleName,
-                    });
-                }
-                catch (Exception)
-                {
-                    // ignore
-                }
+                    Name = roleName,
+                });
+            }
+            catch (Exception)
+            {
+                // ignore
             }
         }
     }
@@ -95,6 +102,17 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     protected override void ConfigureWebHost(IWebHostBuilder builder)
     {
         builder.UseUrls("http://localhost:0");
+
+        builder.ConfigureAppConfiguration((_, configurationBuilder) =>
+        {
+            configurationBuilder.AddInMemoryCollection(new Dictionary<string, string?>
+            {
+                ["ExpirationInSeconds"] = 120.ToString(),
+                ["Jwt:Key"] = _jwtSecret,
+                ["Jwt:MetadataAddress"] = $"{_keycloakBaseUrl}/.well-known/openid-configuration",
+                ["Jwt:Audience"] = "account"
+            });
+        });
 
         builder.ConfigureServices((_, s) =>
         {
@@ -131,15 +149,14 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
                 });
             });
 
-            var keycloakUrl = $"http://{_keycloakContainer.Hostname}:{_keycloakContainer.GetMappedPublicPort(8080)}";
             s.AddSingleton<IOptions<KeycloakConfigurationOptions>>(_ => Options.Create(new KeycloakConfigurationOptions
             {
-                ServerUrl = keycloakUrl,
+                ServerUrl = _keycloakBaseUrl,
                 Realm = "master",
                 AdminUsername = "admin",
                 AdminPassword = "admin",
                 ClientId = "account",
-                Secret = "hWsjheX4uUAEKrvQxDT5KQvCjlVnk1fZ"
+                Secret = _jwtSecret
             }));
 
             s.AddGrpc();
@@ -164,5 +181,33 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     private async Task ResetDbAsync()
     {
         await _respawner.ResetAsync(_sqlConnection);
+    }
+}
+
+public static class SecretGenerator
+{
+    public static string GenerateSecret(int length)
+    {
+        if (length <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(length), "Length must be greater than 0.");
+        }
+
+        const string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
+        var result = new StringBuilder(length);
+
+        var randomBytes = new byte[length];
+
+        using (var rng = new RNGCryptoServiceProvider())
+        {
+            rng.GetBytes(randomBytes);
+        }
+
+        foreach (var b in randomBytes)
+        {
+            result.Append(validChars[b % validChars.Length]);
+        }
+
+        return result.ToString();
     }
 }

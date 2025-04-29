@@ -5,6 +5,7 @@ using ProductsService.Handlers.PreProcessors;
 var builder = WebApplication.CreateBuilder(args);
 
 var s = builder.Services;
+s.AddOpenTelemetryConfiguration("ProductsService", "1.0.0");
 s.AddControllers();
 s.AddEndpointsApiExplorer();
 s.AddSwaggerGen();

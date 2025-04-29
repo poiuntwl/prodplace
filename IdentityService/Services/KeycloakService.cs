@@ -16,12 +16,12 @@ public interface IKeycloakService
 {
     Task<string?> RegisterAsync(RegisterDto registerDto, CancellationToken ct);
     Task<Token> AuthenticateAsync(string email, string password, CancellationToken ct);
-    Task<bool> AssignRoleAsync(string userId, string roleName, CancellationToken ct);
+    Task<bool> AssignRoleAsync(string userId, string roleName, CancellationToken ct, bool forClient = true);
     Task<bool> UnassignRoleAsync(string userId, string roleName, CancellationToken ct);
     Task<bool> CreateRoleAsync(string name, string description, CancellationToken ct);
     Task<bool> DeleteRoleAsync(string roleName, CancellationToken ct);
     Task<IEnumerable<Role>> GetRolesForUserAsync(string userId, CancellationToken ct);
-    Task<Role?> GetRoleByNameAsync(string name, CancellationToken ct);
+    Task<Role?> GetRoleByNameAsync(string name, CancellationToken ct, bool forClient = true);
     Task<IEnumerable<User>> GetUsersWithRoleAsync(string requestName, CancellationToken ct);
 }
 
@@ -76,7 +76,7 @@ public class KeycloakService : IKeycloakService
         return token;
     }
 
-    public async Task<bool> AssignRoleAsync(string userId, string roleName, CancellationToken ct)
+    public async Task<bool> AssignRoleAsync(string userId, string roleName, CancellationToken ct, bool forClient = true)
     {
         try
         {
@@ -87,7 +87,7 @@ public class KeycloakService : IKeycloakService
             }
 
             var client = await GetClientAsync(ct);
-            return await _client.AddClientRoleMappingsToUserAsync(_realmName, userId, client.Id, [roleFound], ct);
+            return forClient ? await _client.AddClientRoleMappingsToUserAsync(_realmName, userId, client.Id, [roleFound], ct) : await _client.AddRealmRoleMappingsToUserAsync(_realmName, userId, [roleFound], ct);
         }
         catch (Exception ex)
         {
@@ -134,7 +134,7 @@ public class KeycloakService : IKeycloakService
         return await _client.GetEffectiveClientRoleMappingsForUserAsync(_realmName, userId, _clientId, ct);
     }
 
-    public async Task<Role?> GetRoleByNameAsync(string name, CancellationToken ct)
+    public async Task<Role?> GetRoleByNameAsync(string name, CancellationToken ct, bool forClient = true)
     {
         if (string.IsNullOrWhiteSpace(name))
         {
@@ -150,7 +150,7 @@ public class KeycloakService : IKeycloakService
         try
         {
             var client = await GetClientAsync(ct);
-            var role = await _client.GetRoleByNameAsync(_realmName, client.Id, name, ct);
+            var role = forClient ? await _client.GetRoleByNameAsync(_realmName, client.Id, name, ct) : await _client.GetRoleByNameAsync(_realmName, name, ct);
             if (role == null)
             {
                 return role;
