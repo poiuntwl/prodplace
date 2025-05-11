@@ -47,6 +47,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Prodplace.KeyRotator", "Pro
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProdPlace.KeyRotator.IntegrationTests", "ProdPlace.KeyRotator.IntegrationTests\ProdPlace.KeyRotator.IntegrationTests.csproj", "{006141F3-8F57-4913-BB95-C96A45F21B13}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ProdPlace.Telemetry", "ProdPlace.Telemetry\ProdPlace.Telemetry.csproj", "{50F870E9-A167-48FD-933B-8868B698E9C9}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -117,6 +119,10 @@ Global
 		{006141F3-8F57-4913-BB95-C96A45F21B13}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{006141F3-8F57-4913-BB95-C96A45F21B13}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{006141F3-8F57-4913-BB95-C96A45F21B13}.Release|Any CPU.Build.0 = Release|Any CPU
+		{50F870E9-A167-48FD-933B-8868B698E9C9}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{50F870E9-A167-48FD-933B-8868B698E9C9}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{50F870E9-A167-48FD-933B-8868B698E9C9}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{50F870E9-A167-48FD-933B-8868B698E9C9}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(NestedProjects) = preSolution
 		{241DBD3C-A7ED-49B3-819A-B07D523FA402} = {ABF1F981-13CC-4A01-9887-55FC405BC456}
@@ -135,5 +141,6 @@ Global
 		{8DE3249B-E112-45AD-BBEA-5922D654857B} = {B1599F08-A5C2-4AD7-A5BE-6610EBD289F3}
 		{17DB087C-F7A1-4E23-B2E6-85561AA31972} = {B1599F08-A5C2-4AD7-A5BE-6610EBD289F3}
 		{006141F3-8F57-4913-BB95-C96A45F21B13} = {07C09504-AF5A-4B44-B67D-831F9EC47F97}
+		{50F870E9-A167-48FD-933B-8868B698E9C9} = {ABF1F981-13CC-4A01-9887-55FC405BC456}
 	EndGlobalSection
 EndGlobal
