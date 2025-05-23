@@ -80,14 +80,16 @@ public class KeycloakService : IKeycloakService
     {
         try
         {
-            var roleFound = await GetRoleByNameAsync(roleName, ct);
+            var roleFound = await GetRoleByNameAsync(roleName, ct, forClient);
             if (roleFound == null)
             {
                 return false;
             }
 
             var client = await GetClientAsync(ct);
-            return forClient ? await _client.AddClientRoleMappingsToUserAsync(_realmName, userId, client.Id, [roleFound], ct) : await _client.AddRealmRoleMappingsToUserAsync(_realmName, userId, [roleFound], ct);
+            return forClient
+                ? await _client.AddClientRoleMappingsToUserAsync(_realmName, userId, client.Id, [roleFound], ct)
+                : await _client.AddRealmRoleMappingsToUserAsync(_realmName, userId, [roleFound], ct);
         }
         catch (Exception ex)
         {
@@ -104,6 +106,7 @@ public class KeycloakService : IKeycloakService
             {
                 return false;
             }
+
             return await _client.DeleteRealmRoleMappingsFromUserAsync(_realmName, userId, [roleFound], ct);
         }
         catch (Exception ex)
@@ -111,6 +114,7 @@ public class KeycloakService : IKeycloakService
             throw new InvalidOperationException($"Failed to unassign role '{roleName}' from user '{userId}'", ex);
         }
     }
+
     public async Task<bool> CreateRoleAsync(string name, string description, CancellationToken ct)
     {
         var client = await GetClientAsync(ct);
@@ -150,7 +154,9 @@ public class KeycloakService : IKeycloakService
         try
         {
             var client = await GetClientAsync(ct);
-            var role = forClient ? await _client.GetRoleByNameAsync(_realmName, client.Id, name, ct) : await _client.GetRoleByNameAsync(_realmName, name, ct);
+            var role = forClient
+                ? await _client.GetRoleByNameAsync(_realmName, client.Id, name, ct)
+                : await _client.GetRoleByNameAsync(_realmName, name, ct);
             if (role == null)
             {
                 return role;
@@ -213,11 +219,11 @@ public class KeycloakService : IKeycloakService
         }
 
         var client = (await _client.GetClientsAsync(_realmName, q: _clientId, cancellationToken: ct)).First();
-        
+
         var cacheOptions = new MemoryCacheEntryOptions()
             .SetAbsoluteExpiration(RoleCacheDuration);
         _cache.Set(ClientCacheKey, client, cacheOptions);
-        
+
         return client;
     }
 }

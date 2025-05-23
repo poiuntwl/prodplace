@@ -67,12 +67,12 @@ public class RegisterTests :
         var user = await RegisterUserAsync();
 
         await WaitUntilAllMessagesProcessedAsync();
-        var keycloakService = _identityServiceScope.GetRequiredService<IKeycloakService>();
 
         var users = await _keycloakClient.GetUsersAsync("master");
         var userId = users.SingleOrDefault(x => x.Email == user.Email)?.Id;
         userId.Should().NotBeNull();
 
+        var keycloakService = _identityServiceScope.GetRequiredService<IKeycloakService>();
         await keycloakService.AssignRoleAsync(userId, RoleNames.Manager, CancellationToken.None);
 
         var roles = await _keycloakClient.GetRoleMappingsForUserAsync("master", userId, CancellationToken.None);
