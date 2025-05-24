@@ -4,6 +4,7 @@ using IdentityService.Dtos;
 using IdentityService.Services;
 using IntegrationTests.Factories;
 using IntegrationTests.HttpClients;
+using IntegrationTests.Utils;
 using Keycloak.Net;
 using MassTransit.Testing;
 using MessagingTools.Contracts;

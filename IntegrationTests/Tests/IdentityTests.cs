@@ -3,6 +3,7 @@ using AdminSUT::Prodplace.Admin;
 using FluentAssertions;
 using IdentityService.Dtos;
 using IntegrationTests.Factories;
+using IntegrationTests.Utils;
 using Keycloak.Net.Models.Users;
 
 namespace IntegrationTests.Tests;

@@ -3,6 +3,7 @@ using FluentAssertions;
 using IdentityService.Dtos;
 using IntegrationTests.Factories;
 using IntegrationTests.HttpClients;
+using IntegrationTests.Utils;
 
 namespace IntegrationTests.Tests;
 
