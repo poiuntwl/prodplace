@@ -1,5 +1,4 @@
-﻿using Castle.Core;
-using MassTransit;
+﻿using MassTransit;
 using MessagingTools;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
