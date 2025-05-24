@@ -23,22 +23,24 @@ namespace IntegrationTests.Factories;
 public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLifetime
 {
     private readonly MongoDbContainer _dbContainer;
-    private MongoClient _mongoClient;
     private RabbitMqContainer _rabbitMqContainer;
     private Respawner _respawner = default!;
     private AsyncServiceScope _serviceScope;
     public IProductServiceHttpClient HttpClient = default!;
     public IServiceProvider ServiceProvider = default!;
 
-    public ProductServiceFactory(ContainersFactory containersFactory)
+    public ProductServiceFactory(PerseveranceFactory perseveranceFactory)
     {
-        _dbContainer = containersFactory.ProductDbContainer;
-        _mongoClient = new MongoClient(_dbContainer.GetConnectionString());
-        _rabbitMqContainer = containersFactory.RabbitMqContainer;
+        _dbContainer = new MongoDbBuilder()
+            .WithImage("mongo:7.0.14")
+            .WithCleanUp(true)
+            .Build();
+        _rabbitMqContainer = perseveranceFactory.RabbitMqContainer;
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
+        await _dbContainer.StartAsync();
         _serviceScope = Services.CreateAsyncScope();
         ServiceProvider = _serviceScope.ServiceProvider;
         HttpClient = ServiceProvider.GetRequiredService<IProductServiceHttpClient>();
@@ -81,11 +83,10 @@ public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLi
         await prodCollection.InsertManyAsync(products);
     }
 
-    async Task IAsyncLifetime.DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         HttpClient.Dispose();
         await _serviceScope.DisposeAsync();
-        await DisposeAsync();
     }
 
     protected override IHost CreateHost(IHostBuilder builder)

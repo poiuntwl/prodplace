@@ -24,27 +24,30 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     private AsyncServiceScope _serviceScope;
     public IServiceProvider ServiceProvider;
 
-    public CustomerServiceFactory(ContainersFactory containersFactory)
+    public CustomerServiceFactory(PerseveranceFactory perseveranceFactory)
     {
-        _dbContainer = containersFactory.CustomerDbContainer;
-        _rabbitMqContainer = containersFactory.RabbitMqContainer;
+        _dbContainer = new PostgreSqlBuilder()
+            .WithImage("postgres:17-alpine")
+            .WithCleanUp(true)
+            .Build();
+        _rabbitMqContainer = perseveranceFactory.RabbitMqContainer;
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
+        await _dbContainer.StartAsync();
         HttpClient = CreateClient();
         await InitRespawnerAsync();
         _serviceScope = Services.CreateAsyncScope();
         ServiceProvider = _serviceScope.ServiceProvider;
     }
 
-    async Task IAsyncLifetime.DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         HttpClient.Dispose();
         await ResetDbAsync();
         await _sqlConnection.DisposeAsync();
         await _serviceScope.DisposeAsync();
-        await DisposeAsync();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

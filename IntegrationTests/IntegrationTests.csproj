@@ -2,6 +2,7 @@
 
     <PropertyGroup>
         <TargetFramework>net9.0</TargetFramework>
+        <OutputType>Exe</OutputType>
         <ImplicitUsings>enable</ImplicitUsings>
         <Nullable>enable</Nullable>
 
@@ -23,7 +24,6 @@
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
         </PackageReference>
         <PackageReference Include="Keycloak.Net.Core" Version="1.0.32" />
-        <PackageReference Include="Meziantou.Xunit.ParallelTestFramework" Version="2.3.0" />
         <PackageReference Include="Microsoft.AspNetCore.Mvc.Testing" Version="9.0.1" />
         <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
         <PackageReference Include="Microsoft.NET.Test.Sdk" Version="17.12.0" />
@@ -36,8 +36,8 @@
         <PackageReference Include="Testcontainers.MsSql" Version="4.4.0" />
         <PackageReference Include="Testcontainers.PostgreSql" Version="4.4.0" />
         <PackageReference Include="Testcontainers.RabbitMq" Version="4.4.0" />
-        <PackageReference Include="xunit" Version="2.9.3" />
-        <PackageReference Include="xunit.runner.visualstudio" Version="3.0.1">
+        <PackageReference Include="xunit.v3" Version="2.0.2" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="3.1.0">
           <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
           <PrivateAssets>all</PrivateAssets>
         </PackageReference>

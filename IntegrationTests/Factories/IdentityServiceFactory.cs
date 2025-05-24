@@ -38,16 +38,20 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     private readonly string _jwtSecret;
     private string _keycloakBaseUrl;
 
-    public IdentityServiceFactory(ContainersFactory containersFactory)
+    public IdentityServiceFactory(PerseveranceFactory perseveranceFactory)
     {
-        _dbContainer = containersFactory.IdentityDbContainer;
-        _rabbitMqContainer = containersFactory.RabbitMqContainer;
-        _keycloakContainer = containersFactory.KeyCloakContainer;
+        _dbContainer = new MsSqlBuilder()
+            .WithImage("mcr.microsoft.com/mssql/server:2022-CU13-ubuntu-22.04")
+            .WithCleanUp(true)
+            .Build();
+        _rabbitMqContainer = perseveranceFactory.RabbitMqContainer;
+        _keycloakContainer = perseveranceFactory.KeyCloakContainer;
         _jwtSecret = SecretGenerator.GenerateSecret(32);
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
+        await _dbContainer.StartAsync();
         await InitRespawner();
         _serviceScope = Services.CreateAsyncScope();
         ServiceProvider = _serviceScope.ServiceProvider;
@@ -90,13 +94,12 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
         }
     }
 
-    async Task IAsyncLifetime.DisposeAsync()
+    public override async ValueTask DisposeAsync()
     {
         HttpClient.Dispose();
         await ResetDbAsync();
         await _sqlConnection.DisposeAsync();
         await _serviceScope.DisposeAsync();
-        await DisposeAsync();
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

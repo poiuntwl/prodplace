@@ -5,25 +5,30 @@ namespace IntegrationTests;
 public class IntegrationTestFixture
     : IAsyncLifetime
 {
-    public ContainersFactory ContainersFactory { get; } = new();
+    private readonly PerseveranceFactory _perseveranceFactory;
+    public ProductServiceFactory ProductServiceFactory;
     public IdentityServiceFactory IdentityServiceFactory { get; private set; } = null!;
     public AdminServiceFactory AdminServiceFactory { get; private set; } = null!;
 
-    public async Task InitializeAsync()
+    public IntegrationTestFixture(PerseveranceFactory perseveranceFactory)
     {
-        await ContainersFactory.InitializeAsync();
+        _perseveranceFactory = perseveranceFactory;
+    }
 
-        IdentityServiceFactory = new IdentityServiceFactory(ContainersFactory);
-        await IdentityServiceFactory.InitializeAsync();
+    public async ValueTask InitializeAsync()
+    {
+        IdentityServiceFactory = new IdentityServiceFactory(_perseveranceFactory);
+        ProductServiceFactory = new ProductServiceFactory(_perseveranceFactory);
+        await Task.WhenAll(IdentityServiceFactory.InitializeAsync().AsTask(),
+            ProductServiceFactory.InitializeAsync().AsTask());
 
         AdminServiceFactory = new AdminServiceFactory(IdentityServiceFactory.GrpcHandler);
         await AdminServiceFactory.InitializeAsync();
     }
 
-    public async Task DisposeAsync()
+    public async ValueTask DisposeAsync()
     {
         await AdminServiceFactory.DisposeAsync();
         await IdentityServiceFactory.DisposeAsync();
-        await ContainersFactory.DisposeAsync();
     }
 }

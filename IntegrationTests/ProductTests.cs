@@ -8,16 +8,16 @@ using ProductsServiceSUT::ProductsService.Dtos.Product;
 
 namespace IntegrationTests;
 
-[Collection(nameof(ContainersFactoryCollectionDefinition))]
-public class ProductTests : IClassFixture<ProductServiceFactory>, IClassFixture<IdentityServiceFactory>
+[Collection<IntegrationCollection>]
+public class ProductTests
 {
     private readonly IIdentityServiceHttpClient _identityServiceHttpClient;
     private readonly IProductServiceHttpClient _productServiceHttpClient;
 
-    public ProductTests(ProductServiceFactory productServiceFactory, IdentityServiceFactory identityServiceFactory)
+    public ProductTests(IntegrationTestFixture integrationTestFixture)
     {
-        _productServiceHttpClient = productServiceFactory.HttpClient;
-        _identityServiceHttpClient = identityServiceFactory.HttpClient;
+        _productServiceHttpClient = integrationTestFixture.ProductServiceFactory.HttpClient;
+        _identityServiceHttpClient = integrationTestFixture.IdentityServiceFactory.HttpClient;
     }
 
     [Fact]

@@ -15,23 +15,23 @@ public class AdminServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLife
     public IAdminServiceHttpClient HttpClient = default!;
     private HttpMessageHandler _identityServiceHandler;
 
-    public AdminServiceFactory(HttpMessageHandler identityServiceHandler)
+    public AdminServiceFactory(HttpMessageHandler httpMessageHandler)
     {
-        _identityServiceHandler = identityServiceHandler;
+        _identityServiceHandler = httpMessageHandler;
     }
 
-    public Task InitializeAsync()
+    public ValueTask InitializeAsync()
     {
         _serviceScope = Services.CreateScope();
         ServiceProvider = _serviceScope.ServiceProvider;
         HttpClient = ServiceProvider.GetRequiredService<IAdminServiceHttpClient>();
-        return Task.CompletedTask;
+        return default;
     }
 
-    Task IAsyncLifetime.DisposeAsync()
+    public override ValueTask DisposeAsync()
     {
         _serviceScope.Dispose();
-        return Task.CompletedTask;
+        return default;
     }
 
     protected override void ConfigureWebHost(IWebHostBuilder builder)

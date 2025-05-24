@@ -14,7 +14,6 @@ using UserService.Data;
 
 namespace IntegrationTests;
 
-[Collection(nameof(ContainersFactoryCollectionDefinition))]
 public class RegisterTests :
     IClassFixture<IdentityServiceFactory>,
     IClassFixture<CustomerServiceFactory>,
@@ -35,14 +34,14 @@ public class RegisterTests :
         _testHarness = _customerServiceProvider.GetTestHarness();
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _testHarness.Start();
     }
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
-        return Task.CompletedTask;
+        return default;
     }
 
     [Fact]

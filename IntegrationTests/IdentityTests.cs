@@ -9,7 +9,7 @@ namespace IntegrationTests;
 
 extern alias AdminSUT;
 
-[Collection(nameof(IntegrationCollection))]
+[Collection<IntegrationCollection>]
 public class IdentityTests
 {
     private readonly IntegrationTestFixture _integrationTestFixture;
@@ -28,7 +28,8 @@ public class IdentityTests
         var roleName = TestDataGenerator.GenerateString();
         var roleDescription = TestDataGenerator.GenerateString();
         var newRole =
-            await _integrationTestFixture.AdminServiceFactory.HttpClient.CreateRole(new CreateRoleRequestDto(roleName, roleDescription));
+            await _integrationTestFixture.AdminServiceFactory.HttpClient.CreateRole(
+                new CreateRoleRequestDto(roleName, roleDescription));
         newRole.Should().NotBeNull();
 
         var roleAssigned =
@@ -37,10 +38,13 @@ public class IdentityTests
         roleAssigned.Should().NotBeNull();
         roleAssigned.Success.Should().BeTrue();
 
-        var client = (await _integrationTestFixture.IdentityServiceFactory.KeycloakClient.GetClientsAsync("master", q: "account")).First();
+        var client =
+            (await _integrationTestFixture.IdentityServiceFactory.KeycloakClient
+                .GetClientsAsync("master", q: "account", cancellationToken: TestContext.Current.CancellationToken))
+            .First();
         var userRoles =
             await _integrationTestFixture.IdentityServiceFactory.KeycloakClient.GetClientRoleMappingsForUserAsync(
-                "master", newUserId, client.Id);
+                "master", newUserId, client.Id, TestContext.Current.CancellationToken);
         userRoles.Select(x => x.Name).Should().Contain(roleName);
     }
 
