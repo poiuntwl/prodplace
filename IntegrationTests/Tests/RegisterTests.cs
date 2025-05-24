@@ -12,7 +12,7 @@ using Microsoft.Extensions.DependencyInjection;
 using UserService.Consumers;
 using UserService.Data;
 
-namespace IntegrationTests;
+namespace IntegrationTests.Tests;
 
 public class RegisterTests :
     IClassFixture<IdentityServiceFactory>,

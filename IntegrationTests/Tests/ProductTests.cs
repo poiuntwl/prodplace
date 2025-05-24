@@ -1,12 +1,10 @@
 ﻿extern alias ProductsServiceSUT;
-using System.Text.Json;
 using FluentAssertions;
 using IdentityService.Dtos;
 using IntegrationTests.Factories;
 using IntegrationTests.HttpClients;
-using ProductsServiceSUT::ProductsService.Dtos.Product;
 
-namespace IntegrationTests;
+namespace IntegrationTests.Tests;
 
 [Collection<IntegrationCollection>]
 public class ProductTests

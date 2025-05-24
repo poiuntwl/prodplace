@@ -5,7 +5,7 @@ using IdentityService.Dtos;
 using IntegrationTests.Factories;
 using Keycloak.Net.Models.Users;
 
-namespace IntegrationTests;
+namespace IntegrationTests.Tests;
 
 extern alias AdminSUT;
 
