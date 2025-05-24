@@ -12,11 +12,11 @@ extern alias AdminSUT;
 [Collection<IntegrationCollection>]
 public class IdentityTests
 {
-    private readonly IntegrationTestFixture _integrationTestFixture;
+    private readonly BaseIntegrationTestFixture _baseIntegrationTestFixture;
 
-    public IdentityTests(IntegrationTestFixture integrationTestFixture)
+    public IdentityTests(BaseIntegrationTestFixture baseIntegrationTestFixture)
     {
-        _integrationTestFixture = integrationTestFixture;
+        _baseIntegrationTestFixture = baseIntegrationTestFixture;
     }
 
     [Fact]
@@ -28,22 +28,22 @@ public class IdentityTests
         var roleName = TestDataGenerator.GenerateString();
         var roleDescription = TestDataGenerator.GenerateString();
         var newRole =
-            await _integrationTestFixture.AdminServiceFactory.HttpClient.CreateRole(
+            await _baseIntegrationTestFixture.AdminServiceFactory.HttpClient.CreateRole(
                 new CreateRoleRequestDto(roleName, roleDescription));
         newRole.Should().NotBeNull();
 
         var roleAssigned =
-            await _integrationTestFixture.AdminServiceFactory.HttpClient.AssignRole(
+            await _baseIntegrationTestFixture.AdminServiceFactory.HttpClient.AssignRole(
                 new AssignRoleRequestDto(newUserId, roleName));
         roleAssigned.Should().NotBeNull();
         roleAssigned.Success.Should().BeTrue();
 
         var client =
-            (await _integrationTestFixture.IdentityServiceFactory.KeycloakClient
+            (await _baseIntegrationTestFixture.IdentityServiceFactory.KeycloakClient
                 .GetClientsAsync("master", q: "account", cancellationToken: TestContext.Current.CancellationToken))
             .First();
         var userRoles =
-            await _integrationTestFixture.IdentityServiceFactory.KeycloakClient.GetClientRoleMappingsForUserAsync(
+            await _baseIntegrationTestFixture.IdentityServiceFactory.KeycloakClient.GetClientRoleMappingsForUserAsync(
                 "master", newUserId, client.Id, TestContext.Current.CancellationToken);
         userRoles.Select(x => x.Name).Should().Contain(roleName);
     }
@@ -58,7 +58,7 @@ public class IdentityTests
             LastName = TestDataGenerator.GenerateLastName()
         };
 
-        var response = await _integrationTestFixture.IdentityServiceFactory.KeycloakClient.CreateAndRetrieveUserIdAsync(
+        var response = await _baseIntegrationTestFixture.IdentityServiceFactory.KeycloakClient.CreateAndRetrieveUserIdAsync(
             "master", new User
             {
                 Email = registerDto.Email,

@@ -16,14 +16,12 @@ using ProductsServiceSUT::ProductsService;
 using ProductsServiceSUT::ProductsService.Data;
 using Respawn;
 using Testcontainers.MongoDb;
-using Testcontainers.RabbitMq;
 
 namespace IntegrationTests.Factories;
 
 public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLifetime
 {
     private readonly MongoDbContainer _dbContainer;
-    private RabbitMqContainer _rabbitMqContainer;
     private Respawner _respawner = default!;
     private AsyncServiceScope _serviceScope;
     public IProductServiceHttpClient HttpClient = default!;
@@ -35,7 +33,6 @@ public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLi
             .WithImage("mongo:7.0.14")
             .WithCleanUp(true)
             .Build();
-        _rabbitMqContainer = perseveranceFactory.RabbitMqContainer;
     }
 
     public async ValueTask InitializeAsync()

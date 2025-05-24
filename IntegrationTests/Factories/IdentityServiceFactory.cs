@@ -36,7 +36,7 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
     public KeycloakClient KeycloakClient = null!;
     public HttpMessageHandler GrpcHandler { get; private set; } = null!;
     private readonly string _jwtSecret;
-    private string _keycloakBaseUrl;
+    private string _keycloakBaseUrl = null!;
 
     public IdentityServiceFactory(PerseveranceFactory perseveranceFactory)
     {
@@ -198,10 +198,9 @@ public static class SecretGenerator
 
         const string validChars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
         var result = new StringBuilder(length);
-
         var randomBytes = new byte[length];
 
-        using (var rng = new RNGCryptoServiceProvider())
+        using (var rng = RandomNumberGenerator.Create())
         {
             rng.GetBytes(randomBytes);
         }

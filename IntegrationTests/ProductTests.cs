@@ -14,10 +14,10 @@ public class ProductTests
     private readonly IIdentityServiceHttpClient _identityServiceHttpClient;
     private readonly IProductServiceHttpClient _productServiceHttpClient;
 
-    public ProductTests(IntegrationTestFixture integrationTestFixture)
+    public ProductTests(BaseIntegrationTestFixture baseIntegrationTestFixture)
     {
-        _productServiceHttpClient = integrationTestFixture.ProductServiceFactory.HttpClient;
-        _identityServiceHttpClient = integrationTestFixture.IdentityServiceFactory.HttpClient;
+        _productServiceHttpClient = baseIntegrationTestFixture.ProductServiceFactory.HttpClient;
+        _identityServiceHttpClient = baseIntegrationTestFixture.IdentityServiceFactory.HttpClient;
     }
 
     [Fact]
