@@ -95,7 +95,7 @@
       args:
         PROJECT_NAME: CustomerService
     depends_on:
-      customer-db:
+      customers-db:
         condition: service_healthy
     networks:
       - prodplace
@@ -103,18 +103,18 @@
       - ASPNETCORE_ENVIRONMENT=Development
       - PROJECT_NAME=CustomerService
 
-  playground-service:
-    image: playground-service
-    build:
-      context: .
-      dockerfile: ./PlaygroundService/Dockerfile
-      args:
-        PROJECT_NAME: PlaygroundService
-    depends_on:
-      redis-cache:
-        condition: service_healthy
-    networks:
-      - prodplace
-    environment:
-      - ASPNETCORE_ENVIRONMENT=Docker
-      - PROJECT_NAME=PlaygroundService
+#  playground-service:
+#    image: playground-service
+#    build:
+#      context: .
+#      dockerfile: ./PlaygroundService/Dockerfile
+#      args:
+#        PROJECT_NAME: PlaygroundService
+#    depends_on:
+#      redis-cache:
+#        condition: service_healthy
+#    networks:
+#      - prodplace
+#    environment:
+#      - ASPNETCORE_ENVIRONMENT=Docker
+#      - PROJECT_NAME=PlaygroundService

@@ -1,23 +1,22 @@
 ﻿extern alias ProductsServiceSUT;
-using System.Text.Json;
 using FluentAssertions;
 using IdentityService.Dtos;
 using IntegrationTests.Factories;
 using IntegrationTests.HttpClients;
-using ProductsServiceSUT::ProductsService.Dtos.Product;
+using IntegrationTests.Utils;
 
-namespace IntegrationTests;
+namespace IntegrationTests.Tests;
 
-[Collection(nameof(ContainersFactoryCollectionDefinition))]
-public class ProductTests : IClassFixture<ProductServiceFactory>, IClassFixture<IdentityServiceFactory>
+[Collection<BaseIntegrationCollection>]
+public class ProductTests
 {
     private readonly IIdentityServiceHttpClient _identityServiceHttpClient;
     private readonly IProductServiceHttpClient _productServiceHttpClient;
 
-    public ProductTests(ProductServiceFactory productServiceFactory, IdentityServiceFactory identityServiceFactory)
+    public ProductTests(BaseIntegrationTestFixture baseIntegrationTestFixture)
     {
-        _productServiceHttpClient = productServiceFactory.HttpClient;
-        _identityServiceHttpClient = identityServiceFactory.HttpClient;
+        _productServiceHttpClient = baseIntegrationTestFixture.ProductServiceFactory.HttpClient;
+        _identityServiceHttpClient = baseIntegrationTestFixture.IdentityServiceFactory.HttpClient;
     }
 
     [Fact]

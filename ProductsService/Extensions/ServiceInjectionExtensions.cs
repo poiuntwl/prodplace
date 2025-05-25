@@ -1,4 +1,6 @@
 ﻿using Microsoft.EntityFrameworkCore;
+using OpenTelemetry.Resources;
+using OpenTelemetry.Trace;
 using ProductsService.Data;
 using ProductsService.Helpers;
 using ProductsService.Interfaces;
@@ -45,5 +47,26 @@ public static class ServiceInjectionExtensions
         app.UseMiddleware<RoleValidationMiddleware>();
 
         return app;
+    }
+
+    public static IServiceCollection AddOpenTelemetryConfiguration(
+        this IServiceCollection services,
+        string serviceName,
+        string serviceVersion)
+    {
+        var resourceBuilder = ResourceBuilder
+            .CreateDefault()
+            .AddService(serviceName: serviceName, serviceVersion: serviceVersion);
+
+        services
+            .AddOpenTelemetry()
+            .WithTracing(tracerProviderBuilder =>
+                tracerProviderBuilder
+                    .SetResourceBuilder(resourceBuilder)
+                    .AddAspNetCoreInstrumentation()
+                    .AddHttpClientInstrumentation()
+                    .AddConsoleExporter());
+
+        return services;
     }
 }

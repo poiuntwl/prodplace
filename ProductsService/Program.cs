@@ -1,5 +1,7 @@
 using AuthTools;
 using FluentValidation;
+using ProdPlace.Telemetry;
+using ProductsService;
 using ProductsService.Handlers.PreProcessors;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -26,6 +28,8 @@ s.AddValidatorsFromAssemblyContaining<Program>();
 
 s.AddProductServices();
 s.AddValidationMiddleware();
+
+s.AddSharedOpenTelemetry("ProductsService", "1.0", builder.Configuration, typeof(IAppMarker));
 
 var app = builder.Build();
 

@@ -4,6 +4,7 @@ using IdentityService.Dtos;
 using IdentityService.Services;
 using IntegrationTests.Factories;
 using IntegrationTests.HttpClients;
+using IntegrationTests.Utils;
 using Keycloak.Net;
 using MassTransit.Testing;
 using MessagingTools.Contracts;
@@ -12,12 +13,10 @@ using Microsoft.Extensions.DependencyInjection;
 using UserService.Consumers;
 using UserService.Data;
 
-namespace IntegrationTests;
+namespace IntegrationTests.Tests;
 
-[Collection(nameof(ContainersFactoryCollectionDefinition))]
+[Collection<BaseIntegrationCollection>]
 public class RegisterTests :
-    IClassFixture<IdentityServiceFactory>,
-    IClassFixture<CustomerServiceFactory>,
     IAsyncLifetime
 {
     private readonly IServiceProvider _customerServiceProvider;
@@ -26,23 +25,23 @@ public class RegisterTests :
     private readonly ITestHarness _testHarness;
     private readonly KeycloakClient _keycloakClient;
 
-    public RegisterTests(IdentityServiceFactory identityServiceFactory, CustomerServiceFactory customerServiceFactory)
+    public RegisterTests(BaseIntegrationTestFixture baseIntegrationTestFixture)
     {
-        _identityHttpClient = identityServiceFactory.HttpClient;
-        _customerServiceProvider = customerServiceFactory.ServiceProvider;
-        _identityServiceScope = identityServiceFactory.ServiceProvider;
-        _keycloakClient = identityServiceFactory.KeycloakClient;
+        _identityHttpClient = baseIntegrationTestFixture.IdentityServiceFactory.HttpClient;
+        _customerServiceProvider = baseIntegrationTestFixture.CustomerServiceFactory.ServiceProvider;
+        _identityServiceScope = baseIntegrationTestFixture.IdentityServiceFactory.ServiceProvider;
+        _keycloakClient = baseIntegrationTestFixture.IdentityServiceFactory.KeycloakClient;
         _testHarness = _customerServiceProvider.GetTestHarness();
     }
 
-    public async Task InitializeAsync()
+    public async ValueTask InitializeAsync()
     {
         await _testHarness.Start();
     }
 
-    public Task DisposeAsync()
+    public ValueTask DisposeAsync()
     {
-        return Task.CompletedTask;
+        return default;
     }
 
     [Fact]
@@ -53,7 +52,8 @@ public class RegisterTests :
         await WaitUntilAllMessagesProcessedAsync();
 
         var consumerTestHarness = _testHarness.GetConsumerHarness<OutboxMessagePostedConsumer>();
-        var anyMessages = await consumerTestHarness.Consumed.Any<OutboxMessagePostedEvent>();
+        var anyMessages =
+            await consumerTestHarness.Consumed.Any<OutboxMessagePostedEvent>(TestContext.Current.CancellationToken);
         anyMessages.Should().BeTrue();
 
         var customerDbContext = _customerServiceProvider.GetRequiredService<AppDbContext>();
@@ -67,15 +67,16 @@ public class RegisterTests :
         var user = await RegisterUserAsync();
 
         await WaitUntilAllMessagesProcessedAsync();
-        var keycloakService = _identityServiceScope.GetRequiredService<IKeycloakService>();
 
-        var users = await _keycloakClient.GetUsersAsync("master");
+        var users = await _keycloakClient.GetUsersAsync("master",
+            cancellationToken: TestContext.Current.CancellationToken);
         var userId = users.SingleOrDefault(x => x.Email == user.Email)?.Id;
         userId.Should().NotBeNull();
 
-        await keycloakService.AssignRoleAsync(userId, RoleNames.Manager, CancellationToken.None);
+        var keycloakService = _identityServiceScope.GetRequiredService<IKeycloakService>();
+        await keycloakService.AssignRoleAsync(userId, RoleNames.Manager, TestContext.Current.CancellationToken, forClient: false);
 
-        var roles = await _keycloakClient.GetRoleMappingsForUserAsync("master", userId, CancellationToken.None);
+        var roles = await _keycloakClient.GetRoleMappingsForUserAsync("master", userId, TestContext.Current.CancellationToken);
         var mappedRoleNames = roles.RealmMappings.Select(x => x.Name);
         mappedRoleNames.Should().Contain(RoleNames.Manager);
     }
@@ -92,6 +93,7 @@ public class RegisterTests :
 
         var response = await _identityHttpClient.Register(registerDto);
         response.Should().NotBeNull();
+        
         response!.Email.Should().Be(registerDto.Email);
         return response;
     }

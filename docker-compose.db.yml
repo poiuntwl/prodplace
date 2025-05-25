@@ -4,42 +4,40 @@
       context: ./dbs/products
       dockerfile: ./Dockerfile
     environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=Password123!!
-      - SA_PASSWORD=Password123!!
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=Password123!!
+      - POSTGRES_DB=productsDb
     ports:
-      - "5400:1433"
+      - "5400:5432"
     networks:
       - prodplace
     volumes:
-      - products-db-data:/var/opt/mssql
+      - products-db-data:/var/lib/postgresql/data
     healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "IF DB_ID('ProductsDB') IS NOT NULL SELECT 1 ELSE SELECT 0" || exit 1
+      test: [ "CMD-SHELL", "pg_isready -U admin -d productsDb" ]
       interval: 5s
-      retries: 15
-      start_period: 10s
-      timeout: 3s
+      timeout: 5s
+      retries: 5
 
   currencies-db:
     build:
       context: ./dbs/currencies
       dockerfile: ./Dockerfile
     environment:
-      - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=Password123!!
-      - SA_PASSWORD=Password123!!
+      - POSTGRES_USER=admin
+      - POSTGRES_PASSWORD=Password123!!
+      - POSTGRES_DB=currenciesDb
     ports:
-      - "5401:1433"
+      - "5401:5432"
     networks:
       - prodplace
     volumes:
-      - currencies-db-data:/var/opt/mssql
+      - currencies-db-data:/var/lib/postgresql/data
     healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "IF DB_ID('CurrencyRatesDB') IS NOT NULL and DB_ID('HangfireDB') IS NOT NULL SELECT 1 ELSE SELECT 0" || exit 1
+      test: [ "CMD-SHELL", "pg_isready -U admin -d currenciesDb" ]
       interval: 5s
-      retries: 15
-      start_period: 10s
-      timeout: 3s
+      timeout: 5s
+      retries: 5
 
   identity-db:
     build:

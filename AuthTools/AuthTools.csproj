@@ -7,9 +7,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Keycloak.Net.Core" Version="1.0.32" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.1" />
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.1" />
+        <PackageReference Include="Keycloak.Net.Core" Version="1.0.34" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.5" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
     </ItemGroup>
 
     <ItemGroup>
@@ -21,7 +21,6 @@
         <None Update="shared.settings.Development.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </None>
-        <EmbeddedResource Include="shared.settings.Development.json" />
     </ItemGroup>
 
 </Project>
