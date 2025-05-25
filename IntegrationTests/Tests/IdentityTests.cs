@@ -10,7 +10,7 @@ namespace IntegrationTests.Tests;
 
 extern alias AdminSUT;
 
-[Collection<IntegrationCollection>]
+[Collection<BaseIntegrationCollection>]
 public class IdentityTests
 {
     private readonly BaseIntegrationTestFixture _baseIntegrationTestFixture;

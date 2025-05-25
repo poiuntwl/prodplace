@@ -1,4 +1,4 @@
 ﻿namespace IntegrationTests.Factories;
 
-[CollectionDefinition(nameof(IntegrationCollection))]
-public class IntegrationCollection : ICollectionFixture<BaseIntegrationTestFixture>;
+[CollectionDefinition(nameof(BaseIntegrationCollection))]
+public class BaseIntegrationCollection : ICollectionFixture<BaseIntegrationTestFixture>;

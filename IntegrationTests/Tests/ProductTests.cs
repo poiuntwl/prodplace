@@ -7,7 +7,7 @@ using IntegrationTests.Utils;
 
 namespace IntegrationTests.Tests;
 
-[Collection<IntegrationCollection>]
+[Collection<BaseIntegrationCollection>]
 public class ProductTests
 {
     private readonly IIdentityServiceHttpClient _identityServiceHttpClient;

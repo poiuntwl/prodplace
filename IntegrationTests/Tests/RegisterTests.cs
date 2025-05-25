@@ -15,9 +15,8 @@ using UserService.Data;
 
 namespace IntegrationTests.Tests;
 
+[Collection<BaseIntegrationCollection>]
 public class RegisterTests :
-    IClassFixture<IdentityServiceFactory>,
-    IClassFixture<CustomerServiceFactory>,
     IAsyncLifetime
 {
     private readonly IServiceProvider _customerServiceProvider;
@@ -26,12 +25,12 @@ public class RegisterTests :
     private readonly ITestHarness _testHarness;
     private readonly KeycloakClient _keycloakClient;
 
-    public RegisterTests(IdentityServiceFactory identityServiceFactory, CustomerServiceFactory customerServiceFactory)
+    public RegisterTests(BaseIntegrationTestFixture baseIntegrationTestFixture)
     {
-        _identityHttpClient = identityServiceFactory.HttpClient;
-        _customerServiceProvider = customerServiceFactory.ServiceProvider;
-        _identityServiceScope = identityServiceFactory.ServiceProvider;
-        _keycloakClient = identityServiceFactory.KeycloakClient;
+        _identityHttpClient = baseIntegrationTestFixture.IdentityServiceFactory.HttpClient;
+        _customerServiceProvider = baseIntegrationTestFixture.CustomerServiceFactory.ServiceProvider;
+        _identityServiceScope = baseIntegrationTestFixture.IdentityServiceFactory.ServiceProvider;
+        _keycloakClient = baseIntegrationTestFixture.IdentityServiceFactory.KeycloakClient;
         _testHarness = _customerServiceProvider.GetTestHarness();
     }
 

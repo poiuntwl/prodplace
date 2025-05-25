@@ -1,4 +1,5 @@
-﻿using IntegrationTests.Factories;
+﻿using System.Diagnostics;
+using IntegrationTests.Factories;
 
 namespace IntegrationTests;
 
