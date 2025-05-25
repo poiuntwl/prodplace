@@ -53,7 +53,8 @@ public class RegisterTests :
         await WaitUntilAllMessagesProcessedAsync();
 
         var consumerTestHarness = _testHarness.GetConsumerHarness<OutboxMessagePostedConsumer>();
-        var anyMessages = await consumerTestHarness.Consumed.Any<OutboxMessagePostedEvent>();
+        var anyMessages =
+            await consumerTestHarness.Consumed.Any<OutboxMessagePostedEvent>(TestContext.Current.CancellationToken);
         anyMessages.Should().BeTrue();
 
         var customerDbContext = _customerServiceProvider.GetRequiredService<AppDbContext>();
@@ -68,14 +69,15 @@ public class RegisterTests :
 
         await WaitUntilAllMessagesProcessedAsync();
 
-        var users = await _keycloakClient.GetUsersAsync("master");
+        var users = await _keycloakClient.GetUsersAsync("master",
+            cancellationToken: TestContext.Current.CancellationToken);
         var userId = users.SingleOrDefault(x => x.Email == user.Email)?.Id;
         userId.Should().NotBeNull();
 
         var keycloakService = _identityServiceScope.GetRequiredService<IKeycloakService>();
-        await keycloakService.AssignRoleAsync(userId, RoleNames.Manager, CancellationToken.None);
+        await keycloakService.AssignRoleAsync(userId, RoleNames.Manager, TestContext.Current.CancellationToken, forClient: false);
 
-        var roles = await _keycloakClient.GetRoleMappingsForUserAsync("master", userId, CancellationToken.None);
+        var roles = await _keycloakClient.GetRoleMappingsForUserAsync("master", userId, TestContext.Current.CancellationToken);
         var mappedRoleNames = roles.RealmMappings.Select(x => x.Name);
         mappedRoleNames.Should().Contain(RoleNames.Manager);
     }
@@ -92,6 +94,7 @@ public class RegisterTests :
 
         var response = await _identityHttpClient.Register(registerDto);
         response.Should().NotBeNull();
+        
         response!.Email.Should().Be(registerDto.Email);
         return response;
     }
