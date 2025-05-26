@@ -40,10 +40,7 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
 
     public IdentityServiceFactory(PerseveranceFactory perseveranceFactory)
     {
-        _dbContainer = new MsSqlBuilder()
-            .WithImage("mcr.microsoft.com/mssql/server:2022-CU13-ubuntu-22.04")
-            .WithCleanUp(true)
-            .Build();
+        _dbContainer = perseveranceFactory.IdentityDbContainer;
         _rabbitMqContainer = perseveranceFactory.RabbitMqContainer;
         _keycloakContainer = perseveranceFactory.KeyCloakContainer;
         _jwtSecret = SecretGenerator.GenerateSecret(32);
@@ -51,7 +48,6 @@ public class IdentityServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
 
     public async ValueTask InitializeAsync()
     {
-        await _dbContainer.StartAsync();
         await InitRespawner();
         _serviceScope = Services.CreateAsyncScope();
         ServiceProvider = _serviceScope.ServiceProvider;

@@ -25,16 +25,12 @@ public class CustomerServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncL
 
     public CustomerServiceFactory(PerseveranceFactory perseveranceFactory)
     {
-        _dbContainer = new PostgreSqlBuilder()
-            .WithImage("postgres:17-alpine")
-            .WithCleanUp(true)
-            .Build();
+        _dbContainer = perseveranceFactory.CustomerDbContainer;
         _rabbitMqContainer = perseveranceFactory.RabbitMqContainer;
     }
 
     public async ValueTask InitializeAsync()
     {
-        await _dbContainer.StartAsync();
         HttpClient = CreateClient();
         await InitRespawnerAsync();
         _serviceScope = Services.CreateAsyncScope();

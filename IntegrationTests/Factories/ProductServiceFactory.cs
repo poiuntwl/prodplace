@@ -29,15 +29,11 @@ public class ProductServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLi
 
     public ProductServiceFactory(PerseveranceFactory perseveranceFactory)
     {
-        _dbContainer = new MongoDbBuilder()
-            .WithImage("mongo:7.0.14")
-            .WithCleanUp(true)
-            .Build();
+        _dbContainer = perseveranceFactory.ProductDbContainer;
     }
 
     public async ValueTask InitializeAsync()
     {
-        await _dbContainer.StartAsync();
         _serviceScope = Services.CreateAsyncScope();
         ServiceProvider = _serviceScope.ServiceProvider;
         HttpClient = ServiceProvider.GetRequiredService<IProductServiceHttpClient>();
