@@ -17,27 +17,35 @@ public class PricesRepository : IPricesRepository
     public async Task<bool> UpdatePriceAsync(int productId, decimal priceAmount, CancellationToken ct,
         bool createIfNotExists = false)
     {
-        var filterDef = Builders<PriceModel>.Filter.Eq(p => p.ProductId, productId);
-        var updateDef = Builders<PriceModel>.Update
+        var filter = Builders<PriceModel>.Filter.Eq(p => p.ProductId, productId);
+        var currentDoc = await _dbContext.Prices
+            .Find(filter)
+            .Project(p => new { p.Amount, p.UpdatedAt })
+            .FirstOrDefaultAsync(ct);
+
+        // Skip update if amount hasn't changed
+        if (currentDoc != null && currentDoc.Amount == priceAmount)
+            return true;
+
+        var update = Builders<PriceModel>.Update
             .Set(x => x.Amount, priceAmount)
             .Set(x => x.UpdatedAt, DateTime.UtcNow);
-        var updateOptions = new UpdateOptions
-        {
-            IsUpsert = createIfNotExists
-        };
+        
+        var options = new UpdateOptions { IsUpsert = createIfNotExists };
 
         try
         {
-            var updateResult = await _dbContext.Prices.UpdateOneAsync(
-                filterDef,
-                updateDef,
-                updateOptions,
+            var result = await _dbContext.Prices.UpdateOneAsync(
+                filter,
+                update,
+                options,
                 ct);
 
-            return updateResult.IsAcknowledged
-                   && (updateResult.ModifiedCount > 0 || (createIfNotExists && updateResult.UpsertedId != null));
+            return result.IsAcknowledged && 
+                   (result.ModifiedCount > 0 || 
+                    (createIfNotExists && result.UpsertedId != null));
         }
-        catch (MongoException e)
+        catch (MongoException)
         {
             return false;
         }
@@ -46,30 +54,33 @@ public class PricesRepository : IPricesRepository
     public async Task<bool> UpdatePriceOldAsync(int productId, decimal priceAmount, CancellationToken ct,
         bool createIfNotExists = false)
     {
-        var filterDef = Builders<ProductModel>.Filter.Eq(p => p.Id, productId);
-        var updateDef = Builders<ProductModel>.Update
-            .Set(x => x.Price, priceAmount);
-        var updateOptions = new UpdateOptions
-        {
-            IsUpsert = createIfNotExists
-        };
+        var filter = Builders<ProductModel>.Filter.Eq(p => p.Id, productId);
+        var update = Builders<ProductModel>.Update.Set(x => x.Price, priceAmount);
+        var options = new UpdateOptions { IsUpsert = createIfNotExists };
 
         try
         {
-            var updateResult = await _dbContext.Products.UpdateOneAsync(
-                filterDef,
-                updateDef,
-                updateOptions,
+            // Check existing value first
+            var currentPrice = await _dbContext.Products
+                .Find(filter)
+                .Project(p => p.Price)
+                .FirstOrDefaultAsync(ct);
+
+            if (currentPrice == priceAmount)
+                return true;
+
+            var result = await _dbContext.Products.UpdateOneAsync(
+                filter, 
+                update, 
+                options, 
                 ct);
 
-            if (updateResult.ModifiedCount != 0)
-            {
-                return true;
-            }
-
-            return updateResult is { IsAcknowledged: true, MatchedCount: > 0 };
+            return result.IsAcknowledged && 
+                   (result.ModifiedCount > 0 || 
+                    result.MatchedCount > 0 || 
+                    result.UpsertedId != null);
         }
-        catch (MongoException e)
+        catch (MongoException)
         {
             return false;
         }
