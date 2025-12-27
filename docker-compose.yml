@@ -1,14 +1,18 @@
-﻿services:
+﻿include:
+  - docker-compose.db.yml
+  - docker-compose.app.yml
+
+services:
   rbmq:
     image: rabbitmq:3-management
     ports:
-      - "5672:5672"
+      - "5472:5672"
       - "15672:15672"
     volumes:
       - rabbitmq-data:/var/lib/rabbitmq
     environment:
-      - RABBITMQ_DEFAULT_USER=admin
-      - RABBITMQ_DEFAULT_PASS=password
+      - RABBITMQ_DEFAULT_USER=${RABBITMQ_DEFAULT_USER}
+      - RABBITMQ_DEFAULT_PASS=${RABBITMQ_DEFAULT_PASS}
     networks:
       - prodplace
     healthcheck:
@@ -19,13 +23,16 @@
 
   keycloak:
     image: prodplace-keycloak-prebuilt:latest
+    build:
+      context: ./keycloak-prebuilt
+      dockerfile: Dockerfile
     ports:
       - "8080:8080"
     environment:
-      KEYCLOAK_ADMIN: admin
-      KEYCLOAK_ADMIN_PASSWORD: admin
-      KC_DB_USERNAME: keycloak_db_user
-      KC_DB_PASSWORD: keycloak_db_user_password
+      KEYCLOAK_ADMIN: ${KEYCLOAK_ADMIN}
+      KEYCLOAK_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+      KC_DB_USERNAME: ${KC_DB_USERNAME}
+      KC_DB_PASSWORD: ${KC_DB_PASSWORD}
       KC_HOSTNAME: localhost
     networks:
       - prodplace
@@ -33,15 +40,14 @@
     depends_on:
       - keycloak-db
 
-
   keycloak-db:
     image: postgres:17-alpine
     volumes:
       - keycloak-data:/var/lib/postgresql/data
     environment:
       POSTGRES_DB: keycloak_db
-      POSTGRES_USER: keycloak_db_user
-      POSTGRES_PASSWORD: keycloak_db_user_password
+      POSTGRES_USER: ${KC_DB_USERNAME}
+      POSTGRES_PASSWORD: ${KC_DB_PASSWORD}
     networks:
       - prodplace
 

@@ -7,8 +7,9 @@ namespace ProductsService.Models.DatabaseModels;
 public class PurchaseModel
 {
     [Key] public int Id { get; set; }
-    [ForeignKey("Product")] public int ProductId { get; set; }
-    [Required] public ProductModel Product { get; set; }
+    [Column(TypeName = "nvarchar(50)")]
+    public string ProductId { get; set; } = string.Empty;
+    // Removed navigation property to ProductModel as it is a Mongo entity
     [ForeignKey("Customer")] public int CustomerId { get; set; }
     [Required] public CustomerModel Customer { get; set; }
 

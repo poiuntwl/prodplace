@@ -12,7 +12,7 @@ using ProductsService.Data;
 namespace ProductsService.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    [Migration("20240617191124_Init")]
+    [Migration("20251227000558_Init")]
     partial class Init
     {
         /// <inheritdoc />
@@ -20,12 +20,12 @@ namespace ProductsService.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.6")
+                .HasAnnotation("ProductVersion", "9.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
-            modelBuilder.Entity("ProductsService.Models.Customer", b =>
+            modelBuilder.Entity("ProductsService.Models.DatabaseModels.CustomerModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -53,35 +53,7 @@ namespace ProductsService.Migrations
                     b.ToTable("Customers");
                 });
 
-            modelBuilder.Entity("ProductsService.Models.Product", b =>
-                {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("int");
-
-                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<int>("Id"));
-
-                    b.Property<string>("CustomFields")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Description")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)");
-
-                    b.Property<string>("Name")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(20)");
-
-                    b.Property<decimal>("Price")
-                        .HasColumnType("decimal(18,2)");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Products");
-                });
-
-            modelBuilder.Entity("ProductsService.Models.Purchase", b =>
+            modelBuilder.Entity("ProductsService.Models.DatabaseModels.PurchaseModel", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -92,35 +64,29 @@ namespace ProductsService.Migrations
                     b.Property<int>("CustomerId")
                         .HasColumnType("int");
 
-                    b.Property<int>("ProductId")
-                        .HasColumnType("int");
+                    b.Property<string>("ProductId")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<DateTime>("PurchaseTime")
+                        .HasColumnType("datetime2(2)");
 
                     b.HasKey("Id");
 
                     b.HasIndex("CustomerId");
 
-                    b.HasIndex("ProductId");
-
                     b.ToTable("Purchases");
                 });
 
-            modelBuilder.Entity("ProductsService.Models.Purchase", b =>
+            modelBuilder.Entity("ProductsService.Models.DatabaseModels.PurchaseModel", b =>
                 {
-                    b.HasOne("ProductsService.Models.Customer", "Customer")
+                    b.HasOne("ProductsService.Models.DatabaseModels.CustomerModel", "Customer")
                         .WithMany()
                         .HasForeignKey("CustomerId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("ProductsService.Models.Product", "Product")
-                        .WithMany()
-                        .HasForeignKey("ProductId")
-                        .OnDelete(DeleteBehavior.Cascade)
-                        .IsRequired();
-
                     b.Navigation("Customer");
-
-                    b.Navigation("Product");
                 });
 #pragma warning restore 612, 618
         }

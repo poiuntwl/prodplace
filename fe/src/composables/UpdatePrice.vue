@@ -22,7 +22,6 @@ const submitForm = async () => {
     const options = {
       method: 'PUT',
       headers: {
-        Authorization: 'Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWVlbWFpbEBnbWFpbC5jb20iLCJnaXZlbl9uYW1lIjoic29tZV91c2VybmFtZSIsInN1YiI6IjE4NWZkOWFjLTA2YmUtNGIzMS05OWRlLTZiZDA0ZWY5NjQ4YSIsIm5iZiI6MTcyODQyMDEyOSwiZXhwIjoxNzI5MDI0OTI5LCJpYXQiOjE3Mjg0MjAxMjksImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NDQzMDQiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjQ0MzA0In0.I0qmJTPbk4rlXnogTiK9TIuXfeVsgEJ7TqU0OCxHxeofeO2uYV_p_XWWNKNDwUoKSKjw5CUx1tcr3dfzDz2jjg',
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
@@ -31,14 +30,11 @@ const submitForm = async () => {
       }),
     };
 
-    console.log(JSON.stringify({
-      id: formData.value.productId,
-      price: +formData.value.price,
-    }));
-
-    const response = await fetch('https://localhost:44300/api/products/price', options);
+    // Use Proxy URL
+    const response = await fetch('http://localhost:44303/api/products/price', options);
     if (!response.ok) {
-      throw new Error(`Http Error. Status: ${response.data}`);
+      // Log the status text if available
+      throw new Error(`Http Error. Status: ${response.status} ${response.statusText}`);
     }
 
     await fetchData();
@@ -46,7 +42,7 @@ const submitForm = async () => {
     formData.value.price = 0;
     store.commit('setSelectedId', null);
   } catch (error) {
-    console.log('Error submitting form: ', error);
+    // console.log('Error submitting form: ', error);
   }
 };
 
@@ -55,8 +51,8 @@ const submitForm = async () => {
 <template>
   <div>
     <form @submit.prevent="submitForm">
-      <input v-model="formData.productId" placeholder="product id"/>
-      <input v-model="formData.price" placeholder="price"/>
+      <input v-model="formData.productId" placeholder="product id" aria-label="Product ID"/>
+      <input v-model="formData.price" placeholder="price" aria-label="New Price"/>
       <button type="submit" :disabled="loading">Update Price</button>
     </form>
     <button @click="fetchData" :disabled="loading">{{ buttonText }}</button>

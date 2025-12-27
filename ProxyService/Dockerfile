@@ -7,7 +7,7 @@ WORKDIR /src
 COPY ["./${PROJECT_NAME}/${PROJECT_NAME}.csproj", "${PROJECT_NAME}/"]
 COPY ["./AuthTools/AuthTools.csproj", "AuthTools/"]
 RUN dotnet restore "${PROJECT_NAME}/${PROJECT_NAME}.csproj"
-COPY ./AuthTools ./AuthTools
+COPY ./AuthTools/ ./AuthTools/
 WORKDIR "/src/${PROJECT_NAME}"
 COPY ./${PROJECT_NAME} .
 RUN dotnet build "${PROJECT_NAME}.csproj" -c Release -o /app/build

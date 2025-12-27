@@ -28,20 +28,20 @@ namespace ProductsService.Migrations
                 });
 
             migrationBuilder.CreateTable(
-                name: "Orders",
+                name: "Purchases",
                 columns: table => new
                 {
                     Id = table.Column<int>(type: "int", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    ProductId = table.Column<int>(type: "int", nullable: false),
+                    ProductId = table.Column<string>(type: "nvarchar(50)", nullable: false),
                     CustomerId = table.Column<int>(type: "int", nullable: false),
-                    OrderedAt = table.Column<DateTime>(type: "datetime2(2)", nullable: false)
+                    PurchaseTime = table.Column<DateTime>(type: "datetime2(2)", nullable: false)
                 },
                 constraints: table =>
                 {
-                    table.PrimaryKey("PK_Orders", x => x.Id);
+                    table.PrimaryKey("PK_Purchases", x => x.Id);
                     table.ForeignKey(
-                        name: "FK_Orders_Customers_CustomerId",
+                        name: "FK_Purchases_Customers_CustomerId",
                         column: x => x.CustomerId,
                         principalTable: "Customers",
                         principalColumn: "Id",
@@ -49,21 +49,16 @@ namespace ProductsService.Migrations
                 });
 
             migrationBuilder.CreateIndex(
-                name: "IX_Orders_CustomerId",
-                table: "Orders",
+                name: "IX_Purchases_CustomerId",
+                table: "Purchases",
                 column: "CustomerId");
-
-            migrationBuilder.CreateIndex(
-                name: "IX_Orders_ProductId",
-                table: "Orders",
-                column: "ProductId");
         }
 
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.DropTable(
-                name: "Orders");
+                name: "Purchases");
 
             migrationBuilder.DropTable(
                 name: "Customers");

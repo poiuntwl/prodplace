@@ -30,15 +30,34 @@ export const store = createStore<ProductsTableState>({
       commit('setLoading', true);
       commit('setError', null);
       try {
-        const options = {
-          method: 'GET',
-          headers: {
-            Authorization: 'Bearer eyJhbGciOiJIUzUxMiIsInR5cCI6IkpXVCJ9.eyJlbWFpbCI6InNvbWVlbWFpbEBnbWFpbC5jb20iLCJnaXZlbl9uYW1lIjoic29tZV91c2VybmFtZSIsInN1YiI6IjE4NWZkOWFjLTA2YmUtNGIzMS05OWRlLTZiZDA0ZWY5NjQ4YSIsIm5iZiI6MTcyODQyMDEyOSwiZXhwIjoxNzI5MDI0OTI5LCJpYXQiOjE3Mjg0MjAxMjksImlzcyI6Imh0dHA6Ly9sb2NhbGhvc3Q6NDQzMDQiLCJhdWQiOiJodHRwOi8vbG9jYWxob3N0OjQ0MzA0In0.I0qmJTPbk4rlXnogTiK9TIuXfeVsgEJ7TqU0OCxHxeofeO2uYV_p_XWWNKNDwUoKSKjw5CUx1tcr3dfzDz2jjg',
-          },
-        };
-        const response = await fetch('https://localhost:44300/api/products/', options);
+        const response = await fetch('http://localhost:44303/api/products/');
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
         const data = await response.json() as Product[];
         commit('setData', data);
+      } catch (error) {
+        commit('setError', (error as Error).message);
+      } finally {
+        commit('setLoading', false);
+      }
+    },
+    async createProduct(
+      { commit, dispatch },
+      product: { name: string, description: string, price: number },
+    ) {
+      commit('setLoading', true);
+      commit('setError', null);
+      try {
+        const options = {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(product),
+        };
+        const response = await fetch('http://localhost:44303/api/products/', options);
+        if (!response.ok) throw new Error(`HTTP error! status: ${response.status}`);
+
+        await dispatch('fetchData');
       } catch (error) {
         commit('setError', (error as Error).message);
       } finally {

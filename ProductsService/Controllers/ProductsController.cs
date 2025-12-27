@@ -12,7 +12,7 @@ using ProductsService.Mappers;
 namespace ProductsService.Controllers;
 
 [ApiController, Route("/api")]
-[Authorize]
+[AllowAnonymous] // For development simplicity
 public class ProductsController : ControllerBase
 {
     private readonly IMediator _mediator;
@@ -42,7 +42,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost]
-    [Authorize(Roles = RoleNames.Manager)]
+    // [Authorize(Roles = RoleNames.Manager)]
     public async Task<IActionResult> Create([FromBody] CreateProductRequestDto createDto, CancellationToken ct)
     {
         try
@@ -57,7 +57,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPut("price")]
-    [Authorize(Roles = RoleNames.Manager)]
+    // [Authorize(Roles = RoleNames.Manager)]
     public async Task<IActionResult> UpdatePrice([FromBody] UpdateProductPriceRequestDto dto, CancellationToken ct)
     {
         await _mediator.Send(new UpdateProductPriceRequest(ObjectId.Parse(dto.Id), dto.Price), ct);
@@ -65,7 +65,7 @@ public class ProductsController : ControllerBase
     }
 
     [HttpPost("upload"), Consumes("application/json")]
-    [Authorize(Roles = RoleNames.Manager)]
+    // [Authorize(Roles = RoleNames.Manager)]
     public async Task<IActionResult> UploadBulk(CancellationToken ct)
     {
         try

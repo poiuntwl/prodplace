@@ -46,6 +46,6 @@ app.MapControllers();
 app.MapHealthChecks("/api/health");
 app.UseAuthentication();
 app.UseAuthorization();
-app.UseValidationMiddleware();
+// app.UseValidationMiddleware();
 
 app.Run();

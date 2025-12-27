@@ -5,9 +5,14 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG PROJECT_NAME
 WORKDIR /src
 COPY ["./${PROJECT_NAME}/${PROJECT_NAME}.csproj", "${PROJECT_NAME}/"]
+COPY ["./AuthTools/AuthTools.csproj", "AuthTools/"]
 COPY ["./ProdPlace.MongoDbTools/ProdPlace.MongoDbTools.csproj", "ProdPlace.MongoDbTools/"]
+COPY ["./ProdPlace.Telemetry/ProdPlace.Telemetry.csproj", "ProdPlace.Telemetry/"]
 RUN dotnet restore "${PROJECT_NAME}/${PROJECT_NAME}.csproj"
-COPY ./ProdPlace.MongoDbTools ./ProdPlace.MongoDbTools
+COPY ./AuthTools/ ./AuthTools/
+COPY ./ProdPlace.MongoDbTools/ ./ProdPlace.MongoDbTools/
+COPY ./ProdPlace.Telemetry/ ./ProdPlace.Telemetry/
+COPY ./ProdPlace.Grpc/ ./ProdPlace.Grpc/
 WORKDIR "/src/${PROJECT_NAME}"
 COPY ./${PROJECT_NAME} .
 RUN dotnet build "${PROJECT_NAME}.csproj" -c Release -o /app/build

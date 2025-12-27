@@ -9,6 +9,9 @@ mongo/data
 /data
 ProdPlace.sln.DotSettings.user
 
+# Environment files with secrets
+.env
+
 fe/.DS_Store
 fe/node_modules
 fe//dist

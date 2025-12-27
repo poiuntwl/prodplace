@@ -7,7 +7,7 @@ WORKDIR /src
 COPY ["./${PROJECT_NAME}/${PROJECT_NAME}.csproj", "${PROJECT_NAME}/"]
 COPY ["./ProdPlace.MongoDbTools/ProdPlace.MongoDbTools.csproj", "ProdPlace.MongoDbTools/"]
 RUN dotnet restore "${PROJECT_NAME}/${PROJECT_NAME}.csproj"
-COPY ./ProdPlace.MongoDbTools ./ProdPlace.MongoDbTools
+COPY ./ProdPlace.MongoDbTools/ ./ProdPlace.MongoDbTools/
 WORKDIR "/src/${PROJECT_NAME}"
 COPY ./${PROJECT_NAME} .
 RUN dotnet build "${PROJECT_NAME}.csproj" -c Release -o /app/build

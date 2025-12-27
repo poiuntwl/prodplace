@@ -10,7 +10,7 @@ public class AppDbContext : DbContext
     {
     }
 
-    public DbSet<ProductModel> Products { get; set; }
+
     public DbSet<PurchaseModel> Purchases { get; set; }
     public DbSet<CustomerModel> Customers { get; set; }
 }

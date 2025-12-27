@@ -4,40 +4,44 @@
       context: ./dbs/products
       dockerfile: ./Dockerfile
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=Password123!!
-      - POSTGRES_DB=productsDb
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - SA_PASSWORD=${SA_PASSWORD}
     ports:
-      - "5400:5432"
+      - "5400:1433"
     networks:
       - prodplace
     volumes:
-      - products-db-data:/var/lib/postgresql/data
+      - products-db-data:/var/opt/mssql
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U admin -d productsDb" ]
+      test: /opt/mssql-tools18/bin/sqlcmd -S localhost -U sa -P "$${SA_PASSWORD}" -C -Q "SELECT 1" || exit 1
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 20
+      start_period: 15s
+    profiles: ["db", "full"]
 
   currencies-db:
     build:
       context: ./dbs/currencies
       dockerfile: ./Dockerfile
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=Password123!!
-      - POSTGRES_DB=currenciesDb
+      - ACCEPT_EULA=Y
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - SA_PASSWORD=${SA_PASSWORD}
     ports:
-      - "5401:5432"
+      - "5401:1433"
     networks:
       - prodplace
     volumes:
-      - currencies-db-data:/var/lib/postgresql/data
+      - currencies-db-data:/var/opt/mssql
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U admin -d currenciesDb" ]
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$${SA_PASSWORD}" -Q "SELECT 1" || exit 1
       interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 20
+      start_period: 15s
+    profiles: ["db", "full"]
 
   identity-db:
     build:
@@ -45,8 +49,8 @@
       dockerfile: ./Dockerfile
     environment:
       - ACCEPT_EULA=Y
-      - MSSQL_SA_PASSWORD=Password123!!
-      - SA_PASSWORD=Password123!!
+      - MSSQL_SA_PASSWORD=${MSSQL_SA_PASSWORD}
+      - SA_PASSWORD=${SA_PASSWORD}
     ports:
       - "5402:1433"
     networks:
@@ -54,19 +58,18 @@
     volumes:
       - identity-db-data:/var/opt/mssql
     healthcheck:
-      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$$SA_PASSWORD" -Q "SELECT 1" || exit 1
+      test: /opt/mssql-tools/bin/sqlcmd -S localhost -U sa -P "$${SA_PASSWORD}" -Q "SELECT 1" || exit 1
       interval: 5s
       retries: 15
       start_period: 10s
       timeout: 3s
+    profiles: ["db", "full"]
 
   orders-db:
-    build:
-      context: ./dbs/orders
-      dockerfile: ./Dockerfile
+    image: postgres:17-alpine
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=Password123!!
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=ordersDb
     ports:
       - "5403:5432"
@@ -75,18 +78,17 @@
     volumes:
       - orders-data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U admin -d ordersDb" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d ordersDb" ]
       interval: 5s
       timeout: 5s
       retries: 5
+    profiles: ["db", "full"]
 
   customers-db:
-    build:
-      context: ./dbs/users
-      dockerfile: ./Dockerfile
+    image: postgres:17-alpine
     environment:
-      - POSTGRES_USER=admin
-      - POSTGRES_PASSWORD=Password123!!
+      - POSTGRES_USER=${POSTGRES_USER}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
       - POSTGRES_DB=customersDb
     ports:
       - "5404:5432"
@@ -95,18 +97,19 @@
     volumes:
       - customers-data:/var/lib/postgresql/data
     healthcheck:
-      test: [ "CMD-SHELL", "pg_isready -U admin -d customersDb" ]
+      test: [ "CMD-SHELL", "pg_isready -U ${POSTGRES_USER} -d customersDb" ]
       interval: 5s
       timeout: 5s
       retries: 5
+    profiles: ["db", "full"]
 
   mongodb:
     build:
       context: ./mongo
       dockerfile: ./Dockerfile
     environment:
-      - MONGO_INITDB_ROOT_USERNAME=admin
-      - MONGO_INITDB_ROOT_PASSWORD=adminpassword
+      - MONGO_INITDB_ROOT_USERNAME=${MONGO_INITDB_ROOT_USERNAME}
+      - MONGO_INITDB_ROOT_PASSWORD=${MONGO_INITDB_ROOT_PASSWORD}
     ports:
       - "27017:27017"
     volumes:
@@ -119,6 +122,7 @@
       timeout: 10s
       retries: 5
       start_period: 10s
+    profiles: ["db", "full"]
 
   redis-cache:
     build:
@@ -136,3 +140,7 @@
       timeout: 10s
       retries: 5
       start_period: 10s
+    profiles: ["db", "full"]
+
+
+# Note: volumes and networks are defined in docker-compose.yml (parent file)

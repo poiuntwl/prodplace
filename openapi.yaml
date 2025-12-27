@@ -1,0 +1,196 @@
+openapi: 3.0.3
+info:
+  title: ProdPlace API
+  description: Comprehensive API documentation for the ProdPlace e-commerce system, accessed through the Reverse Proxy.
+  version: 1.0.0
+servers:
+  - url: http://localhost:44303
+    description: Local Reverse Proxy (YARP)
+paths:
+  /api/products/:
+    get:
+      summary: List all products
+      description: Returns a list of all products from the Products Service.
+      responses:
+        '200':
+          description: A list of products
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Product'
+    post:
+      summary: Create a product
+      description: Adds a new product to the system. Requires Manager role.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateProductRequest'
+      responses:
+        '201':
+          description: Product created
+        '400':
+          description: Validation error
+        '401':
+          description: Unauthorized
+
+  /api/products/{id}:
+    get:
+      summary: Get product by ID
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+          description: The MongoDB ObjectId of the product
+      responses:
+        '200':
+          description: Successful operation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Product'
+        '404':
+          description: Product not found
+
+  /api/products/price:
+    put:
+      summary: Update product price
+      description: Updates the price of an existing product. Requires Manager role.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/UpdateProductPriceRequest'
+      responses:
+        '200':
+          description: Price updated
+        '401':
+          description: Unauthorized
+
+  /api/products/upload:
+    post:
+      summary: Bulk upload products
+      description: Uploads a JSON array of products for bulk creation/update. Requires Manager role.
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                $ref: '#/components/schemas/Product'
+      responses:
+        '200':
+          description: Bulk upload result
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  created:
+                    type: integer
+                  updated:
+                    type: integer
+
+  /api/price/{productId}/{priceAmount}:
+    put:
+      summary: Directly update price in Price Service
+      parameters:
+        - name: productId
+          in: path
+          required: true
+          schema:
+            type: integer
+        - name: priceAmount
+          in: path
+          required: true
+          schema:
+            type: number
+            format: decimal
+      responses:
+        '200':
+          description: Success
+
+  /api/currency-rates/{codes}:
+    get:
+      summary: Get currency rates
+      description: Returns rates for specified comma-separated currency codes (e.g., USD,EUR).
+      parameters:
+        - name: codes
+          in: path
+          required: true
+          schema:
+            type: string
+          description: Comma-separated currency codes
+      responses:
+        '200':
+          description: List of rates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  rates:
+                    type: object
+                    additionalProperties:
+                      type: number
+                      nullable: true
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  schemas:
+    Product:
+      type: object
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        customFields:
+          type: object
+          additionalProperties:
+            type: string
+    CreateProductRequest:
+      type: object
+      required:
+        - name
+        - price
+      properties:
+        name:
+          type: string
+        description:
+          type: string
+        price:
+          type: number
+        customFields:
+          type: string
+    UpdateProductPriceRequest:
+      type: object
+      required:
+        - id
+        - price
+      properties:
+        id:
+          type: string
+        price:
+          type: number

@@ -9,10 +9,11 @@
     networks:
       - prodplace
     environment:
-      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_ENVIRONMENT=docker
       - PROJECT_NAME=ProxyService
     ports:
       - "44303:8080"
+    profiles: ["app", "full"]
 
   products-service:
     image: products-service
@@ -37,8 +38,9 @@
     networks:
       - prodplace
     environment:
-      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_ENVIRONMENT=docker
       - PROJECT_NAME=ProductsService
+    profiles: ["app", "full"]
 
   price-service:
     image: price-service
@@ -50,8 +52,9 @@
     networks:
       - prodplace
     environment:
-      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_ENVIRONMENT=docker
       - PROJECT_NAME=PriceService
+    profiles: ["app", "full"]
 
   currency-rates-service:
     image: currency-rates-service
@@ -68,8 +71,9 @@
     networks:
       - prodplace
     environment:
-      - ASPNETCORE_ENVIRONMENT=Docker
+      - ASPNETCORE_ENVIRONMENT=docker
       - PROJECT_NAME=CurrencyRatesService
+    profiles: ["app", "full"]
 
   identity-service:
     image: identity-service
@@ -84,8 +88,9 @@
     networks:
       - prodplace
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=docker
       - PROJECT_NAME=IdentityService
+    profiles: ["app", "full"]
 
   customer-service:
     image: customer-service
@@ -100,21 +105,20 @@
     networks:
       - prodplace
     environment:
-      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_ENVIRONMENT=docker
       - PROJECT_NAME=CustomerService
+    profiles: ["app", "full"]
 
-#  playground-service:
-#    image: playground-service
-#    build:
-#      context: .
-#      dockerfile: ./PlaygroundService/Dockerfile
-#      args:
-#        PROJECT_NAME: PlaygroundService
-#    depends_on:
-#      redis-cache:
-#        condition: service_healthy
-#    networks:
-#      - prodplace
-#    environment:
-#      - ASPNETCORE_ENVIRONMENT=Docker
-#      - PROJECT_NAME=PlaygroundService
+  frontend:
+    image: prodplace-frontend
+    build:
+      context: ./fe
+      dockerfile: Dockerfile
+    ports:
+      - "12345:12345"
+    networks:
+      - prodplace
+    profiles: ["app", "full"]
+
+
+# Note: networks are defined in docker-compose.yml (parent file)

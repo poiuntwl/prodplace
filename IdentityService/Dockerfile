@@ -5,9 +5,14 @@ FROM mcr.microsoft.com/dotnet/sdk:9.0 AS build
 ARG PROJECT_NAME
 WORKDIR /src
 COPY ["./${PROJECT_NAME}/${PROJECT_NAME}.csproj", "${PROJECT_NAME}/"]
+COPY ["./AuthTools/AuthTools.csproj", "AuthTools/"]
 COPY ["./CommonModels/CommonModels.csproj", "CommonModels/"]
+COPY ["./MessagingTools/MessagingTools.csproj", "MessagingTools/"]
 RUN dotnet restore "${PROJECT_NAME}/${PROJECT_NAME}.csproj"
-COPY ./CommonModels ./CommonModels
+COPY ./AuthTools/ ./AuthTools/
+COPY ./CommonModels/ ./CommonModels/
+COPY ./MessagingTools/ ./MessagingTools/
+COPY ./ProdPlace.Grpc/ ./ProdPlace.Grpc/
 WORKDIR "/src/${PROJECT_NAME}"
 COPY ./${PROJECT_NAME} .
 RUN dotnet build "${PROJECT_NAME}.csproj" -c Release -o /app/build
@@ -22,6 +27,10 @@ ARG PROJECT_NAME
 WORKDIR /app
 COPY --from=publish /app/publish .
 COPY --from=build /src /src
+
+# Install EF Core tools
+RUN dotnet tool install --global dotnet-ef --version 8.0.6
+ENV PATH="$PATH:/root/.dotnet/tools"
 
 # Copy entrypoint script and ensure it uses LF line endings
 COPY ./${PROJECT_NAME}/entrypoint.sh /app/entrypoint.sh
