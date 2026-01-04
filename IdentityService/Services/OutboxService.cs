@@ -1,5 +1,4 @@
 ﻿using System.Text.Json;
-using System.Transactions;
 using IdentityService.Data;
 using IdentityService.Models;
 
@@ -21,8 +20,6 @@ public class OutboxService : IOutboxService
 
     public async Task<OutboxMessage> CreateOutboxMessageAsync(string messageType, object content, CancellationToken ct)
     {
-        using var txs = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-
         var msg = new OutboxMessage
         {
             Id = Guid.NewGuid(),
@@ -33,7 +30,6 @@ public class OutboxService : IOutboxService
 
         await _dbContext.OutboxMessages.AddAsync(msg, ct);
         await _dbContext.SaveChangesAsync(ct);
-        txs.Complete();
 
         return msg;
     }

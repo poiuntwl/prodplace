@@ -25,7 +25,15 @@ public static class HttpClientExtensions
                 new StringContent(JsonSerializer.Serialize(body), Encoding.UTF8, MediaTypeNames.Application.Json);
 
         using var response = await httpClient.SendAsync(httpRequestMessage);
-        return await response.Content.ReadAsStringAsync();
+        var responseContent = await response.Content.ReadAsStringAsync();
+        
+        if (!response.IsSuccessStatusCode)
+        {
+            throw new HttpRequestException(
+                $"Request to {url} failed with status {(int)response.StatusCode} ({response.ReasonPhrase}). Response: {responseContent}");
+        }
+        
+        return responseContent;
     }
 
     public static async Task<T?> SendRequestAsync<T>(this HttpClient httpClient, string url,

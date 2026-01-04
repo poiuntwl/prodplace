@@ -1,5 +1,4 @@
-﻿using System.Transactions;
-using AuthTools.Constants;
+﻿using AuthTools.Constants;
 using CommonModels.OutboxModels;
 using IdentityService.Dtos;
 using IdentityService.Exceptions;
@@ -33,58 +32,44 @@ public class UserService : IUserService
 
     public async Task<UserDataResult> SignInAsync(RegisterDto registerDto, CancellationToken ct)
     {
-        using var scope = new TransactionScope(TransactionScopeAsyncFlowOption.Enabled);
-
-        try
+        var userId = await _keycloakService.RegisterAsync(registerDto, ct);
+        if (userId == null)
         {
-            var userId = await _keycloakService.RegisterAsync(registerDto, ct);
-            if (userId == null)
-            {
-                throw new RegisterUserException();
-            }
+            throw new RegisterUserException();
+        }
 
-            var existingRole = await _keycloakService.GetRoleByNameAsync(RoleNames.User, ct, forClient: false);
-            if (existingRole == null)
-            {
-                throw new RegisterUserException(["No user role exists."]);
-            }
+        var existingRole = await _keycloakService.GetRoleByNameAsync(RoleNames.User, ct, forClient: false);
+        if (existingRole == null)
+        {
+            throw new RegisterUserException(["No user role exists."]);
+        }
 
-            await _keycloakService.AssignRoleAsync(userId, RoleNames.User, ct, forClient: false);
+        await _keycloakService.AssignRoleAsync(userId, RoleNames.User, ct, forClient: false);
 
-            var userDataResult = new UserDataResult
+        var userDataResult = new UserDataResult
+        {
+            UserId = userId,
+            Email = registerDto.Email,
+            Token = _tokenService.CreateToken(new CreateTokenDto
             {
-                UserId = userId,
                 Email = registerDto.Email,
-                Token = _tokenService.CreateToken(new CreateTokenDto
-                {
-                    Email = registerDto.Email,
-                    Password = registerDto.Password,
-                    UserId = userId
-                })
-            };
+                Password = registerDto.Password,
+                UserId = userId
+            })
+        };
 
-            var eventData = new UserCreatedEventData
-            {
-                Email = userDataResult.Email,
-                LastName = null
-            };
-            var message = await _outboxService.CreateOutboxMessageAsync("identity.registerUser", eventData, ct);
-            await _publishEndpoint.Publish(new OutboxMessagePostedEvent
-            {
-                OutboxMessage = message
-            }, ct);
-
-            scope.Complete();
-
-            return userDataResult;
-        }
-        catch (Exception e)
+        var eventData = new UserCreatedEventData
         {
-            throw new RegisterUserException(new List<string>
-            {
-                e.Message
-            });
-        }
+            Email = userDataResult.Email,
+            LastName = null
+        };
+        var message = await _outboxService.CreateOutboxMessageAsync("identity.registerUser", eventData, ct);
+        await _publishEndpoint.Publish(new OutboxMessagePostedEvent
+        {
+            OutboxMessage = message
+        }, ct);
+
+        return userDataResult;
     }
 
     public async Task<Token> LoginUserAsync(LoginDto loginDto, CancellationToken ct)

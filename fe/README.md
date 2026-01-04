@@ -2,22 +2,22 @@
 
 ## Project setup
 ```
-pnpm install
+bun install
 ```
 
 ### Compiles and hot-reloads for development
 ```
-pnpm run serve
+bun run serve
 ```
 
 ### Compiles and minifies for production
 ```
-pnpm run build
+bun run build
 ```
 
 ### Lints and fixes files
 ```
-pnpm run lint
+bun run lint
 ```
 
 ### Customize configuration
