@@ -42,36 +42,4 @@ public class PricesRepository : IPricesRepository
             return false;
         }
     }
-
-    public async Task<bool> UpdatePriceOldAsync(int productId, decimal priceAmount, CancellationToken ct,
-        bool createIfNotExists = false)
-    {
-        var filterDef = Builders<ProductModel>.Filter.Eq(p => p.Id, productId);
-        var updateDef = Builders<ProductModel>.Update
-            .Set(x => x.Price, priceAmount);
-        var updateOptions = new UpdateOptions
-        {
-            IsUpsert = createIfNotExists
-        };
-
-        try
-        {
-            var updateResult = await _dbContext.Products.UpdateOneAsync(
-                filterDef,
-                updateDef,
-                updateOptions,
-                ct);
-
-            if (updateResult.ModifiedCount != 0)
-            {
-                return true;
-            }
-
-            return updateResult is { IsAcknowledged: true, MatchedCount: > 0 };
-        }
-        catch (MongoException e)
-        {
-            return false;
-        }
-    }
 }

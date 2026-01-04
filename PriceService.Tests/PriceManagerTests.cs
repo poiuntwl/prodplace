@@ -23,7 +23,7 @@ public class PriceManagerTests
         // Arrange
         var productId = 123;
         var price = 99.99m;
-        _mockRepository.UpdatePriceOldAsync(productId, price, Arg.Any<CancellationToken>(), Arg.Any<bool>())
+        _mockRepository.UpdatePriceAsync(productId, price, Arg.Any<CancellationToken>(), Arg.Any<bool>())
             .Returns(true);
 
         // Act
@@ -31,7 +31,7 @@ public class PriceManagerTests
 
         // Assert
         result.Should().BeTrue();
-        await _mockRepository.Received(1).UpdatePriceOldAsync(productId, price, Arg.Any<CancellationToken>(), Arg.Any<bool>());
+        await _mockRepository.Received(1).UpdatePriceAsync(productId, price, Arg.Any<CancellationToken>(), Arg.Any<bool>());
     }
 
     [Fact]
@@ -40,7 +40,7 @@ public class PriceManagerTests
         // Arrange
         var productId = 123;
         var price = 99.99m;
-        _mockRepository.UpdatePriceOldAsync(productId, price, Arg.Any<CancellationToken>(), Arg.Any<bool>())
+        _mockRepository.UpdatePriceAsync(productId, price, Arg.Any<CancellationToken>(), Arg.Any<bool>())
             .Returns(false);
 
         // Act
@@ -59,7 +59,7 @@ public class PriceManagerTests
     {
         // Arrange
         var price = 50.00m;
-        _mockRepository.UpdatePriceOldAsync(productId, price, Arg.Any<CancellationToken>(), Arg.Any<bool>())
+        _mockRepository.UpdatePriceAsync(productId, price, Arg.Any<CancellationToken>(), Arg.Any<bool>())
             .Returns(true);
 
         // Act
@@ -77,7 +77,7 @@ public class PriceManagerTests
     {
         // Arrange
         var productId = 1;
-        _mockRepository.UpdatePriceOldAsync(productId, price, Arg.Any<CancellationToken>(), Arg.Any<bool>())
+        _mockRepository.UpdatePriceAsync(productId, price, Arg.Any<CancellationToken>(), Arg.Any<bool>())
             .Returns(true);
 
         // Act

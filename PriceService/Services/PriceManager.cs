@@ -18,6 +18,6 @@ public class PriceManager : IPriceManager
 
     public async Task<bool> SetPriceAsync(int productId, decimal price, CancellationToken ct)
     {
-        return await _pricesRepository.UpdatePriceOldAsync(productId, price, ct);
+        return await _pricesRepository.UpdatePriceAsync(productId, price, ct);
     }
 }
