@@ -3,6 +3,7 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
+    "dev": "vue-cli-service serve",
     "serve": "vue-cli-service serve",
     "build": "vue-cli-service build",
     "lint": "vue-cli-service lint"
@@ -11,6 +12,12 @@
     "core-js": "^3.42.0",
     "vue": "^3.5.15",
     "vuex": "^4.1.0"
+  },
+  "overrides": {
+    "follow-redirects": "1.15.6"
+  },
+  "resolutions": {
+    "follow-redirects": "1.15.6"
   },
   "devDependencies": {
     "@typescript-eslint/eslint-plugin": "^5.62.0",
