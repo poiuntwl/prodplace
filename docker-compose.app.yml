@@ -109,6 +109,38 @@
       - PROJECT_NAME=CustomerService
     profiles: ["app", "full"]
 
+  admin-service:
+    image: admin-service
+    build:
+      context: .
+      dockerfile: ./Prodplace.Admin/Dockerfile
+      args:
+        PROJECT_NAME: Prodplace.Admin
+    depends_on:
+      identity-service:
+        condition: service_started
+    networks:
+      - prodplace
+    environment:
+      - ASPNETCORE_ENVIRONMENT=docker
+      - PROJECT_NAME=Prodplace.Admin
+      - Grpc__IdentityServiceConnectionString=http://identity-service:8080
+      - Services__CurrencyRatesService=http://currency-rates-service:8080
+    ports:
+      - "44304:8080"
+    profiles: ["app", "full"]
+
+  backoffice-web:
+    image: backoffice-web
+    build:
+      context: ./backoffice-web
+      dockerfile: Dockerfile
+    ports:
+      - "12346:12346"
+    networks:
+      - prodplace
+    profiles: ["app", "full"]
+
   frontend:
     image: prodplace-frontend
     build:

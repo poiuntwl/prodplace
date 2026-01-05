@@ -18,7 +18,6 @@
     </ItemGroup>
 
     <ItemGroup>
-      <ProjectReference Include="..\IdentityService\IdentityService.csproj" />
       <Protobuf Include="..\ProdPlace.Grpc\Protos\role_admin.proto" GrpcServices="Client" Link="Protos\role_admin.proto" />
     </ItemGroup>
 

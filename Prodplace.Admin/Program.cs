@@ -28,8 +28,21 @@ builder.Services.AddGrpcClient<RoleAdminService.RoleAdminServiceClient>((service
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddHttpClient();
+
+builder.Services.AddCors(options =>
+{
+    options.AddDefaultPolicy(policy =>
+    {
+        policy.AllowAnyOrigin()
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 
 var app = builder.Build();
+
+app.UseCors();
 app.MapControllers();
 
 // Configure the HTTP request pipeline.

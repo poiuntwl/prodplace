@@ -11,6 +11,7 @@ public interface IAdminServiceHttpClient : IDisposable
 {
     Task<CreateRoleDto?> CreateRole(CreateRoleRequestDto role);
     Task<AssignRoleDto?> AssignRole(AssignRoleRequestDto dto);
+    Task<string?> ForceCurrencyUpdate();
 }
 
 public class AdminServiceHttpClient : IAdminServiceHttpClient
@@ -43,4 +44,14 @@ public class AdminServiceHttpClient : IAdminServiceHttpClient
                })
                ?? throw new InvalidOperationException("Failed to deserialize response");
     }
+
+    public async Task<string?> ForceCurrencyUpdate()
+    {
+        var response = await _httpClient.PostAsync("/api/currencies/force-update", null);
+        var payload = await response.Content.ReadFromJsonAsync<CurrencyUpdateResponse>(
+            new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
+        return payload?.Message;
+    }
 }
+
+public record CurrencyUpdateResponse(string Message);

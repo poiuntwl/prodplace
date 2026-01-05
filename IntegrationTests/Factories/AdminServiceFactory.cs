@@ -2,6 +2,7 @@
 using AdminSUT::Prodplace.Admin;
 using AdminSUT::RoleAdmin;
 using IntegrationTests.HttpClients;
+using IntegrationTests.Utils;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.Extensions.DependencyInjection;
@@ -40,6 +41,9 @@ public class AdminServiceFactory : WebApplicationFactory<IAppMarker>, IAsyncLife
         {
             x.AddHttpClient<IAdminServiceHttpClient, AdminServiceHttpClient>(_ =>
                 new AdminServiceHttpClient(CreateClient()));
+
+            var currencyHandler = new StubHttpMessageHandler(_ => StubHttpMessageHandler.Ok());
+            x.AddSingleton<IHttpClientFactory>(new StubHttpClientFactory(currencyHandler));
 
             var descriptor = x.FirstOrDefault(y => y.ServiceType == typeof(RoleAdminService.RoleAdminServiceClient));
             if (descriptor is not null)

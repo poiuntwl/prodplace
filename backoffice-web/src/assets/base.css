@@ -1,0 +1,49 @@
+@import url('https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,700&family=Space+Grotesk:wght@400;500;600;700&display=swap');
+
+:root {
+  --pp-ink: #1f1a17;
+  --pp-muted: #5f564f;
+  --pp-sand: #f5efe6;
+  --pp-cream: #fbf8f2;
+  --pp-coral: #f07a4b;
+  --pp-teal: #0f6f66;
+  --pp-olive: #62734b;
+  --pp-line: rgba(31, 26, 23, 0.12);
+  --pp-shadow: 0 24px 60px rgba(20, 16, 12, 0.12);
+  --pp-radius-lg: 22px;
+  --pp-radius-md: 16px;
+  --pp-radius-sm: 12px;
+}
+
+*,
+*::before,
+*::after {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+html,
+body {
+  min-height: 100%;
+}
+
+body {
+  color: var(--pp-ink);
+  background: var(--pp-sand);
+  line-height: 1.6;
+  font-family: 'Space Grotesk', 'Segoe UI', system-ui, sans-serif;
+  font-size: 15px;
+  text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-family: 'Fraunces', 'Times New Roman', serif;
+  letter-spacing: -0.02em;
+}
