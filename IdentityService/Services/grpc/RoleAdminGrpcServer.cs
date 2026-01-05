@@ -96,4 +96,31 @@ public class RoleAdminGrpcServer : RoleAdminService.RoleAdminServiceBase
             Success = unassigned
         };
     }
+
+    public override async Task<ListRolesResponse> ListRoles(Empty request, ServerCallContext context)
+    {
+        var roles = await _roleService.GetRolesAsync(context.CancellationToken);
+        var response = new ListRolesResponse();
+        response.Roles.AddRange(roles.Select(role => new RoleInfo
+        {
+            Name = role.Name,
+            Description = role.Description
+        }));
+        return response;
+    }
+
+    public override async Task<ListUsersWithRolesResponse> ListUsersWithRoles(Empty request, ServerCallContext context)
+    {
+        var usersWithRoles = await _roleService.GetUsersWithRolesAsync(context.CancellationToken);
+        var response = new ListUsersWithRolesResponse();
+        response.Users.AddRange(usersWithRoles.Select(user => new UserWithRolesInfo
+        {
+            UserId = user.UserId,
+            Email = user.Email,
+            FirstName = user.FirstName,
+            LastName = user.LastName,
+            Roles = { user.Roles }
+        }));
+        return response;
+    }
 }

@@ -1,4 +1,4 @@
-﻿services:
+services:
   reverse-proxy:
     image: reverse-proxy
     build:
@@ -12,7 +12,7 @@
       - ASPNETCORE_ENVIRONMENT=docker
       - PROJECT_NAME=ProxyService
     ports:
-      - "44303:8080"
+      - "44300:8080"
     profiles: ["app", "full"]
 
   products-service:
@@ -40,6 +40,8 @@
     environment:
       - ASPNETCORE_ENVIRONMENT=docker
       - PROJECT_NAME=ProductsService
+    ports:
+      - "44301:8080"
     profiles: ["app", "full"]
 
   price-service:
@@ -54,6 +56,8 @@
     environment:
       - ASPNETCORE_ENVIRONMENT=docker
       - PROJECT_NAME=PriceService
+    ports:
+      - "44302:8080"
     profiles: ["app", "full"]
 
   currency-rates-service:
@@ -73,6 +77,8 @@
     environment:
       - ASPNETCORE_ENVIRONMENT=docker
       - PROJECT_NAME=CurrencyRatesService
+    ports:
+      - "44303:8080"
     profiles: ["app", "full"]
 
   identity-service:
@@ -90,6 +96,27 @@
     environment:
       - ASPNETCORE_ENVIRONMENT=docker
       - PROJECT_NAME=IdentityService
+    ports:
+      - "44304:8080"
+    profiles: ["app", "full"]
+
+  order-service:
+    image: order-service
+    build:
+      context: .
+      dockerfile: ./OrderService/Dockerfile
+      args:
+        PROJECT_NAME: OrderService
+    depends_on:
+      orders-db:
+        condition: service_healthy
+    networks:
+      - prodplace
+    environment:
+      - ASPNETCORE_ENVIRONMENT=docker
+      - PROJECT_NAME=OrderService
+    ports:
+      - "44305:8080"
     profiles: ["app", "full"]
 
   customer-service:
@@ -107,6 +134,8 @@
     environment:
       - ASPNETCORE_ENVIRONMENT=docker
       - PROJECT_NAME=CustomerService
+    ports:
+      - "44306:8080"
     profiles: ["app", "full"]
 
   admin-service:
@@ -127,7 +156,7 @@
       - Grpc__IdentityServiceConnectionString=http://identity-service:8080
       - Services__CurrencyRatesService=http://currency-rates-service:8080
     ports:
-      - "44304:8080"
+      - "44307:8080"
     profiles: ["app", "full"]
 
   backoffice-web:

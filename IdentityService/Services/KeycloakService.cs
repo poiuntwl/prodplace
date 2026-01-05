@@ -23,6 +23,8 @@ public interface IKeycloakService
     Task<IEnumerable<Role>> GetRolesForUserAsync(string userId, CancellationToken ct);
     Task<Role?> GetRoleByNameAsync(string name, CancellationToken ct, bool forClient = true);
     Task<IEnumerable<User>> GetUsersWithRoleAsync(string requestName, CancellationToken ct);
+    Task<IEnumerable<Role>> GetRolesAsync(CancellationToken ct);
+    Task<IEnumerable<User>> GetUsersAsync(CancellationToken ct);
 }
 
 public class KeycloakService : IKeycloakService
@@ -206,6 +208,67 @@ public class KeycloakService : IKeycloakService
             currentFirst += pageSize;
 
             await Task.Delay(100, ct);
+        }
+
+        return allUsers;
+    }
+
+    public async Task<IEnumerable<Role>> GetRolesAsync(CancellationToken ct)
+    {
+        var client = await GetClientAsync(ct);
+        const int pageSize = 100;
+        var allRoles = new List<Role>();
+        var currentFirst = 0;
+
+        while (true)
+        {
+            var roles = await _client.GetRolesAsync(_realmName, client.Id, currentFirst, pageSize, search: null, ct);
+            var rolesList = roles?.ToList() ?? new List<Role>();
+            if (rolesList.Count == 0)
+            {
+                break;
+            }
+
+            allRoles.AddRange(rolesList);
+            currentFirst += pageSize;
+        }
+
+        return allRoles;
+    }
+
+    public async Task<IEnumerable<User>> GetUsersAsync(CancellationToken ct)
+    {
+        const int pageSize = 100;
+        var allUsers = new List<User>();
+        var currentFirst = 0;
+
+        while (true)
+        {
+            var users = await _client.GetUsersAsync(
+                _realmName,
+                briefRepresentation: true,
+                email: null,
+                emailVerified: null,
+                enabled: null,
+                exact: null,
+                first: currentFirst,
+                firstName: null,
+                idpAlias: null,
+                idpUserId: null,
+                lastName: null,
+                max: pageSize,
+                q: null,
+                search: null,
+                username: null,
+                cancellationToken: ct);
+            var usersList = users?.ToList() ?? new List<User>();
+            if (usersList.Count == 0)
+            {
+                break;
+            }
+
+            allUsers.AddRange(usersList);
+            currentFirst += pageSize;
         }
 
         return allUsers;

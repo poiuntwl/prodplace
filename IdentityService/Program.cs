@@ -10,6 +10,8 @@ using Microsoft.EntityFrameworkCore;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 var s = builder.Services;
 s.AddRateLimiter(o => o.AddFixedWindowLimiter(policyName: "fixed", x =>
 {
@@ -38,6 +40,8 @@ s.AddHealthChecks()
     .AddCheck<KeycloakHealthCheck>("keycloak");
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 if (app.Environment.IsDevelopment())
 {

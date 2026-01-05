@@ -34,3 +34,5 @@ fe/*.ntvs*
 fe/*.njsproj
 fe/*.sln
 fe/*.sw?
+.aspire
+.claude

@@ -1,6 +1,8 @@
 using Keycloak.AuthServices.Authentication;
 
 var builder = WebApplication.CreateBuilder(args);
+
+builder.AddServiceDefaults();
 var services = builder.Services;
 
 services.AddKeycloakWebApiAuthentication(builder.Configuration);
@@ -13,6 +15,8 @@ services.AddCors(x => x.AddPolicy("VueCorsPolicy", y =>
         .WithOrigins("http://localhost:12345")));
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 app.UseAuthentication();
 app.UseAuthorization();

@@ -1,18 +1,8 @@
 <#
 .SYNOPSIS
-    Launches all Prodplace application services locally in separate windows.
-    Assumes infrastructure (Databases, RabbitMQ, Redis, Keycloak) is running (e.g., via Docker).
-
-.DESCRIPTION
-    This script starts the following services:
-    - ProductsService (HTTPS 44301)
-    - PriceService (HTTPS 44302)
-    - CurrencyRatesService (HTTPS 44303)
-    - IdentityService (HTTPS 44304)
-    - OrderService (HTTPS 44305)
-    - CustomerService (HTTPS 44306)
-    - ProxyService (HTTP 44300) - Matches Frontend Proxy Config
-    - Frontend (npm run serve) - via Vue CLI
+    Launches all Prodplace application services locally.
+    Supports Windows Terminal (wt.exe) for a tabbed experience.
+    Assumes infrastructure (Databases, RabbitMQ, Redis, Keycloak) is running.
 #>
 
 Write-Host "==========================================" -ForegroundColor Cyan
@@ -24,60 +14,124 @@ Write-Host "NOTE: This script assumes required infrastructure is running." -Fore
 Write-Host "If you have not started the databases/queues, please run:" -ForegroundColor Gray
 Write-Host "   docker-compose --profile db up -d" -ForegroundColor White
 Write-Host ""
-$response = Read-Host "Pres Enter to continue launch (or Ctrl+C to abort)"
 
-# Helper to start .NET Service
+# Check for Windows Terminal
+$UseWT = $false
+if (Get-Command "wt.exe" -ErrorAction SilentlyContinue) {
+    $UseWT = $true
+    Write-Host "Windows Terminal (wt.exe) detected. Launching in tabs." -ForegroundColor Green
+} else {
+    Write-Host "Windows Terminal not found. Launching in separate windows." -ForegroundColor Yellow
+}
+
+$response = Read-Host "Press Enter to continue launch (or Ctrl+C to abort)"
+
+# Store current path safely
+$CurrentDir = $PWD.Path
+
+# 2. Define Services
+
 function Start-DotNetService {
     param(
         [string]$ProjectParams,
         [string]$Urls,
-        [string]$Title
+        [string]$Title,
+        [string]$ExtraEnv = ""
     )
-    Write-Host "Starting $Title..." -ForegroundColor Green
-    # We set environment variables and use '-c Debug' to ensure debug mode.
-    # We use 'powershell -NoExit' to keep the window open so you can see logs/errors.
-    $Command = "`$env:ASPNETCORE_ENVIRONMENT='Development'; dotnet run $ProjectParams -c Debug --urls '$Urls'"
-    Start-Process -FilePath "powershell" -ArgumentList "-NoExit", "-Command", $Command -WorkingDirectory $PWD -WindowStyle Normal
+    # Return an object describing the service
+    return @{
+        Title = $Title
+        Color = "#16C60C" # Green
+        Cmd   = "$ExtraEnv`$env:ASPNETCORE_ENVIRONMENT='Development'; dotnet run $ProjectParams -c Debug --urls '$Urls'"
+    }
 }
 
-# 2. Launch Backend Services
-# ProductsService -> https://localhost:44301
-Start-DotNetService -ProjectParams "--project ProductsService" -Urls "https://localhost:44301" -Title "ProductsService"
+$Services = @()
 
-# PriceService -> https://localhost:44302
-Start-DotNetService -ProjectParams "--project PriceService" -Urls "https://localhost:44302" -Title "PriceService"
+# ProductsService
+$Services += Start-DotNetService -ProjectParams "--project ProductsService" -Urls "https://localhost:44301" -Title "ProductsService"
+$Services += Start-DotNetService -ProjectParams "--project PriceService" -Urls "https://localhost:44302" -Title "PriceService"
+$Services += Start-DotNetService -ProjectParams "--project CurrencyRatesService" -Urls "https://localhost:44303" -Title "CurrencyRatesService"
+$Services += Start-DotNetService -ProjectParams "--project IdentityService" -Urls "https://localhost:44304" -Title "IdentityService"
+$Services += Start-DotNetService -ProjectParams "--project OrderService" -Urls "https://localhost:44305" -Title "OrderService"
+$Services += Start-DotNetService -ProjectParams "--project CustomerService" -Urls "https://localhost:44306" -Title "CustomerService"
+$Services += Start-DotNetService -ProjectParams "--project Prodplace.Admin" -Urls "https://localhost:44307" -Title "AdminService" -ExtraEnv "`$env:Services__CurrencyRatesService='https://localhost:44303'; "
+$Services += Start-DotNetService -ProjectParams "--project ProxyService" -Urls "http://localhost:44300" -Title "ProxyService"
+# Override Proxy Color
+$Services[-1].Color = "#FFA500" 
 
-# CurrencyRatesService -> https://localhost:44303
-Start-DotNetService -ProjectParams "--project CurrencyRatesService" -Urls "https://localhost:44303" -Title "CurrencyRatesService"
-
-# IdentityService -> https://localhost:44304
-Start-DotNetService -ProjectParams "--project IdentityService" -Urls "https://localhost:44304" -Title "IdentityService"
-
-# OrderService -> https://localhost:44305
-Start-DotNetService -ProjectParams "--project OrderService" -Urls "https://localhost:44305" -Title "OrderService"
-
-# CustomerService -> https://localhost:44306
-Start-DotNetService -ProjectParams "--project CustomerService" -Urls "https://localhost:44306" -Title "CustomerService"
-
-# 3. Launch Proxy Service
-# Proxy listens on HTTP 44300 because standard Vue config proxies to http://localhost:44300
-Start-DotNetService -ProjectParams "--project ProxyService" -Urls "http://localhost:44300" -Title "ProxyService"
-
-# 4. Launch Frontend
-Write-Host "Starting Frontend (Vue.js)..." -ForegroundColor Green
+# Frontend
 if (Test-Path "fe") {
-    $FeCommand = "cd fe; bun install; bun run serve"
-    Start-Process -FilePath "powershell" -ArgumentList "-NoExit", "-Command", $FeCommand -WorkingDirectory $PWD -WindowStyle Normal
+    $Services += @{
+        Title = "Frontend"
+        Color = "#3b82f6"
+        Cmd   = "cd fe; bun install; bun run serve"
+    }
+}
+
+# Backoffice
+if (Test-Path "backoffice-web") {
+    $Services += @{
+        Title = "Backoffice"
+        Color = "#8b5cf6"
+        Cmd   = "cd backoffice-web; bun install; bun run dev --port 12346"
+    }
+}
+
+# 3. Execution Logic
+
+if ($UseWT) {
+    # Build the wt command arguments string
+    # Syntax: wt -w 0 new-tab ... ; new-tab ...
+    $WtArgs = @("-w", "0")
+    
+    foreach ($svc in $Services) {
+        # Construct arguments for this tab
+        # We use -d "$CurrentDir" to ensure we are in the repo root
+        # We use powershell -NoExit -Command "..." to keep window open
+        
+        # Escape double quotes in the command string for passing to WT
+        $SafeCmd = $svc.Cmd.Replace('"', '""') # Corrected escaping for double quotes within a double-quoted string
+        
+        # Add separator if not first (actually wt arguments are space separated, but commands separated by ';')
+        # However, passing as an array to Start-Process, we rely on WT parsing.
+        # The syntax `wt ; new-tab` allows chaining.
+        if ($WtArgs.Count -gt 2) { 
+            # If we already have commands (more than just -w 0), add the separator
+            $WtArgs += ";" 
+        }
+
+        $WtArgs += "new-tab"
+        $WtArgs += "--title", $svc.Title
+        $WtArgs += "--tabColor", $svc.Color
+        $WtArgs += "-d", "$CurrentDir"
+        $WtArgs += "powershell"
+        $WtArgs += "-NoExit"
+        $WtArgs += "-Command"
+        $WtArgs += "$SafeCmd"
+    }
+
+    Write-Host "Launching Windows Terminal..." -ForegroundColor Cyan
+    # Debug: Uncomment to see the raw arguments
+    # Write-Host ($WtArgs -join " ") -ForegroundColor DarkGray
+    
+    Start-Process "wt.exe" -ArgumentList $WtArgs
 }
 else {
-    Write-Host "Frontend directory 'fe' not found!" -ForegroundColor Red
+    # Fallback: Separate Windows
+    foreach ($svc in $Services) {
+        Write-Host "Starting $($svc.Title)..." -ForegroundColor Green
+        Start-Process -FilePath "powershell" -ArgumentList "-NoExit", "-Command", $svc.Cmd -WorkingDirectory $CurrentDir -WindowStyle Normal
+    }
 }
 
-Write-Host "All services launched. Check the separate windows for logs." -ForegroundColor Cyan
+Write-Host "All services launched." -ForegroundColor Cyan
 
-# 5. Open Browser (Wait a few seconds for apps to warm up)
+# 4. Open Browser
 Write-Host ""
 Write-Host "Waiting for services to initialize..." -ForegroundColor Gray
 Start-Sleep -Seconds 5
 Write-Host "Opening Frontend at http://localhost:8080..." -ForegroundColor Cyan
 Start-Process "http://localhost:8080"
+Write-Host "Opening Backoffice at http://localhost:12346..." -ForegroundColor Cyan
+Start-Process "http://localhost:12346"

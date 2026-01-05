@@ -4,8 +4,27 @@ using RoleAdmin;
 namespace Prodplace.Admin;
 
 [ApiController]
+[Route("backoffice")]
 public class RolesController : ControllerBase
 {
+    [HttpGet("/roles")]
+    public async Task<ActionResult<IEnumerable<RoleInfo>>> GetRoles(
+        [FromServices] RoleAdminService.RoleAdminServiceClient roleAdminServiceClient,
+        CancellationToken ct)
+    {
+        var response = await roleAdminServiceClient.ListRolesAsync(new Empty(), cancellationToken: ct);
+        return Ok(response.Roles);
+    }
+
+    [HttpGet("/roles/users")]
+    public async Task<ActionResult<IEnumerable<UserWithRolesInfo>>> GetUsersWithRoles(
+        [FromServices] RoleAdminService.RoleAdminServiceClient roleAdminServiceClient,
+        CancellationToken ct)
+    {
+        var response = await roleAdminServiceClient.ListUsersWithRolesAsync(new Empty(), cancellationToken: ct);
+        return Ok(response.Users);
+    }
+
     [HttpPost("/roles")]
     public async Task<ActionResult<RoleResponse>> CreateRole([FromBody] CreateRoleRequestDto role,
         [FromServices] RoleAdminService.RoleAdminServiceClient roleAdminServiceClient, CancellationToken ct)

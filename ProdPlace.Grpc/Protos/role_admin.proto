@@ -7,6 +7,8 @@ service RoleAdminService {
   rpc DeleteRole (DeleteRoleRequest) returns (DeleteRoleResponse);
   rpc AssignRole (AssignRoleRequest) returns (AssignRoleResponse);
   rpc UnassignRole (UnassignRoleRequest) returns (UnassignRoleResponse);
+  rpc ListRoles (Empty) returns (ListRolesResponse);
+  rpc ListUsersWithRoles (Empty) returns (ListUsersWithRolesResponse);
 }
 
 message CreateRoleRequest {
@@ -42,4 +44,27 @@ message UnassignRoleRequest {
 
 message UnassignRoleResponse {
   bool success = 1;
+}
+
+message Empty {}
+
+message RoleInfo {
+  string name = 1;
+  string description = 2;
+}
+
+message ListRolesResponse {
+  repeated RoleInfo roles = 1;
+}
+
+message UserWithRolesInfo {
+  string user_id = 1;
+  string email = 2;
+  string first_name = 3;
+  string last_name = 4;
+  repeated string roles = 5;
+}
+
+message ListUsersWithRolesResponse {
+  repeated UserWithRolesInfo users = 1;
 }

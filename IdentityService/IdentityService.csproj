@@ -7,22 +7,24 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Grpc.AspNetCore" Version="2.71.0" />
-        <PackageReference Include="Keycloak.AuthServices.Authentication" Version="2.6.1" />
-        <PackageReference Include="Keycloak.AuthServices.Authorization" Version="2.6.1" />
-        <PackageReference Include="Keycloak.Net.Core" Version="1.0.34" />
-        <PackageReference Include="MassTransit.RabbitMQ" Version="8.4.1" />
-        <PackageReference Include="MediatR" Version="12.5.0" />
-        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.5" />
-        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.5" />
-        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.5" />
+        <PackageReference Include="Aspire.Microsoft.EntityFrameworkCore.SqlServer" Version="13.1.0" />
+        <PackageReference Include="Aspire.RabbitMQ.Client" Version="13.1.0" />
+        <PackageReference Include="Grpc.AspNetCore" Version="2.76.0" />
+        <PackageReference Include="Keycloak.AuthServices.Authentication" Version="2.7.0" />
+        <PackageReference Include="Keycloak.AuthServices.Authorization" Version="2.7.0" />
+        <PackageReference Include="Keycloak.Net.Core" Version="1.0.38" />
+        <PackageReference Include="MassTransit.RabbitMQ" Version="8.5.7" />
+        <PackageReference Include="MediatR" Version="14.0.0" />
+        <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="9.0.11" />
+        <PackageReference Include="Microsoft.AspNetCore.OpenApi" Version="9.0.11" />
+        <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="9.0.11" />
         <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="9.0.5">
             <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
             <PrivateAssets>all</PrivateAssets>
         </PackageReference>
-        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="9.0.5" />
-        <PackageReference Include="RabbitMQ.Client" Version="7.1.2" />
-        <PackageReference Include="Swashbuckle.AspNetCore" Version="8.1.2" />
+        <PackageReference Include="Microsoft.Extensions.DependencyInjection" Version="10.0.1" />
+        <PackageReference Include="RabbitMQ.Client" Version="7.2.0" />
+        <PackageReference Include="Swashbuckle.AspNetCore" Version="10.1.0" />
     </ItemGroup>
 
     <ItemGroup>
@@ -36,6 +38,7 @@
       <ProjectReference Include="..\AuthTools\AuthTools.csproj" />
       <ProjectReference Include="..\CommonModels\CommonModels.csproj" />
       <ProjectReference Include="..\MessagingTools\MessagingTools.csproj" />
+      <ProjectReference Include="..\ProdPlace.ServiceDefaults\ProdPlace.ServiceDefaults.csproj" />
     </ItemGroup>
 
     <ItemGroup>

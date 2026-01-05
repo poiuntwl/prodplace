@@ -8,9 +8,9 @@
     </PropertyGroup>
 
     <ItemGroup>
-        <PackageReference Include="Keycloak.AuthServices.Authentication" Version="2.6.1" />
-        <PackageReference Include="Keycloak.AuthServices.Authorization" Version="2.6.1" />
-        <PackageReference Include="Keycloak.Net.Core" Version="1.0.34" />
+        <PackageReference Include="Keycloak.AuthServices.Authentication" Version="2.7.0" />
+        <PackageReference Include="Keycloak.AuthServices.Authorization" Version="2.7.0" />
+        <PackageReference Include="Keycloak.Net.Core" Version="1.0.38" />
         <PackageReference Include="Yarp.ReverseProxy" Version="2.3.0" />
     </ItemGroup>
 
@@ -22,6 +22,7 @@
 
     <ItemGroup>
       <ProjectReference Include="..\AuthTools\AuthTools.csproj" />
+      <ProjectReference Include="..\ProdPlace.ServiceDefaults\ProdPlace.ServiceDefaults.csproj" />
     </ItemGroup>
 
 </Project>

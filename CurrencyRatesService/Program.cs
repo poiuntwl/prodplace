@@ -11,6 +11,8 @@ using Polly.Extensions.Http;
 
 var builder = WebApplication.CreateBuilder(args);
 
+builder.AddServiceDefaults();
+
 // Add services to the container.
 var s = builder.Services;
 s.AddControllersWithViews();
@@ -50,6 +52,8 @@ s.AddHangfireServer(x =>
 });
 
 var app = builder.Build();
+
+app.MapDefaultEndpoints();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
